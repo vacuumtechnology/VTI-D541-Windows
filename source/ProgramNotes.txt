@@ -1,0 +1,21 @@
+CaptureWritePCLVis3D
+ - takes picture with best settings and displays it and saves it to build/release
+
+ RSDCorrespondence
+ - detects pliers model in scene
+ - set model/scene ss to leaf size from VoxelDownsample program (5-10)
+ - .\RSDCorrespondence.exe .\croppedPliersModel.pcd .\pliersScene.pcd --algorithm GC --model_ss 4.0 --scene_ss 6.0 --rf_rad 7.5 --descr_rad 10 --cg_size 5
+ - TODO
+     - fix 9 model detections
+         - maybe related to translation()
+             - check duplicate translation+rotation
+     - test rotations
+     - test harder objects to detect
+     - try using pcd stitching to make model'
+
+ PCDCrop: Crops pcd file based on xyz values from stdin
+  - Eventually need a program to crop visually
+
+On linux PC
+ - use newPCL to install pcl
+ - transfer vizualization dll
