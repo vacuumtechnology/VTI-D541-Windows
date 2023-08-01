@@ -17,5 +17,5 @@ CaptureWritePCLVis3D
   - Eventually need a program to crop visually
 
 On linux PC
- - use newPCL to install pcl
+ - use newPCL bookmark to install pcl
  - transfer vizualization dll

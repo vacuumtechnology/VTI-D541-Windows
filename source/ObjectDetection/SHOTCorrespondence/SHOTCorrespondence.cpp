@@ -12,6 +12,8 @@
 #include <pcl/kdtree/impl/kdtree_flann.hpp>
 #include <pcl/common/transforms.h>
 #include <pcl/console/parse.h>
+#include <pcl/filters/filter.h>
+#include <map>
 
 typedef pcl::PointXYZRGBA PointType;
 typedef pcl::Normal NormalType;
@@ -212,7 +214,7 @@ main(int argc, char* argv[])
     //  Compute Normals
     //
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
-    norm_est.setKSearch(10);
+    norm_est.setKSearch(15);
     norm_est.setInputCloud(model);
     norm_est.compute(*model_normals);
 
@@ -234,12 +236,12 @@ main(int argc, char* argv[])
     uniform_sampling.filter(*scene_keypoints);
     std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
 
-
     //
     //  Compute Descriptor for keypoints
     //
     pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
     descr_est.setRadiusSearch(descr_rad_);
+    //descr_est.setKSearch(20);
 
     descr_est.setInputCloud(model_keypoints);
     descr_est.setInputNormals(model_normals);
@@ -336,12 +338,17 @@ main(int argc, char* argv[])
         gc_clusterer.recognize(rototranslations, clustered_corrs);
     }
 
+
+
     //
     //  Output results
     //
     std::cout << "Model instances found: " << rototranslations.size() << std::endl;
     for (std::size_t i = 0; i < rototranslations.size(); ++i)
     {
+        if (clustered_corrs[i].size() < 25) {
+            continue;
+        }
         std::cout << "\n    Instance " << i + 1 << ":" << std::endl;
         std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[i].size() << std::endl;
 
@@ -389,6 +396,9 @@ main(int argc, char* argv[])
 
     for (std::size_t i = 0; i < rototranslations.size(); ++i)
     {
+        if (clustered_corrs[i].size() < 25) {
+            continue;
+        }
         pcl::PointCloud<PointType>::Ptr rotated_model(new pcl::PointCloud<PointType>());
         pcl::transformPointCloud(*model, *rotated_model, rototranslations[i]);
 

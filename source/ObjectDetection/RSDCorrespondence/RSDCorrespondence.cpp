@@ -235,6 +235,7 @@ main(int argc, char* argv[])
     uniform_sampling.filter(*scene_keypoints);
     std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
 
+    std::cout << "here" << endl;
 
     //
     //  Compute Descriptor for keypoints
@@ -252,6 +253,9 @@ main(int argc, char* argv[])
     descr_est.setSearchSurface(scene);
     descr_est.compute(*scene_descriptors);
 
+    std::cout << "here" << endl;
+
+
     //
     //  Find Model-Scene Correspondences with KdTree
     //
@@ -259,6 +263,9 @@ main(int argc, char* argv[])
 
     pcl::KdTreeFLANN<DescriptorType> match_search;
     match_search.setInputCloud(model_descriptors);
+
+    std::cout << "here" << endl;
+
 
     //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.
     for (std::size_t i = 0; i < scene_descriptors->size(); ++i)

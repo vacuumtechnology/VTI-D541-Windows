@@ -9,6 +9,7 @@ set(PROGRAMS
     Utilities/ViewPCD
     Utilities/VoxelDownsample
     Utilities/CapturePCDZivid
+    Utilities/VisualCrop
     ObjectDetection/RSDCorrespondence
     ObjectDetection/SHOTCorrespondence
     )

@@ -1,6 +1,6 @@
 /*
 Crops point cloud using coordinates from stdin
-Usage: cat dim.txt | ./Capture.exe input.pcd output.pcd
+Usage: cat dim.txt | ./PCDCrop.exe input.pcd output.pcd
 */
 
 
