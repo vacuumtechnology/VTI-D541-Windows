@@ -34,6 +34,7 @@ float rf_rad_(0.015f);
 float descr_rad_(0.02f);
 float cg_size_(0.01f);
 float cg_thresh_(5.0f);
+int maxObjects = 5;
 
 void
 showHelp(char* filename)
@@ -123,6 +124,7 @@ parseCommandLine(int argc, char* argv[])
     pcl::console::parse_argument(argc, argv, "--descr_rad", descr_rad_);
     pcl::console::parse_argument(argc, argv, "--cg_size", cg_size_);
     pcl::console::parse_argument(argc, argv, "--cg_thresh", cg_thresh_);
+    pcl::console::parse_argument(argc, argv, "--max_obj", maxObjects);
 }
 
 double
@@ -338,23 +340,26 @@ main(int argc, char* argv[])
         gc_clusterer.recognize(rototranslations, clustered_corrs);
     }
 
-
+    // 
+    // Sort matches by # of correspondences
+    //
+    std::map<size_t, int>::reverse_iterator it;
+    std::map<size_t, int> bestMatches;
+    for (std::size_t i = 0; i < rototranslations.size(); ++i) {
+        bestMatches.insert(std::make_pair(clustered_corrs[i].size(), i));
+    }
 
     //
     //  Output results
     //
-    std::cout << "Model instances found: " << rototranslations.size() << std::endl;
-    for (std::size_t i = 0; i < rototranslations.size(); ++i)
-    {
-        if (clustered_corrs[i].size() < 25) {
-            continue;
-        }
-        std::cout << "\n    Instance " << i + 1 << ":" << std::endl;
-        std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[i].size() << std::endl;
+    int c = 0;
+    for (it = bestMatches.rbegin(); it != bestMatches.rend(); it++) {
+        std::cout << "\n    Instance " << c << ":" << std::endl;
+        std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[it->second].size() << std::endl;
 
         // Print the rotation matrix and translation vector
-        Eigen::Matrix3f rotation = rototranslations[i].block<3, 3>(0, 0);
-        Eigen::Vector3f translation = rototranslations[i].block<3, 1>(0, 3);
+        Eigen::Matrix3f rotation = rototranslations[it->second].block<3, 3>(0, 0);
+        Eigen::Vector3f translation = rototranslations[it->second].block<3, 1>(0, 3);
 
         printf("\n");
         printf("            | %6.3f %6.3f %6.3f | \n", rotation(0, 0), rotation(0, 1), rotation(0, 2));
@@ -362,6 +367,8 @@ main(int argc, char* argv[])
         printf("            | %6.3f %6.3f %6.3f | \n", rotation(2, 0), rotation(2, 1), rotation(2, 2));
         printf("\n");
         printf("        t = < %0.3f, %0.3f, %0.3f >\n", translation(0), translation(1), translation(2));
+        c++;
+        if (c >= maxObjects) break;
     }
 
     //
@@ -394,33 +401,32 @@ main(int argc, char* argv[])
         viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "off_scene_model_keypoints");
     }
 
-    for (std::size_t i = 0; i < rototranslations.size(); ++i)
-    {
-        if (clustered_corrs[i].size() < 25) {
-            continue;
-        }
+    c = 0;
+    for (it = bestMatches.rbegin(); it != bestMatches.rend(); it++) {
         pcl::PointCloud<PointType>::Ptr rotated_model(new pcl::PointCloud<PointType>());
-        pcl::transformPointCloud(*model, *rotated_model, rototranslations[i]);
+        pcl::transformPointCloud(*model, *rotated_model, rototranslations[it->second]);
 
         std::stringstream ss_cloud;
-        ss_cloud << "instance" << i;
+        ss_cloud << "instance" << c;
 
         pcl::visualization::PointCloudColorHandlerCustom<PointType> rotated_model_color_handler(rotated_model, 255, 0, 0);
         viewer.addPointCloud(rotated_model, rotated_model_color_handler, ss_cloud.str());
 
         if (show_correspondences_)
         {
-            for (std::size_t j = 0; j < clustered_corrs[i].size(); ++j)
+            for (std::size_t j = 0; j < clustered_corrs[it->second].size(); ++j)
             {
                 std::stringstream ss_line;
-                ss_line << "correspondence_line" << i << "_" << j;
-                PointType& model_point = off_scene_model_keypoints->at(clustered_corrs[i][j].index_query);
-                PointType& scene_point = scene_keypoints->at(clustered_corrs[i][j].index_match);
+                ss_line << "correspondence_line" << it->second << "_" << j;
+                PointType& model_point = off_scene_model_keypoints->at(clustered_corrs[it->second][j].index_query);
+                PointType& scene_point = scene_keypoints->at(clustered_corrs[it->second][j].index_match);
 
                 //  We are drawing a line for each pair of clustered correspondences found between the model and the scene
                 viewer.addLine<PointType, PointType>(model_point, scene_point, 0, 255, 0, ss_line.str());
             }
         }
+        c++;
+        if (c >= maxObjects) break;
     }
 
     while (!viewer.wasStopped())
