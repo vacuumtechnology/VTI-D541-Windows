@@ -22,11 +22,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9937F874-BE52-37CC-8CD9-A74E71709BAA}</ProjectGuid>
+    <ProjectGuid>{56CCAB1B-86B8-3928-BCBA-3A982157D16F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
     <Platform>x64</Platform>
-    <ProjectName>OutlierRemove</ProjectName>
+    <ProjectName>LeakLocationFinder</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -60,26 +60,26 @@
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\ewilson\source\repos\PointCloudProcessing\build\Debug\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">OutlierRemove.dir\Debug\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">OutlierRemove</TargetName>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">LeakLocationFinder.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">LeakLocationFinder</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\ewilson\source\repos\PointCloudProcessing\build\Release\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">OutlierRemove.dir\Release\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">OutlierRemove</TargetName>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">LeakLocationFinder.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">LeakLocationFinder</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\ewilson\source\repos\PointCloudProcessing\build\MinSizeRel\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">OutlierRemove.dir\MinSizeRel\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">OutlierRemove</TargetName>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">LeakLocationFinder.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">LeakLocationFinder</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\ewilson\source\repos\PointCloudProcessing\build\RelWithDebInfo\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">OutlierRemove.dir\RelWithDebInfo\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">OutlierRemove</TargetName>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">LeakLocationFinder.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">LeakLocationFinder</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</GenerateManifest>
@@ -120,8 +120,8 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/ewilson/source/repos/PointCloudProcessing/build/Debug/OutlierRemove.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/ewilson/source/repos/PointCloudProcessing/build/Debug/OutlierRemove.pdb</ProgramDataBaseFile>
+      <ImportLibrary>C:/Users/ewilson/source/repos/PointCloudProcessing/build/Debug/LeakLocationFinder.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/ewilson/source/repos/PointCloudProcessing/build/Debug/LeakLocationFinder.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -164,8 +164,8 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/ewilson/source/repos/PointCloudProcessing/build/Release/OutlierRemove.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/ewilson/source/repos/PointCloudProcessing/build/Release/OutlierRemove.pdb</ProgramDataBaseFile>
+      <ImportLibrary>C:/Users/ewilson/source/repos/PointCloudProcessing/build/Release/LeakLocationFinder.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/ewilson/source/repos/PointCloudProcessing/build/Release/LeakLocationFinder.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -208,8 +208,8 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/ewilson/source/repos/PointCloudProcessing/build/MinSizeRel/OutlierRemove.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/ewilson/source/repos/PointCloudProcessing/build/MinSizeRel/OutlierRemove.pdb</ProgramDataBaseFile>
+      <ImportLibrary>C:/Users/ewilson/source/repos/PointCloudProcessing/build/MinSizeRel/LeakLocationFinder.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/ewilson/source/repos/PointCloudProcessing/build/MinSizeRel/LeakLocationFinder.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -251,8 +251,8 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/Users/ewilson/source/repos/PointCloudProcessing/build/RelWithDebInfo/OutlierRemove.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/Users/ewilson/source/repos/PointCloudProcessing/build/RelWithDebInfo/OutlierRemove.pdb</ProgramDataBaseFile>
+      <ImportLibrary>C:/Users/ewilson/source/repos/PointCloudProcessing/build/RelWithDebInfo/LeakLocationFinder.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/ewilson/source/repos/PointCloudProcessing/build/RelWithDebInfo/LeakLocationFinder.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -317,7 +317,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Users\ewilson\source\repos\PointCloudProcessing\source\Utilities\OutlierRemove\OutlierRemove.cpp" />
+    <ClCompile Include="C:\Users\ewilson\source\repos\PointCloudProcessing\source\ObjectDetection\LeakLocationFinder\LeakLocationFinder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\ewilson\source\repos\PointCloudProcessing\build\ZERO_CHECK.vcxproj">

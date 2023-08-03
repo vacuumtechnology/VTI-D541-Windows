@@ -163,9 +163,9 @@ computeCloudResolution(const pcl::PointCloud<PointType>::ConstPtr& cloud)
 }
 
 // Avoids duplicate detections by erasing detections that are too close
-void fixDuplicates(std::map<size_t, int> matches, std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations) {
-    std::map<size_t, int>::reverse_iterator it;
-    std::map<size_t, int>::reverse_iterator it2;
+void fixDuplicates(std::multimap<size_t, int> matches, std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations) {
+    std::multimap<size_t, int>::reverse_iterator it;
+    std::multimap<size_t, int>::reverse_iterator it2;
     int i = 0;
     int j = 0;
     float xdiff, ydiff, zdiff, dist;
@@ -362,7 +362,7 @@ main(int argc, char* argv[])
         pcl::PointCloud<RFType>::Ptr scene_rf(new pcl::PointCloud<RFType>());
 
         pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
-        rf_est.setFindHoles(true);
+        rf_est.setFindHoles(false);
         rf_est.setRadiusSearch(rf_rad_);
 
         rf_est.setInputCloud(model_keypoints);
@@ -408,8 +408,8 @@ main(int argc, char* argv[])
     // 
     // Sort matches by # of correspondences
     //
-    std::map<size_t, int>::reverse_iterator it;
-    std::map<size_t, int> bestMatches;
+    std::multimap<size_t, int>::reverse_iterator it;
+    std::multimap<size_t, int> bestMatches;
     for (std::size_t i = 0; i < rototranslations.size(); ++i) {
         bestMatches.insert(std::make_pair(clustered_corrs[i].size(), i));
     }

@@ -13,6 +13,7 @@ set(PROGRAMS
     Utilities/OutlierRemove
     ObjectDetection/RSDCorrespondence
     ObjectDetection/SHOTCorrespondence
+    ObjectDetection/LeakLocationFinder
     )
 
 find_package(
