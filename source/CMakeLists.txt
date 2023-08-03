@@ -10,6 +10,7 @@ set(PROGRAMS
     Utilities/VoxelDownsample
     Utilities/CapturePCDZivid
     Utilities/VisualCrop
+    Utilities/OutlierRemove
     ObjectDetection/RSDCorrespondence
     ObjectDetection/SHOTCorrespondence
     )

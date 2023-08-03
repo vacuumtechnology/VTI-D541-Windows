@@ -177,6 +177,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{A26BC8FB-2730-32F8-8B2D-D343318F62D8}</Project>
       <Name>CapturePCDZivid</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\ewilson\source\repos\PointCloudProcessing\build\OutlierRemove.vcxproj">
+      <Project>{9937F874-BE52-37CC-8CD9-A74E71709BAA}</Project>
+      <Name>OutlierRemove</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\ewilson\source\repos\PointCloudProcessing\build\PCDCrop.vcxproj">
       <Project>{6D859E73-2FD2-3B65-B10A-AFD8EF7EBBA5}</Project>
       <Name>PCDCrop</Name>

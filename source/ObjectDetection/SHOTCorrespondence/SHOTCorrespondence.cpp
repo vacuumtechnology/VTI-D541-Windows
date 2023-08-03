@@ -12,8 +12,10 @@
 #include <pcl/kdtree/impl/kdtree_flann.hpp>
 #include <pcl/common/transforms.h>
 #include <pcl/console/parse.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/filter.h>
 #include <map>
+#include <cmath>
 
 typedef pcl::PointXYZRGBA PointType;
 typedef pcl::Normal NormalType;
@@ -35,6 +37,7 @@ float descr_rad_(0.02f);
 float cg_size_(0.01f);
 float cg_thresh_(5.0f);
 int maxObjects = 5;
+int minDistance = 5;
 
 void
 showHelp(char* filename)
@@ -159,6 +162,64 @@ computeCloudResolution(const pcl::PointCloud<PointType>::ConstPtr& cloud)
     return res;
 }
 
+// Avoids duplicate detections by erasing detections that are too close
+void fixDuplicates(std::map<size_t, int> matches, std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations) {
+    std::map<size_t, int>::reverse_iterator it;
+    std::map<size_t, int>::reverse_iterator it2;
+    int i = 0;
+    int j = 0;
+    float xdiff, ydiff, zdiff, dist;
+    Eigen::Vector3f translation, translation2;
+
+
+    for (it = matches.rbegin(); it != matches.rend(); it++) {
+        translation = rototranslations[it->second].block<3, 1>(0, 3);
+        for (it2 = it; it2 != matches.rend(); it2++) {
+            /*if (i == j) {
+                j++;
+                continue;
+            }*/
+            if (j >= maxObjects) break;
+            translation2 = rototranslations[it2->second].block<3, 1>(0, 3);
+
+            // Calculate distance between two translations
+            xdiff = translation2.x() - translation.x();
+            ydiff = translation2.y() - translation.y();
+            zdiff = translation2.z() - translation.z();
+
+
+            std::cout << "xdiff " << xdiff;
+            std::cout << ", ydiff " << ydiff;
+            std::cout << ", zdiff " << zdiff;
+
+            dist = sqrt(pow(xdiff, 2) + pow(ydiff, 2) + pow(zdiff, 2));
+            std::cout << ", Instances " << i << " " << j << ". Distance: " << dist << endl;
+            /*if (dist < minDistance) {
+                fixDuplicates(matches, rototranslations);
+            }*/
+            j++;
+        }
+        i++;
+        j = i;
+        if (i >= maxObjects) break;
+    }
+}
+
+// Removes outlying points which increases matching accuracy and speed
+void RemoveOutliers(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud) {
+    std::cerr << "Cloud before filtering: " << std::endl;
+    std::cerr << *cloud << std::endl;
+
+    pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
+    sor.setInputCloud(cloud);
+    sor.setMeanK(50);
+    sor.setStddevMulThresh(1.0);
+    sor.filter(*cloud);
+
+    std::cerr << "Cloud after filtering: " << std::endl;
+    std::cerr << *cloud << std::endl;
+}
+
 int
 main(int argc, char* argv[])
 {
@@ -213,20 +274,24 @@ main(int argc, char* argv[])
     }
 
     //
+    //  Remove Outliers
+    //
+    RemoveOutliers(model);
+    RemoveOutliers(scene);
+
+    //
     //  Compute Normals
     //
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
     norm_est.setKSearch(15);
     norm_est.setInputCloud(model);
     norm_est.compute(*model_normals);
-
     norm_est.setInputCloud(scene);
     norm_est.compute(*scene_normals);
 
     //
     //  Downsample Clouds to Extract keypoints
     //
-
     pcl::UniformSampling<PointType> uniform_sampling;
     uniform_sampling.setInputCloud(model);
     uniform_sampling.setRadiusSearch(model_ss_);
@@ -243,7 +308,6 @@ main(int argc, char* argv[])
     //
     pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
     descr_est.setRadiusSearch(descr_rad_);
-    //descr_est.setKSearch(20);
 
     descr_est.setInputCloud(model_keypoints);
     descr_est.setInputNormals(model_normals);
@@ -349,6 +413,9 @@ main(int argc, char* argv[])
         bestMatches.insert(std::make_pair(clustered_corrs[i].size(), i));
     }
 
+    fixDuplicates(bestMatches, rototranslations);
+
+
     //
     //  Output results
     //
@@ -411,7 +478,7 @@ main(int argc, char* argv[])
 
         pcl::visualization::PointCloudColorHandlerCustom<PointType> rotated_model_color_handler(rotated_model, 255, 0, 0);
         viewer.addPointCloud(rotated_model, rotated_model_color_handler, ss_cloud.str());
-
+        
         if (show_correspondences_)
         {
             for (std::size_t j = 0; j < clustered_corrs[it->second].size(); ++j)
