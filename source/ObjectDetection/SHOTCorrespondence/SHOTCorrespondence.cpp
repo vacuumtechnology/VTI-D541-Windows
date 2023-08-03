@@ -192,7 +192,8 @@ void fixDuplicates(std::map<size_t, int> matches, std::vector<Eigen::Matrix4f, E
             std::cout << ", ydiff " << ydiff;
             std::cout << ", zdiff " << zdiff;
 
-            dist = sqrt(pow(xdiff, 2) + pow(ydiff, 2) + pow(zdiff, 2));
+            //dist = sqrt(pow(xdiff, 2) + pow(ydiff, 2) + pow(zdiff, 2));
+            dist = sqrt(pow(xdiff, 2) + pow(ydiff, 2));
             std::cout << ", Instances " << i << " " << j << ". Distance: " << dist << endl;
             /*if (dist < minDistance) {
                 fixDuplicates(matches, rototranslations);
@@ -207,17 +208,17 @@ void fixDuplicates(std::map<size_t, int> matches, std::vector<Eigen::Matrix4f, E
 
 // Removes outlying points which increases matching accuracy and speed
 void RemoveOutliers(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud) {
-    std::cerr << "Cloud before filtering: " << std::endl;
-    std::cerr << *cloud << std::endl;
+    //std::cerr << "Cloud before filtering: " << std::endl;
+    //std::cerr << *cloud << std::endl;
 
     pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
     sor.setInputCloud(cloud);
     sor.setMeanK(50);
-    sor.setStddevMulThresh(1.0);
+    sor.setStddevMulThresh(.85);
     sor.filter(*cloud);
 
-    std::cerr << "Cloud after filtering: " << std::endl;
-    std::cerr << *cloud << std::endl;
+    //std::cerr << "Cloud after filtering: " << std::endl;
+    //std::cerr << *cloud << std::endl;
 }
 
 int
