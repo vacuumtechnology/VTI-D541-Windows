@@ -34,10 +34,16 @@ class ObjectDetector {
         void RemoveOutliers(bool processScene, bool processModel);
         void Detect(float model_ss, float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad);
 
-        void ComputeNormals();
-        void Downsample(float model_ss, float scene_ss);
-        void ComputeDescriptors(float descr_rad);
-        void FindCorrespondences(float cg_size, float cg_thresh, float rf_rad);
+        void ComputeNormals(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals);
+        void Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints, float model_ss, float scene_ss);
+        void ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
+                                pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
+                                pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors,
+                                float descr_rad);
+        void FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals, 
+                                 pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
+                                 pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors,
+                                 float cg_size, float cg_thresh, float rf_rad);
 
         void DetermineBestMatches(int max_objects);
         void PrintInstances();
@@ -45,12 +51,6 @@ class ObjectDetector {
     private:
         pcl::PointCloud<PointType>::Ptr scene;
         pcl::PointCloud<PointType>::Ptr model;
-        pcl::PointCloud<NormalType> model_normals; // MAY NEED TO BE PTR
-        pcl::PointCloud<NormalType> scene_normals;
-        pcl::PointCloud<PointType> model_keypoints;
-        pcl::PointCloud<PointType> scene_keypoints;
-        pcl::PointCloud<DescriptorType> model_descriptors;
-        pcl::PointCloud<DescriptorType> scene_descriptors;
         std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
         std::vector<pcl::Correspondences> clustered_corrs;
         std::multimap<size_t, int> bestMatches;
@@ -123,34 +123,49 @@ void ObjectDetector::RemoveOutliers(bool processScene, bool processModel) {
     }
 }
 
-void ObjectDetector::ComputeNormals() {
+void ObjectDetector::Detect(float model_ss, float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad) {
+    pcl::PointCloud<NormalType>::Ptr model_normals(new pcl::PointCloud<NormalType>());
+    pcl::PointCloud<NormalType>::Ptr scene_normals(new pcl::PointCloud<NormalType>());
+    pcl::PointCloud<PointType>::Ptr model_keypoints(new pcl::PointCloud<PointType>());
+    pcl::PointCloud<PointType>::Ptr scene_keypoints(new pcl::PointCloud<PointType>());
+    pcl::PointCloud<DescriptorType>::Ptr model_descriptors(new pcl::PointCloud<DescriptorType>());
+    pcl::PointCloud<DescriptorType>::Ptr scene_descriptors(new pcl::PointCloud<DescriptorType>());
+
+    this->ComputeNormals(model_normals, scene_normals);
+    this->Downsample(model_keypoints, scene_keypoints, model_ss, scene_ss);
+    this->ComputeDescriptors(model_normals, scene_normals, model_keypoints, scene_keypoints, model_descriptors, scene_descriptors, descr_rad);
+    this->FindCorrespondences(model_normals, scene_normals, model_keypoints, scene_keypoints, model_descriptors, scene_descriptors, cg_size, cg_thresh, rf_rad);
+
+}
+
+void ObjectDetector::ComputeNormals(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals) {
     std::cout << "ComputeNormals" << endl;
 
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
     norm_est.setKSearch(15);
     norm_est.setInputCloud(model);
-    norm_est.compute(model_normals);
+    norm_est.compute(*model_normals);
     norm_est.setInputCloud(scene);
-    norm_est.compute(scene_normals);
+    norm_est.compute(*scene_normals);
 
 }
 
 //
 //  Downsample Clouds to Extract keypoints
 //
-void ObjectDetector::Downsample(float model_ss, float scene_ss) {
+void ObjectDetector::Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints, float model_ss, float scene_ss) {
     std::cout << "Downsample" << endl;
 
     pcl::UniformSampling<PointType> uniform_sampling;
     uniform_sampling.setInputCloud(model);
     uniform_sampling.setRadiusSearch(model_ss);
-    uniform_sampling.filter(model_keypoints);
-    std::cout << "Model total points: " << model->size() << "; Selected Keypoints: " << model_keypoints.size() << std::endl;
+    uniform_sampling.filter(*model_keypoints);
+    std::cout << "Model total points: " << model->size() << "; Selected Keypoints: " << model_keypoints->size() << std::endl;
 
     uniform_sampling.setInputCloud(scene);
     uniform_sampling.setRadiusSearch(scene_ss);
-    uniform_sampling.filter(scene_keypoints);
-    std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints.size() << std::endl;
+    uniform_sampling.filter(*scene_keypoints);
+    std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
 
 }
 
@@ -158,24 +173,31 @@ void ObjectDetector::Downsample(float model_ss, float scene_ss) {
 //
 //  Compute Descriptor for keypoints
 //
-void ObjectDetector::ComputeDescriptors(float descr_rad) {
+void ObjectDetector::ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
+                                        pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
+                                        pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors,
+                                        float descr_rad) {
     std::cout << "ComputeDescriptors" << endl;
 
     pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
     descr_est.setRadiusSearch(descr_rad);
 
-    descr_est.setInputCloud(model_keypoints.makeShared());
-    descr_est.setInputNormals(model_normals.makeShared());
+    descr_est.setInputCloud(model_keypoints);
+    descr_est.setInputNormals(model_normals);
     descr_est.setSearchSurface(model);
-    descr_est.compute(model_descriptors);
+    descr_est.compute(*model_descriptors);
 
-    descr_est.setInputCloud(scene_keypoints.makeShared());
-    descr_est.setInputNormals(scene_normals.makeShared());
+    descr_est.setInputCloud(scene_keypoints);
+    descr_est.setInputNormals(scene_normals);
     descr_est.setSearchSurface(scene);
-    descr_est.compute(scene_descriptors);
+    descr_est.compute(*scene_descriptors);
 }
 
-void ObjectDetector::FindCorrespondences(float cg_size, float cg_thresh, float rf_rad) {
+void ObjectDetector::FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
+                                         pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
+                                         pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors,
+                                         float cg_size, float cg_thresh, float rf_rad) {
+
     std::cout << "FindCorrespondences" << endl;
 
     //
@@ -184,18 +206,18 @@ void ObjectDetector::FindCorrespondences(float cg_size, float cg_thresh, float r
     pcl::CorrespondencesPtr model_scene_corrs(new pcl::Correspondences());
 
     pcl::KdTreeFLANN<DescriptorType> match_search;
-    match_search.setInputCloud(model_descriptors.makeShared());
+    match_search.setInputCloud(model_descriptors);
 
     //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.
-    for (std::size_t i = 0; i < scene_descriptors.makeShared()->size(); ++i)
+    for (std::size_t i = 0; i < scene_descriptors->size(); ++i)
     {
         std::vector<int> neigh_indices(1);
         std::vector<float> neigh_sqr_dists(1);
-        if (!std::isfinite(scene_descriptors.makeShared()->at(i).descriptor[0])) //skipping NaNs
+        if (!std::isfinite(scene_descriptors->at(i).descriptor[0])) //skipping NaNs
         {
             continue;
         }
-        int found_neighs = match_search.nearestKSearch(scene_descriptors.makeShared()->at(i), 1, neigh_indices, neigh_sqr_dists);
+        int found_neighs = match_search.nearestKSearch(scene_descriptors->at(i), 1, neigh_indices, neigh_sqr_dists);
         if (found_neighs == 1 && neigh_sqr_dists[0] < 0.25f) //  add match only if the squared descriptor distance is less than 0.25 (SHOT descriptor distances are between 0 and 1 by design)
         {
             pcl::Correspondence corr(neigh_indices[0], static_cast<int> (i), neigh_sqr_dists[0]);
@@ -214,13 +236,13 @@ void ObjectDetector::FindCorrespondences(float cg_size, float cg_thresh, float r
     rf_est.setFindHoles(false);
     rf_est.setRadiusSearch(rf_rad);
 
-    rf_est.setInputCloud(model_keypoints.makeShared());
-    rf_est.setInputNormals(model_normals.makeShared());
+    rf_est.setInputCloud(model_keypoints);
+    rf_est.setInputNormals(model_normals);
     rf_est.setSearchSurface(model);
     rf_est.compute(*model_rf);
 
-    rf_est.setInputCloud(scene_keypoints.makeShared());
-    rf_est.setInputNormals(scene_normals.makeShared());
+    rf_est.setInputCloud(scene_keypoints);
+    rf_est.setInputNormals(scene_normals);
     rf_est.setSearchSurface(scene);
     rf_est.compute(*scene_rf);
 
@@ -231,9 +253,9 @@ void ObjectDetector::FindCorrespondences(float cg_size, float cg_thresh, float r
     clusterer.setUseInterpolation(true);
     clusterer.setUseDistanceWeight(false);
 
-    clusterer.setInputCloud(model_keypoints.makeShared());
+    clusterer.setInputCloud(model_keypoints);
     clusterer.setInputRf(model_rf);
-    clusterer.setSceneCloud(scene_keypoints.makeShared());
+    clusterer.setSceneCloud(scene_keypoints);
     clusterer.setSceneRf(scene_rf);
     clusterer.setModelSceneCorrespondences(model_scene_corrs);
 
@@ -426,15 +448,13 @@ int main(int argc, char **argv) {
 
     obj->RemoveOutliers(true, true);
 
-    obj->ComputeNormals();
-    obj->Downsample(model_ss, scene_ss);
-    obj->ComputeDescriptors(descr_rad);
-    obj->FindCorrespondences(cg_size, cg_thresh, rf_rad);
+    obj->Detect(model_ss, scene_ss, descr_rad, cg_size, cg_thresh, rf_rad);
+
     obj->DetermineBestMatches(max_objects);
    
     obj->PrintInstances();
     obj->VisualizeResults();
 
-    free(obj);
+    delete(obj);
     return 0;
 }
