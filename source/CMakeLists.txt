@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-project(PointCloudProcessing)
+project(PointCloudProcessing LANGUAGES CXX CUDA)
 
 set(ZIVID_VERSION 2.9.0)
 
@@ -15,6 +15,10 @@ set(PROGRAMS
     ObjectDetection/SHOTCorrespondence
     ObjectDetection/LeakLocationFinder
     )
+
+set(CUDA_DEPENDING
+    )
+
 
 find_package(
     Zivid ${ZIVID_VERSION}
@@ -42,6 +46,8 @@ else()
 endif()
 file(TO_CMAKE_PATH "${ZIVID_PROGRAM_DATA_DIR}" ZIVID_PROGRAM_DATA_DIR)
 
+
+
 set(PROGRAM_NAMES_LIST_FILE "${CMAKE_BINARY_DIR}/PROGRAMNames.txt")
 file(REMOVE ${PROGRAM_NAMES_LIST_FILE})
 foreach(PROGRAM ${PROGRAMS})
@@ -49,7 +55,13 @@ foreach(PROGRAM ${PROGRAMS})
 
     file(APPEND "${PROGRAM_NAMES_LIST_FILE}" ${PROGRAM}\n)
 
-    add_executable(${PROGRAM_NAME} ${PROGRAM}/${PROGRAM_NAME}.cpp)
+    if(${PROGRAM_NAME} IN_LIST CUDA_DEPENDING)
+        add_executable(${PROGRAM_NAME} ${PROGRAM}/${PROGRAM_NAME}.cu)
+        set_target_properties(${PROGRAM_NAME} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+        target_compile_features(${PROGRAM_NAME} PUBLIC cxx_std_11)
+    else()
+        add_executable(${PROGRAM_NAME} ${PROGRAM}/${PROGRAM_NAME}.cpp)
+    endif()
 
     target_link_libraries(${PROGRAM_NAME} Zivid::Core)
 

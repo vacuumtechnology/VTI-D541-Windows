@@ -1,8 +1,3 @@
-/*
-    Detects Instances of a model pointcloud in a scene pointcloud, takes parameters from a config file
-    Eli Wilson - VTI
-*/
-
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
 #include <pcl/correspondence.h>
@@ -19,7 +14,6 @@
 #include <pcl/console/parse.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/filter.h>
-#include <pcl/common/centroid.h>
 #include <map>
 #include <cmath>
 
@@ -29,44 +23,44 @@ typedef pcl::ReferenceFrame RFType;
 typedef pcl::SHOT352 DescriptorType;
 
 class ObjectDetector {
-	public:
-		ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, pcl::PointCloud<PointType>::Ptr modelCloud, std::string configFile);
-        float CalculateResolution();
-        void RemoveOutliers(bool processScene, bool processModel);
-        void LoadParams(float model_ss, float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad);
-        void Detect();
+public:
+    ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, pcl::PointCloud<PointType>::Ptr modelCloud, std::string configFile);
+    float CalculateResolution();
+    void RemoveOutliers(bool processScene, bool processModel);
+    void LoadParams(float model_ss, float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad);
+    void Detect();
 
-        void ComputeNormals(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals);
-        void Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints);
-        void ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
-                                pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
-                                pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors);
-        void FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals, 
-                                 pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
-                                 pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors);
+    void ComputeNormals(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals);
+    void Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints);
+    void ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
+        pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
+        pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors);
+    void FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
+        pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
+        pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors);
 
-        void DetermineBestMatches(int max_objects);
-        void PrintInstances();
-        void VisualizeResults();
+    void DetermineBestMatches(int max_objects);
+    void PrintInstances();
+    void VisualizeResults();
 
-    private:
-        pcl::PointCloud<PointType>::Ptr scene;
-        pcl::PointCloud<PointType>::Ptr model;
-        std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
-        std::vector<pcl::Correspondences> clustered_corrs;
-        std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>> bestMatches;
-        std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>>::reverse_iterator it;
-        std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>>::reverse_iterator it2;
+private:
+    pcl::PointCloud<PointType>::Ptr scene;
+    pcl::PointCloud<PointType>::Ptr model;
+    std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
+    std::vector<pcl::Correspondences> clustered_corrs;
+    std::multimap<size_t, int> bestMatches;
+    std::multimap<size_t, int>::reverse_iterator it;
+    std::multimap<size_t, int>::reverse_iterator it2;
 
-        float model_ss;
-        float scene_ss;
-        float descr_rad;
-        float cg_size;
-        float cg_thresh; 
-        float rf_rad;
-        int max_objects;
-		float min_distance;
-        std::string config;
+    float model_ss;
+    float scene_ss;
+    float descr_rad;
+    float cg_size;
+    float cg_thresh;
+    float rf_rad;
+    int max_objects;
+    int min_distance;
+    std::string config;
 };
 
 //
@@ -76,7 +70,6 @@ ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, pcl::
     this->scene = sceneCloud;
     this->model = modelCloud;
     this->config = configFile;
-    this->min_distance = 5;
 }
 
 //
@@ -214,8 +207,8 @@ void ObjectDetector::Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints,
 //  Compute Descriptor for keypoints
 //
 void ObjectDetector::ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
-                                        pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
-                                        pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors) {
+    pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
+    pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors) {
     std::cout << "ComputeDescriptors" << endl;
 
     pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
@@ -233,8 +226,8 @@ void ObjectDetector::ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_n
 }
 
 void ObjectDetector::FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
-                                         pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
-                                         pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors) {
+    pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
+    pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors) {
 
     std::cout << "FindCorrespondences" << endl;
 
@@ -255,10 +248,9 @@ void ObjectDetector::FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_
         {
             continue;
         }
+        cout << "";
         int found_neighs = match_search.nearestKSearch(scene_descriptors->at(i), 1, neigh_indices, neigh_sqr_dists);
-
-        //  add match only if the squared descriptor distance is less than 0.25 (SHOT descriptor distances are between 0 and 1 by design)
-        if (found_neighs == 1 && neigh_sqr_dists[0] < 0.25f) 
+        if (found_neighs == 1 && neigh_sqr_dists[0] < 0.25f) //  add match only if the squared descriptor distance is less than 0.25 (SHOT descriptor distances are between 0 and 1 by design)
         {
             pcl::Correspondence corr(neigh_indices[0], static_cast<int> (i), neigh_sqr_dists[0]);
             model_scene_corrs->push_back(corr);
@@ -303,53 +295,40 @@ void ObjectDetector::FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_
 
     std::cout << "Correspondences Found" << endl;
 
-    // Sort matches by # of correspondences,
-    // Create transformed model cloud, store as ( # of correspondences, (index, rotated_model) )
-    for (std::size_t i = 0; i < rototranslations.size(); ++i) {
-        pcl::PointCloud<PointType>::Ptr rotated_model(new pcl::PointCloud<PointType>());
-        pcl::transformPointCloud(*model, *rotated_model, rototranslations[i]);
-        bestMatches.insert(std::make_pair(clustered_corrs[i].size(), std::make_pair(i, rotated_model)));
-    }
-
 }
 
 void ObjectDetector::DetermineBestMatches(int max_objects) {
-    std::cout << "DetermineBestMatches" << endl;
+
+    // Sort matches by # of correspondences
+    for (std::size_t i = 0; i < rototranslations.size(); ++i) {
+        bestMatches.insert(std::make_pair(clustered_corrs[i].size(), i));
+    }
 
     int i = 0;
     int j = 0;
-    float dist;
-    Eigen::Vector4d diff;
-
+    float xdiff, ydiff, zdiff, dist;
+    Eigen::Vector3f translation, translation2;
 
     // Detects duplicate detections
     for (it = bestMatches.rbegin(); it != bestMatches.rend(); it++) {
-
-        Eigen::Vector4d centroid1;
-        pcl::compute3DCentroid(*it->second.second, centroid1);
-
-        std::cout << "Instance " << i << ": " << centroid1.x() << ",  " << centroid1.y() << ",  " << centroid1.z() << endl;
-
+        translation = rototranslations[it->second].block<3, 1>(0, 3);
         for (it2 = it; it2 != bestMatches.rend(); it2++) {
             if (j >= max_objects) break;
-
-            Eigen::Vector4d centroid2;
-            pcl::compute3DCentroid(*it2->second.second, centroid2);
+            translation2 = rototranslations[it2->second].block<3, 1>(0, 3);
 
             // Calculate distance between two translations
-            diff = centroid2 - centroid1;
+            xdiff = translation2.x() - translation.x();
+            ydiff = translation2.y() - translation.y();
+            zdiff = translation2.z() - translation.z();
 
-            dist = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2) + pow(diff.z(), 2));
-            std::cout << "Instances " << i << " " << j << ". Distance: " << dist << endl;
 
-            if (dist < min_distance && i != j) {
-                std::cout << "duplicate detected" << endl;
-                // Erase duplicate instance and call recursively
-                it2 = decltype(it2)(bestMatches.erase(std::next(it2).base()));
-                DetermineBestMatches(max_objects);
-                return;
-            }
+            /*std::cout << "xdiff " << xdiff;
+            std::cout << ", ydiff " << ydiff;
+            std::cout << ", zdiff " << zdiff;*/
 
+            //dist = sqrt(pow(xdiff, 2) + pow(ydiff, 2) + pow(zdiff, 2));
+            dist = sqrt(pow(xdiff, 2) + pow(ydiff, 2));
+            //std::cout << ", Instances " << i << " " << j << ". Distance: " << dist << endl;
             j++;
         }
         i++;
@@ -363,15 +342,15 @@ void ObjectDetector::DetermineBestMatches(int max_objects) {
 //  Output results
 //
 void ObjectDetector::PrintInstances() {
-    
+
     int c = 0;
     for (it = bestMatches.rbegin(); it != bestMatches.rend(); it++) {
         std::cout << "\n    Instance " << c << ":" << std::endl;
-        std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[it->second.first].size() << std::endl;
+        std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[it->second].size() << std::endl;
 
         // Print the rotation matrix and translation vector
-        Eigen::Matrix3f rotation = rototranslations[it->second.first].block<3, 3>(0, 0);
-        Eigen::Vector3f translation = rototranslations[it->second.first].block<3, 1>(0, 3);
+        Eigen::Matrix3f rotation = rototranslations[it->second].block<3, 3>(0, 0);
+        Eigen::Vector3f translation = rototranslations[it->second].block<3, 1>(0, 3);
 
         printf("\n");
         printf("            | %6.3f %6.3f %6.3f | \n", rotation(0, 0), rotation(0, 1), rotation(0, 2));
@@ -388,7 +367,7 @@ void ObjectDetector::PrintInstances() {
 //  Visualization
 //
 void ObjectDetector::VisualizeResults() {
-    
+
     pcl::visualization::PCLVisualizer viewer("Correspondence Grouping");
     viewer.addPointCloud(scene, "scene_cloud");
 
@@ -397,12 +376,14 @@ void ObjectDetector::VisualizeResults() {
 
     int c = 0;
     for (it = bestMatches.rbegin(); it != bestMatches.rend(); it++) {
+        pcl::PointCloud<PointType>::Ptr rotated_model(new pcl::PointCloud<PointType>());
+        pcl::transformPointCloud(*model, *rotated_model, rototranslations[it->second]);
 
         std::stringstream ss_cloud;
         ss_cloud << "instance" << c;
 
-        pcl::visualization::PointCloudColorHandlerCustom<PointType> rotated_model_color_handler(it->second.second, 255, 0, 0);
-        viewer.addPointCloud(it->second.second, rotated_model_color_handler, ss_cloud.str());
+        pcl::visualization::PointCloudColorHandlerCustom<PointType> rotated_model_color_handler(rotated_model, 255, 0, 0);
+        viewer.addPointCloud(rotated_model, rotated_model_color_handler, ss_cloud.str());
 
         c++;
         if (c >= max_objects) break;
@@ -415,7 +396,7 @@ void ObjectDetector::VisualizeResults() {
 }
 
 
-void                        
+void
 showHelp(char* filename)
 {
     std::cout << endl;
@@ -430,7 +411,7 @@ showHelp(char* filename)
     std::cout << "     cg_thresh = val        Clustering threshold" << std::endl << std::endl;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     pcl::PointCloud<PointType>::Ptr model(new pcl::PointCloud<PointType>());
     pcl::PointCloud<PointType>::Ptr scene(new pcl::PointCloud<PointType>());
     float model_ss;
@@ -445,7 +426,7 @@ int main(int argc, char **argv) {
     std::string sceneFile = argv[2];
     std::string configFile = argv[3];
 
-   //  Load clouds
+    //  Load clouds
     if (pcl::io::loadPCDFile(modelFile, *model) < 0) {
         std::cout << "Error loading model cloud." << std::endl;
         showHelp(argv[0]);
@@ -485,7 +466,7 @@ int main(int argc, char **argv) {
         std::cerr << "Couldn't open config file for reading.\n";
     }
 
-    ObjectDetector *obj = new ObjectDetector(scene, model, configFile);
+    ObjectDetector* obj = new ObjectDetector(scene, model, configFile);
 
     obj->RemoveOutliers(true, true);
 
@@ -493,7 +474,7 @@ int main(int argc, char **argv) {
     obj->Detect();
 
     obj->DetermineBestMatches(max_objects);
-   
+
     obj->PrintInstances();
     obj->VisualizeResults();
 
