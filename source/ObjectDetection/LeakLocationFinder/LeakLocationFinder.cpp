@@ -1,6 +1,6 @@
 /*
-
-
+    Detects Instances of a model pointcloud in a scene pointcloud, takes parameters from a config file
+    Eli Wilson - VTI
 */
 
 #include <pcl/io/pcd_io.h>
@@ -32,22 +32,22 @@ class ObjectDetector {
 		ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, pcl::PointCloud<PointType>::Ptr modelCloud, std::string configFile);
         float CalculateResolution();
         void RemoveOutliers(bool processScene, bool processModel);
-        void Detect(float model_ss, float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad);
+        void LoadParams(float model_ss, float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad);
+        void Detect();
 
         void ComputeNormals(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals);
-        void Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints, float model_ss, float scene_ss);
+        void Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints);
         void ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
                                 pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
-                                pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors,
-                                float descr_rad);
+                                pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors);
         void FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals, 
                                  pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
-                                 pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors,
-                                 float cg_size, float cg_thresh, float rf_rad);
+                                 pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors);
 
         void DetermineBestMatches(int max_objects);
         void PrintInstances();
         void VisualizeResults();
+
     private:
         pcl::PointCloud<PointType>::Ptr scene;
         pcl::PointCloud<PointType>::Ptr model;
@@ -57,20 +57,29 @@ class ObjectDetector {
         std::multimap<size_t, int>::reverse_iterator it;
         std::multimap<size_t, int>::reverse_iterator it2;
 
+        float model_ss;
+        float scene_ss;
+        float descr_rad;
+        float cg_size;
+        float cg_thresh; 
+        float rf_rad;
         int max_objects;
 		int min_distance;
         std::string config;
-
-
 };
 
+//
+// Constructor
+//
 ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, pcl::PointCloud<PointType>::Ptr modelCloud, std::string configFile) {
     this->scene = sceneCloud;
     this->model = modelCloud;
     this->config = configFile;
-    CalculateResolution();
 }
 
+//
+// Calculates resolution of model which is later used to adjust parameters
+//
 float ObjectDetector::CalculateResolution() {
     float resolution = 0.0;
     int n_points = 0;
@@ -104,6 +113,9 @@ float ObjectDetector::CalculateResolution() {
     return resolution;
 }
 
+//
+// Removes Statistical Outliers to improve accuracy and decrease number of points to be processed
+//
 void ObjectDetector::RemoveOutliers(bool processScene, bool processModel) {
     pcl::StatisticalOutlierRemoval<pcl::PointXYZRGBA> sor;
     std::cout << "RemoveOutliers" << endl;
@@ -123,7 +135,30 @@ void ObjectDetector::RemoveOutliers(bool processScene, bool processModel) {
     }
 }
 
-void ObjectDetector::Detect(float model_ss, float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad) {
+//
+// Calculates resolution of model which is later used to adjust parameters
+//
+void ObjectDetector::LoadParams(float model_ss, float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad) {
+    float resolution = CalculateResolution();
+    this->model_ss = model_ss * resolution;
+    this->scene_ss = scene_ss * resolution;
+    this->descr_rad = descr_rad * resolution;
+    this->cg_size = cg_size * resolution;
+    this->cg_thresh = cg_thresh;
+    this->rf_rad = rf_rad * resolution;
+
+    std::cout << "Model resolution:       " << resolution << std::endl;
+    std::cout << "Model sampling size:    " << this->model_ss << std::endl;
+    std::cout << "Scene sampling size:    " << this->scene_ss << std::endl;
+    std::cout << "LRF support radius:     " << this->rf_rad << std::endl;
+    std::cout << "SHOT descriptor radius: " << this->descr_rad << std::endl;
+    std::cout << "Clustering bin size:    " << this->cg_size << std::endl << std::endl;
+}
+
+//
+// Calls all member functions necessary for detection
+//
+void ObjectDetector::Detect() {
     pcl::PointCloud<NormalType>::Ptr model_normals(new pcl::PointCloud<NormalType>());
     pcl::PointCloud<NormalType>::Ptr scene_normals(new pcl::PointCloud<NormalType>());
     pcl::PointCloud<PointType>::Ptr model_keypoints(new pcl::PointCloud<PointType>());
@@ -132,12 +167,15 @@ void ObjectDetector::Detect(float model_ss, float scene_ss, float descr_rad, flo
     pcl::PointCloud<DescriptorType>::Ptr scene_descriptors(new pcl::PointCloud<DescriptorType>());
 
     this->ComputeNormals(model_normals, scene_normals);
-    this->Downsample(model_keypoints, scene_keypoints, model_ss, scene_ss);
-    this->ComputeDescriptors(model_normals, scene_normals, model_keypoints, scene_keypoints, model_descriptors, scene_descriptors, descr_rad);
-    this->FindCorrespondences(model_normals, scene_normals, model_keypoints, scene_keypoints, model_descriptors, scene_descriptors, cg_size, cg_thresh, rf_rad);
+    this->Downsample(model_keypoints, scene_keypoints);
+    this->ComputeDescriptors(model_normals, scene_normals, model_keypoints, scene_keypoints, model_descriptors, scene_descriptors);
+    this->FindCorrespondences(model_normals, scene_normals, model_keypoints, scene_keypoints, model_descriptors, scene_descriptors);
 
 }
 
+//
+// Computes normal vectors of all points in model and scene
+//
 void ObjectDetector::ComputeNormals(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals) {
     std::cout << "ComputeNormals" << endl;
 
@@ -153,7 +191,7 @@ void ObjectDetector::ComputeNormals(pcl::PointCloud<NormalType>::Ptr model_norma
 //
 //  Downsample Clouds to Extract keypoints
 //
-void ObjectDetector::Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints, float model_ss, float scene_ss) {
+void ObjectDetector::Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints) {
     std::cout << "Downsample" << endl;
 
     pcl::UniformSampling<PointType> uniform_sampling;
@@ -175,8 +213,7 @@ void ObjectDetector::Downsample(pcl::PointCloud<PointType>::Ptr model_keypoints,
 //
 void ObjectDetector::ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
                                         pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
-                                        pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors,
-                                        float descr_rad) {
+                                        pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors) {
     std::cout << "ComputeDescriptors" << endl;
 
     pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
@@ -195,8 +232,7 @@ void ObjectDetector::ComputeDescriptors(pcl::PointCloud<NormalType>::Ptr model_n
 
 void ObjectDetector::FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_normals, pcl::PointCloud<NormalType>::Ptr scene_normals,
                                          pcl::PointCloud<PointType>::Ptr model_keypoints, pcl::PointCloud<PointType>::Ptr scene_keypoints,
-                                         pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors,
-                                         float cg_size, float cg_thresh, float rf_rad) {
+                                         pcl::PointCloud<DescriptorType>::Ptr model_descriptors, pcl::PointCloud<DescriptorType>::Ptr scene_descriptors) {
 
     std::cout << "FindCorrespondences" << endl;
 
@@ -208,9 +244,10 @@ void ObjectDetector::FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_
     pcl::KdTreeFLANN<DescriptorType> match_search;
     match_search.setInputCloud(model_descriptors);
 
-    //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it to the correspondences vector.
+    //  For each scene descriptor, find nearest neighbor into the model descriptor cloud and add it to the correspondences vector.
     for (std::size_t i = 0; i < scene_descriptors->size(); ++i)
     {
+        std::cout << scene_descriptors->size() << endl;
         std::vector<int> neigh_indices(1);
         std::vector<float> neigh_sqr_dists(1);
         if (!std::isfinite(scene_descriptors->at(i).descriptor[0])) //skipping NaNs
@@ -266,9 +303,8 @@ void ObjectDetector::FindCorrespondences(pcl::PointCloud<NormalType>::Ptr model_
 }
 
 void ObjectDetector::DetermineBestMatches(int max_objects) {
-    // 
+
     // Sort matches by # of correspondences
-    //
     for (std::size_t i = 0; i < rototranslations.size(); ++i) {
         bestMatches.insert(std::make_pair(clustered_corrs[i].size(), i));
     }
@@ -291,13 +327,13 @@ void ObjectDetector::DetermineBestMatches(int max_objects) {
             zdiff = translation2.z() - translation.z();
 
 
-            std::cout << "xdiff " << xdiff;
+            /*std::cout << "xdiff " << xdiff;
             std::cout << ", ydiff " << ydiff;
-            std::cout << ", zdiff " << zdiff;
+            std::cout << ", zdiff " << zdiff;*/
 
             //dist = sqrt(pow(xdiff, 2) + pow(ydiff, 2) + pow(zdiff, 2));
             dist = sqrt(pow(xdiff, 2) + pow(ydiff, 2));
-            std::cout << ", Instances " << i << " " << j << ". Distance: " << dist << endl;
+            //std::cout << ", Instances " << i << " " << j << ". Distance: " << dist << endl;
             j++;
         }
         i++;
@@ -436,19 +472,11 @@ int main(int argc, char **argv) {
     }
 
     ObjectDetector *obj = new ObjectDetector(scene, model, configFile);
-    float modelResolution = obj->CalculateResolution();
-
-    if (modelResolution != 0.0f) {
-        model_ss *= modelResolution;
-        scene_ss *= modelResolution;
-        rf_rad *= modelResolution;
-        descr_rad *= modelResolution;
-        cg_size *= modelResolution;
-    }
 
     obj->RemoveOutliers(true, true);
 
-    obj->Detect(model_ss, scene_ss, descr_rad, cg_size, cg_thresh, rf_rad);
+    obj->LoadParams(model_ss, scene_ss, descr_rad, cg_size, cg_thresh, rf_rad);
+    obj->Detect();
 
     obj->DetermineBestMatches(max_objects);
    
