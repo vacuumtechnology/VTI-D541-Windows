@@ -198,6 +198,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{6A348731-0E21-3CF7-B421-DE9A68D077A8}</Project>
       <Name>SHOTCorrespondence</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\ewilson\source\repos\PointCloudProcessing\build\SrikarFeatureDetection.vcxproj">
+      <Project>{805EDFBC-C213-331D-8EC2-DC3CD593C665}</Project>
+      <Name>SrikarFeatureDetection</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\ewilson\source\repos\PointCloudProcessing\build\ViewPCD.vcxproj">
       <Project>{8A1CB7F5-765A-3274-885E-D44D8C3DCA52}</Project>
       <Name>ViewPCD</Name>

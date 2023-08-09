@@ -14,6 +14,7 @@ set(PROGRAMS
     ObjectDetection/RSDCorrespondence
     ObjectDetection/SHOTCorrespondence
     ObjectDetection/LeakLocationFinder
+    ObjectDetection/SrikarFeatureDetection
     )
 
 set(CUDA_DEPENDING

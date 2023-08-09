@@ -20,6 +20,7 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/filter.h>
 #include <pcl/common/centroid.h>
+#include <pcl/registration/correspondence_rejection_sample_consensus.h>
 #include <map>
 #include <cmath>
 
@@ -343,7 +344,7 @@ void ObjectDetector::DetermineBestMatches(int max_objects) {
             std::cout << "Instances " << i << " " << j << ". Distance: " << dist << endl;
 
             if (dist < min_distance && i != j) {
-                std::cout << "duplicate detected" << endl;
+                std::cout << "\nDuplicate Detected\n" << endl;
                 // Erase duplicate instance and call recursively
                 it2 = decltype(it2)(bestMatches.erase(std::next(it2).base()));
                 DetermineBestMatches(max_objects);
@@ -388,8 +389,8 @@ void ObjectDetector::PrintInstances() {
 //  Visualization
 //
 void ObjectDetector::VisualizeResults() {
-    
     pcl::visualization::PCLVisualizer viewer("Correspondence Grouping");
+    viewer.setBackgroundColor(100, 114, 156);
     viewer.addPointCloud(scene, "scene_cloud");
 
     pcl::PointCloud<PointType>::Ptr off_scene_model(new pcl::PointCloud<PointType>());
@@ -440,6 +441,7 @@ int main(int argc, char **argv) {
     float cg_size;
     float cg_thresh;
     int max_objects;
+    bool view_result = true;
 
     std::string modelFile = argv[1];
     std::string sceneFile = argv[2];
@@ -478,6 +480,7 @@ int main(int argc, char **argv) {
             else if (name == "cg_size") cg_size = atof(value.c_str());
             else if (name == "cg_thresh") cg_thresh = atof(value.c_str());
             else if (name == "max_objects") max_objects = atoi(value.c_str());
+            else if (name == "view_result") view_result = (value == "true");
 
         }
 
@@ -495,7 +498,9 @@ int main(int argc, char **argv) {
     obj->DetermineBestMatches(max_objects);
    
     obj->PrintInstances();
-    obj->VisualizeResults();
+
+    if(view_result)
+        obj->VisualizeResults();
 
     delete(obj);
     return 0;

@@ -7,3 +7,4 @@ Utilities/OutlierRemove
 ObjectDetection/RSDCorrespondence
 ObjectDetection/SHOTCorrespondence
 ObjectDetection/LeakLocationFinder
+ObjectDetection/SrikarFeatureDetection

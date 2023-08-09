@@ -7,5 +7,6 @@ C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/OutlierRemov
 C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/RSDCorrespondence.dir
 C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/SHOTCorrespondence.dir
 C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/LeakLocationFinder.dir
+C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/SrikarFeatureDetection.dir
 C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/ALL_BUILD.dir
 C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/ZERO_CHECK.dir

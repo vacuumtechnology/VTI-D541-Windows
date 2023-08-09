@@ -1450,3 +1450,573 @@ events:
       
       
 ...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineSystem.cmake:211 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The system is: Windows - 10.0.22621 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      MSBuild version 17.6.3+07e294721 for .NET Framework
+      Build started 8/8/2023 8:18:53 AM.
+      
+      Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdCXX.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate".
+      Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCXX\\CompilerIdCXX.vcxproj" (default targets).
+      
+      Build succeeded.
+          0 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:01.33
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/3.27.0-rc4/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerId.cmake:53 (__determine_compiler_id_test)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCUDACompiler.cmake:307 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CUDA compiler identification source file "CMakeCUDACompilerId.cu" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags: --keep;--keep-dir;tmp -v
+      
+      The output was:
+      0
+      MSBuild version 17.6.3+07e294721 for .NET Framework
+      Build started 8/8/2023 8:18:55 AM.
+      
+      Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.vcxproj" on node 1 (default targets).
+      PrepareForBuild:
+        Creating directory "Debug\\".
+        Creating directory "Debug\\CompilerIdCUDA.tlog\\".
+      InitializeBuildStatus:
+        Creating "Debug\\CompilerIdCUDA.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+      AddCudaCompileDeps:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /D__CUDACC_VER_MAJOR__=12 /D__CUDACC_VER_MINOR__=2 /D_MBCS /I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include" /I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin" /I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include" /I. /FIcuda_runtime.h /c C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CMakeCUDACompilerId.cu 
+      Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.vcxproj" (1) is building "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.vcxproj" (1:2) on node 1 (CudaBuildCore target(s)).
+      CudaBuildCore:
+        Compiling CUDA source file CMakeCUDACompilerId.cu...
+        Creating directory "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\x64\\Debug".
+        cmd.exe /C "C:\\Users\\ewilson\\AppData\\Local\\Temp\\tmp1bf92e7224cf478bac1e95eb13f74bbb.cmd"
+        "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin\\nvcc.exe" -gencode=arch=compute_52,code=\\"sm_52,compute_52\\" --use-local-env -ccbin "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64" -x cu   -I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include" -I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include"  -G   --keep-dir x64\\Debug  -maxrregcount=0   --machine 64 --compile -cudart static -v -g  -D_MBCS -Xcompiler "/EHsc /W0 /nologo /Od /FS /Zi /RTC1 /MDd " -Xcompiler "/FdDebug\\vc143.pdb" -o C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\x64\\Debug\\CMakeCUDACompilerId.cu.obj "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CMakeCUDACompilerId.cu"
+        
+        C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA>"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin\\nvcc.exe" -gencode=arch=compute_52,code=\\"sm_52,compute_52\\" --use-local-env -ccbin "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64" -x cu   -I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include" -I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include"  -G   --keep-dir x64\\Debug  -maxrregcount=0   --machine 64 --compile -cudart static -v -g  -D_MBCS -Xcompiler "/EHsc /W0 /nologo /Od /FS /Zi /RTC1 /MDd " -Xcompiler "/FdDebug\\vc143.pdb" -o C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\x64\\Debug\\CMakeCUDACompilerId.cu.obj "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CMakeCUDACompilerId.cu" 
+        #$ _NVVM_BRANCH_=nvvm
+        #$ _SPACE_= 
+        #$ _CUDART_=cudart
+        #$ _HERE_=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin
+        #$ _THERE_=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin
+        #$ _TARGET_SIZE_=
+        #$ _TARGET_DIR_=
+        #$ _TARGET_SIZE_=64
+        #$ _WIN_PLATFORM_=x64
+        #$ TOP=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/..
+        #$ NVVMIR_LIBRARY_DIR=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../nvvm/libdevice
+        #$ PATH=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../nvvm/bin;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../lib;C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22000.0\\x64;;C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools\\x64;C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.22000.0\\x86;;C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v10.0A\\bin\\NETFX 4.8 Tools;C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\Common7\\tools;C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\Common7\\ide;C:\\Program Files (x86)\\HTML Help Workshop;;C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\MSBuild\\Current\\Bin\\amd64;C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\;C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\;C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\MSBuild\\Current\\Bin;C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\;;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\libnvvp;C:\\Program Files\\TOSHIBA TELI\\TeliCamSDK\\TeliCamApi\\bin\\x64;C:\\Program Files\\TOSHIBA TELI\\TeliCamSDK\\GenICam_V3\\bin\\Win64_x64;C:\\Program Files (x86)\\VMware\\VMware Workstation\\bin\\;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\Microsoft SQL Server\\150\\Tools\\Binn\\;C:\\Program Files\\Microsoft SQL Server\\Client SDK\\ODBC\\170\\Tools\\Binn\\;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Program Files\\Zivid\\bin;C:\\Program Files\\CMake\\bin;C:\\Program Files\\PCL 1.9.1\\bin;C:\\Program Files\\NVIDIA Corporation\\Nsight Compute 2023.2.0\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files\\dotnet\\;C:\\Program Files\\Git\\cmd;C:\\Users\\ewilson\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Program Files\\Zivid\\bin;C:\\msys64\\mingw64\\bin;C:\\Program Files (x86)\\GnuWin32\\bin;C:\\Users\\ewilson\\Downloads\\opencv\\build\\x64\\vc15\\bin;C:\\Users\\ewilson\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin;C:\\Users\\ewilson\\.dotnet\\tools;C:\\Users\\ewilson\\vcpkg;C:\\Users\\ewilson\\AppData\\Local\\Programs\\Python\\Python310;C:\\Program Files\\OpenNI2;C:\\Program Files\\OpenNI2\\Tools;C:\\Program Files\\PCL 1.9.1\\bin;C:\\Program Files\\PCL 1.9.1\\3rdParty;C:\\Program Files\\PCL 1.11.1\\3rdParty\\VTK\\bin;;
+        #$ INCLUDES="-IC:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../include"  
+        #$ LIBRARIES=  "/LIBPATH:C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../lib/x64"
+        #$ CUDAFE_FLAGS=--sdk_dir "C:\\Program Files (x86)\\Windows Kits\\10"
+        #$ PTXAS_FLAGS=
+        CMakeCUDACompilerId.cu
+        #$ resource file C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-8.res: [-D__CUDA_ARCH_LIST__=520 -nologo -E -TP -EHsc -D__CUDACC__ -D__NVCC__ -D__CUDACC_DEBUG__  /EHsc /W0 /nologo /Od /FS /Zi /RTC1 /MDd /FdDebug\\vc143.pdb -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/include" -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/include" "-IC:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../include"    -D "_MBCS" -D__CUDACC_VER_MAJOR__=12 -D__CUDACC_VER_MINOR__=2 -D__CUDACC_VER_BUILD__=91 -D__CUDA_API_VER_MAJOR__=12 -D__CUDA_API_VER_MINOR__=2 -D__NVCC_DIAG_PRAGMA_SUPPORT__=1 -FI "cuda_runtime.h" -Zi "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CMakeCUDACompilerId.cu" ]
+        #$ cl.exe @"C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-8.res" > "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-6_CMakeCUDACompilerId.cpp4.ii" 
+        CMakeCUDACompilerId.cu
+        #$ erase C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-8.res
+        #$ cudafe++ --microsoft_version=1936 --msvc_target_version=1936 --compiler_bindir "C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.36.32532/bin/HostX64/x64/../../../../../../.." --display_error_number --orig_src_file_name "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/3.27.0-rc4/CompilerIdCUDA/CMakeCUDACompilerId.cu" --orig_src_path_name "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CMakeCUDACompilerId.cu" --allow_managed --debug_mode --sdk_dir "C:\\Program Files (x86)\\Windows Kits\\10" --m64 --parse_templates --gen_c_file_name "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-7_CMakeCUDACompilerId.cudafe1.cpp" --stub_file_name "tmpxft_00004650_00000000-7_CMakeCUDACompilerId.cudafe1.stub.c" --gen_module_id_file --module_id_file_name "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-5_CMakeCUDACompilerId.module_id" "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-6_CMakeCUDACompilerId.cpp4.ii" 
+        #$ resource file C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-10.res: [-D__CUDA_ARCH__=520 -D__CUDA_ARCH_LIST__=520 -nologo -E -TP  -DCUDA_DOUBLE_MATH_FUNCTIONS -EHsc -D__CUDACC__ -D__NVCC__ -D__CUDACC_DEBUG__  /EHsc /W0 /nologo /Od /FS /Zi /RTC1 /MDd /FdDebug\\vc143.pdb -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/include" -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/include" "-IC:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../include"    -D "_MBCS" -D__CUDACC_VER_MAJOR__=12 -D__CUDACC_VER_MINOR__=2 -D__CUDACC_VER_BUILD__=91 -D__CUDA_API_VER_MAJOR__=12 -D__CUDA_API_VER_MINOR__=2 -D__NVCC_DIAG_PRAGMA_SUPPORT__=1 -FI "cuda_runtime.h" -Zi "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CMakeCUDACompilerId.cu" ]
+        #$ cl.exe @"C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-10.res" > "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-9_CMakeCUDACompilerId.cpp1.ii" 
+        CMakeCUDACompilerId.cu
+        #$ erase C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-10.res
+        #$ cicc --microsoft_version=1936 --msvc_target_version=1936 --compiler_bindir "C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.36.32532/bin/HostX64/x64/../../../../../../.." --display_error_number --orig_src_file_name "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/3.27.0-rc4/CompilerIdCUDA/CMakeCUDACompilerId.cu" --orig_src_path_name "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CMakeCUDACompilerId.cu" --allow_managed --debug_mode --sdk_dir "C:\\Program Files (x86)\\Windows Kits\\10"  -arch compute_52 -m64 --no-version-ident -ftz=0 -prec_div=1 -prec_sqrt=1 -fmad=1 --include_file_name "tmpxft_00004650_00000000-4_CMakeCUDACompilerId.fatbin.c" -g -O0 -tused --module_id_file_name "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-5_CMakeCUDACompilerId.module_id" --gen_c_file_name "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-7_CMakeCUDACompilerId.cudafe1.c" --stub_file_name "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-7_CMakeCUDACompilerId.cudafe1.stub.c" --gen_device_file_name "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-7_CMakeCUDACompilerId.cudafe1.gpu"  "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-9_CMakeCUDACompilerId.cpp1.ii" -o "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-7_CMakeCUDACompilerId.ptx"
+        #$ ptxas -arch=sm_52 -m64 -g --dont-merge-basicblocks --return-at-end "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-7_CMakeCUDACompilerId.ptx"  -o "C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-11_CMakeCUDACompilerId.sm_52.cubin" 
+        #$ fatbinary -64 --ident="C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/3.27.0-rc4/CompilerIdCUDA/CMakeCUDACompilerId.cu" --cmdline="-g --dont-merge-basicblocks --return-at-end " --cicc-cmdline="-ftz=0 -prec_div=1 -prec_sqrt=1 -fmad=1 " -g "--image3=kind=elf,sm=52,file=C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-11_CMakeCUDACompilerId.sm_52.cubin" "--image3=kind=ptx,sm=52,file=C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-7_CMakeCUDACompilerId.ptx" --embedded-fatbin="C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-4_CMakeCUDACompilerId.fatbin.c" 
+        #$ erase C:/Users/ewilson/AppData/Local/Temp/tmpxft_00004650_00000000-4_CMakeCUDACompilerId.fatbin
+        #$ resource file C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-12.res: [-D__CUDA_ARCH__=520 -D__CUDA_ARCH_LIST__=520 -nologo -c -TP  -DCUDA_DOUBLE_MATH_FUNCTIONS -EHsc /EHsc /W0 /nologo /Od /FS /Zi /RTC1 /MDd /FdDebug\\vc143.pdb -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/include" -I"C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v12.2/include" "-IC:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../include"   -Zi "C:\\Users\\ewilson\\AppData\\Local\\Temp\\tmpxft_00004650_00000000-7_CMakeCUDACompilerId.cudafe1.cpp" ]
+        #$ cl.exe @"C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-12.res" -Fo"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/3.27.0-rc4/CompilerIdCUDA/x64/Debug/CMakeCUDACompilerId.cu.obj" 
+        tmpxft_00004650_00000000-7_CMakeCUDACompilerId.cudafe1.cpp
+        #$ erase C:\\Users\\ewilson\\AppData\\Local\\Temp/tmpxft_00004650_00000000-12.res
+      Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.vcxproj" (CudaBuildCore target(s)).
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCUDA.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\lib\\x64" cudart_static.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCUDA.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCUDA.lib" /MACHINE:X64 "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\x64\\Debug\\CMakeCUDACompilerId.cu.obj"
+           Creating library .\\CompilerIdCUDA.lib and object .\\CompilerIdCUDA.exp
+      LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.vcxproj]
+        CompilerIdCUDA.vcxproj -> C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.exe
+      PostBuildEvent:
+        echo CMAKE_CUDA_COMPILER=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin\\nvcc.exe
+        :VCEnd
+        CMAKE_CUDA_COMPILER=C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin\\nvcc.exe
+      FinalizeBuildStatus:
+        Deleting file "Debug\\CompilerIdCUDA.tlog\\unsuccessfulbuild".
+        Touching "Debug\\CompilerIdCUDA.tlog\\CompilerIdCUDA.lastbuildstate".
+      Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.vcxproj" (default targets).
+      
+      Build succeeded.
+      
+      "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.vcxproj" (default target) (1) ->
+      (Link target) -> 
+        LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\3.27.0-rc4\\CompilerIdCUDA\\CompilerIdCUDA.vcxproj]
+      
+          1 Warning(s)
+          0 Error(s)
+      
+      Time Elapsed 00:00:05.14
+      
+      
+      Compilation of the CUDA compiler identification source "CMakeCUDACompilerId.cu" produced "CompilerIdCUDA.exe"
+      
+      Compilation of the CUDA compiler identification source "CMakeCUDACompilerId.cu" produced "CompilerIdCUDA.exp"
+      
+      Compilation of the CUDA compiler identification source "CMakeCUDACompilerId.cu" produced "CompilerIdCUDA.lib"
+      
+      Compilation of the CUDA compiler identification source "CMakeCUDACompilerId.cu" produced "CompilerIdCUDA.vcxproj"
+      
+      The CUDA compiler identification is NVIDIA, found in:
+        C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/3.27.0-rc4/CompilerIdCUDA/CompilerIdCUDA.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCUDACompiler.cmake:579 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed CUDA nvcc include information:
+        found 'INCLUDES=' string: ["-IC:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin/../include"  ]
+      
+      
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-lktg06"
+      binary: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-lktg06"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-lktg06'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_aac89.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.6.3+07e294721 for .NET Framework
+        Build started 8/8/2023 8:19:01 AM.
+        
+        Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lktg06\\cmTC_aac89.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_aac89.dir\\Debug\\".
+          Creating directory "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lktg06\\Debug\\".
+          Creating directory "cmTC_aac89.dir\\Debug\\cmTC_aac89.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_aac89.dir\\Debug\\cmTC_aac89.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_aac89.dir\\Debug\\\\" /Fd"cmTC_aac89.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.36.32537 for x64
+          CMakeCXXCompilerABI.cpp
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_aac89.dir\\Debug\\\\" /Fd"cmTC_aac89.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCXXCompilerABI.cpp"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lktg06\\Debug\\cmTC_aac89.exe" /INCREMENTAL /ILK:"cmTC_aac89.dir\\Debug\\cmTC_aac89.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-lktg06/Debug/cmTC_aac89.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-lktg06/Debug/cmTC_aac89.lib" /MACHINE:X64  /machine:x64 cmTC_aac89.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_aac89.vcxproj -> C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lktg06\\Debug\\cmTC_aac89.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_aac89.dir\\Debug\\cmTC_aac89.tlog\\unsuccessfulbuild".
+          Touching "cmTC_aac89.dir\\Debug\\cmTC_aac89.tlog\\cmTC_aac89.lastbuildstate".
+        Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lktg06\\cmTC_aac89.vcxproj" (default targets).
+        
+        Build succeeded.
+            0 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:01.02
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:57 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCUDACompiler.cmake:19 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CUDA compiler ABI info"
+    directories:
+      source: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw"
+      binary: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw"
+    cmakeVariables:
+      CMAKE_CUDA_FLAGS: "-D_WINDOWS -Xcompiler=\"/W3 /GR /EHsc\""
+      CMAKE_CUDA_RUNTIME_LIBRARY: "Static"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_CUDA_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_caa9a.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.6.3+07e294721 for .NET Framework
+        Build started 8/8/2023 8:19:03 AM.
+        
+        Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_caa9a.dir\\Debug\\".
+          Creating directory "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\Debug\\".
+          Creating directory "cmTC_caa9a.dir\\Debug\\cmTC_caa9a.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_caa9a.dir\\Debug\\cmTC_caa9a.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        AddCudaCompileDeps:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /D__CUDACC_VER_MAJOR__=12 /D__CUDACC_VER_MINOR__=2 /D_WINDOWS /DCMAKE_INTDIR="Debug" /D_MBCS /DCMAKE_INTDIR="Debug" /I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin" /I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include" /I. /FIcuda_runtime.h /c "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCUDACompilerABI.cu" 
+        Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (1) is building "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (1:2) on node 1 (CudaBuildCore target(s)).
+        CudaBuildCore:
+          Compiling CUDA source file ..\\..\\..\\..\\..\\..\\..\\..\\..\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCUDACompilerABI.cu...
+          cmd.exe /C "C:\\Users\\ewilson\\AppData\\Local\\Temp\\tmp610916db29ba4d80805da49912f6c916.cmd"
+          "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin\\nvcc.exe"  --use-local-env -ccbin "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64" -x cu    -I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include"     --keep-dir x64\\Debug  -maxrregcount=0   --machine 64 --compile -cudart static -Xcompiler="/EHsc -Zi -Ob0 -v" -g  -D_WINDOWS -D"CMAKE_INTDIR=\\"Debug\\"" -D_MBCS -D"CMAKE_INTDIR=\\"Debug\\"" -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd /GR" -Xcompiler "/FdcmTC_caa9a.dir\\Debug\\vc143.pdb" -o cmTC_caa9a.dir\\Debug\\CMakeCUDACompilerABI.obj "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCUDACompilerABI.cu"
+          
+          C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw>"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin\\nvcc.exe"  --use-local-env -ccbin "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64" -x cu    -I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include"     --keep-dir x64\\Debug  -maxrregcount=0   --machine 64 --compile -cudart static -Xcompiler="/EHsc -Zi -Ob0 -v" -g  -D_WINDOWS -D"CMAKE_INTDIR=\\"Debug\\"" -D_MBCS -D"CMAKE_INTDIR=\\"Debug\\"" -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd /GR" -Xcompiler "/FdcmTC_caa9a.dir\\Debug\\vc143.pdb" -o cmTC_caa9a.dir\\Debug\\CMakeCUDACompilerABI.obj "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCUDACompilerABI.cu" 
+        cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+          CMakeCUDACompilerABI.cu
+        cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+          CMakeCUDACompilerABI.cu
+          CMakeCUDACompilerABI.cu
+        cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+          tmpxft_00004858_00000000-7_CMakeCUDACompilerABI.cudafe1.cpp
+        Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (CudaBuildCore target(s)).
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\Debug\\cmTC_caa9a.exe" /INCREMENTAL /ILK:"cmTC_caa9a.dir\\Debug\\cmTC_caa9a.ilk" /NOLOGO /LIBPATH:"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\lib\\x64" cudadevrt.lib cudart_static.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw/Debug/cmTC_caa9a.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw/Debug/cmTC_caa9a.lib" /MACHINE:X64  /machine:x64 -v cmTC_caa9a.dir\\Debug\\CMakeCUDACompilerABI.obj
+        LINK : warning LNK4044: unrecognized option '/v'; ignored [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+             Creating library C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw/Debug/cmTC_caa9a.lib and object C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw/Debug/cmTC_caa9a.exp
+        LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+          cmTC_caa9a.vcxproj -> C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\Debug\\cmTC_caa9a.exe
+        FinalizeBuildStatus:
+          Deleting file "cmTC_caa9a.dir\\Debug\\cmTC_caa9a.tlog\\unsuccessfulbuild".
+          Touching "cmTC_caa9a.dir\\Debug\\cmTC_caa9a.tlog\\cmTC_caa9a.lastbuildstate".
+        Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (default targets).
+        
+        Build succeeded.
+        
+        "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (default target) (1) ->
+        "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (CudaBuildCore target) (1:2) ->
+        (CudaBuildCore target) -> 
+          cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+          cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+          cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+        
+        
+        "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : warning LNK4044: unrecognized option '/v'; ignored [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+          LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]
+        
+            5 Warning(s)
+            0 Error(s)
+        
+        Time Elapsed 00:00:03.81
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:127 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCUDACompiler.cmake:19 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed CUDA implicit include dir info: rv=start
+        warn: unable to parse implicit include dirs!
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeDetermineCompilerABI.cmake:152 (message)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CMakeTestCUDACompiler.cmake:19 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed CUDA implicit link information:
+        link line regex: [^( *|.*[/\\])(link\\.exe|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        ignore line: [Change Dir: 'C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw']
+        ignore line: []
+        ignore line: [Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_caa9a.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n]
+        ignore line: [MSBuild version 17.6.3+07e294721 for .NET Framework]
+        ignore line: [Build started 8/8/2023 8:19:03 AM.]
+        ignore line: []
+        ignore line: [Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" on node 1 (default targets).]
+        ignore line: [PrepareForBuild:]
+        ignore line: [  Creating directory "cmTC_caa9a.dir\\Debug\\".]
+        ignore line: [  Creating directory "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\Debug\\".]
+        ignore line: [  Creating directory "cmTC_caa9a.dir\\Debug\\cmTC_caa9a.tlog\\".]
+        ignore line: [InitializeBuildStatus:]
+        ignore line: [  Creating "cmTC_caa9a.dir\\Debug\\cmTC_caa9a.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.]
+        ignore line: [AddCudaCompileDeps:]
+        ignore line: [  C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /D__CUDACC_VER_MAJOR__=12 /D__CUDACC_VER_MINOR__=2 /D_WINDOWS /DCMAKE_INTDIR="Debug" /D_MBCS /DCMAKE_INTDIR="Debug" /I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin" /I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include" /I. /FIcuda_runtime.h /c "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCUDACompilerABI.cu" ]
+        ignore line: [Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (1) is building "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (1:2) on node 1 (CudaBuildCore target(s)).]
+        ignore line: [CudaBuildCore:]
+        ignore line: [  Compiling CUDA source file ..\\..\\..\\..\\..\\..\\..\\..\\..\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCUDACompilerABI.cu...]
+        ignore line: [  cmd.exe /C "C:\\Users\\ewilson\\AppData\\Local\\Temp\\tmp610916db29ba4d80805da49912f6c916.cmd"]
+        ignore line: [  "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin\\nvcc.exe"  --use-local-env -ccbin "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64" -x cu    -I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include"     --keep-dir x64\\Debug  -maxrregcount=0   --machine 64 --compile -cudart static -Xcompiler="/EHsc -Zi -Ob0 -v" -g  -D_WINDOWS -D"CMAKE_INTDIR=\\"Debug\\"" -D_MBCS -D"CMAKE_INTDIR=\\"Debug\\"" -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd /GR" -Xcompiler "/FdcmTC_caa9a.dir\\Debug\\vc143.pdb" -o cmTC_caa9a.dir\\Debug\\CMakeCUDACompilerABI.obj "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCUDACompilerABI.cu"]
+        ignore line: [  ]
+        ignore line: [  C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw>"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\bin\\nvcc.exe"  --use-local-env -ccbin "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64" -x cu    -I"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\include"     --keep-dir x64\\Debug  -maxrregcount=0   --machine 64 --compile -cudart static -Xcompiler="/EHsc -Zi -Ob0 -v" -g  -D_WINDOWS -D"CMAKE_INTDIR=\\"Debug\\"" -D_MBCS -D"CMAKE_INTDIR=\\"Debug\\"" -Xcompiler "/EHsc /W3 /nologo /Od /FS /Zi /RTC1 /MDd /GR" -Xcompiler "/FdcmTC_caa9a.dir\\Debug\\vc143.pdb" -o cmTC_caa9a.dir\\Debug\\CMakeCUDACompilerABI.obj "C:\\Program Files\\CMake\\share\\cmake-3.27\\Modules\\CMakeCUDACompilerABI.cu" ]
+        ignore line: [cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: [  CMakeCUDACompilerABI.cu]
+        ignore line: [cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: [  CMakeCUDACompilerABI.cu]
+        ignore line: [  CMakeCUDACompilerABI.cu]
+        ignore line: [cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: [  tmpxft_00004858_00000000-7_CMakeCUDACompilerABI.cudafe1.cpp]
+        ignore line: [Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (CudaBuildCore target(s)).]
+        ignore line: [Link:]
+        ignore line: [  C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\Debug\\cmTC_caa9a.exe" /INCREMENTAL /ILK:"cmTC_caa9a.dir\\Debug\\cmTC_caa9a.ilk" /NOLOGO /LIBPATH:"C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v12.2\\lib\\x64" cudadevrt.lib cudart_static.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw/Debug/cmTC_caa9a.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw/Debug/cmTC_caa9a.lib" /MACHINE:X64  /machine:x64 -v cmTC_caa9a.dir\\Debug\\CMakeCUDACompilerABI.obj]
+        ignore line: [LINK : warning LNK4044: unrecognized option '/v']
+        ignore line: [ ignored [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: [     Creating library C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw/Debug/cmTC_caa9a.lib and object C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-78oqyw/Debug/cmTC_caa9a.exp]
+        ignore line: [LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs]
+        ignore line: [ use /NODEFAULTLIB:library [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: [  cmTC_caa9a.vcxproj -> C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\Debug\\cmTC_caa9a.exe]
+        ignore line: [FinalizeBuildStatus:]
+        ignore line: [  Deleting file "cmTC_caa9a.dir\\Debug\\cmTC_caa9a.tlog\\unsuccessfulbuild".]
+        ignore line: [  Touching "cmTC_caa9a.dir\\Debug\\cmTC_caa9a.tlog\\cmTC_caa9a.lastbuildstate".]
+        ignore line: [Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (default targets).]
+        ignore line: []
+        ignore line: [Build succeeded.]
+        ignore line: []
+        ignore line: ["C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (default target) (1) ->]
+        ignore line: ["C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (CudaBuildCore target) (1:2) ->]
+        ignore line: [(CudaBuildCore target) -> ]
+        ignore line: [  cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: [  cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: [  cl : Command line warning D9002: ignoring unknown option '-v' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: []
+        ignore line: []
+        ignore line: ["C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj" (default target) (1) ->]
+        ignore line: [(Link target) -> ]
+        ignore line: [  LINK : warning LNK4044: unrecognized option '/v']
+        ignore line: [ ignored [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: [  LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs]
+        ignore line: [ use /NODEFAULTLIB:library [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-78oqyw\\cmTC_caa9a.vcxproj]]
+        ignore line: []
+        ignore line: [    5 Warning(s)]
+        ignore line: [    0 Error(s)]
+        ignore line: []
+        ignore line: [Time Elapsed 00:00:03.81]
+        ignore line: []
+        ignore line: []
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/Internal/CheckSourceCompiles.cmake:101 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckCXXSourceCompiles.cmake:52 (cmake_check_source_compiles)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:99 (CHECK_CXX_SOURCE_COMPILES)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "CMakeLists.txt:28 (find_package)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-u7n3us"
+      binary: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-u7n3us"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-u7n3us'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_4cd20.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.6.3+07e294721 for .NET Framework
+        Build started 8/8/2023 8:19:09 AM.
+        
+        Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\cmTC_4cd20.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_4cd20.dir\\Debug\\".
+          Creating directory "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\Debug\\".
+          Creating directory "cmTC_4cd20.dir\\Debug\\cmTC_4cd20.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_4cd20.dir\\Debug\\cmTC_4cd20.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_4cd20.dir\\Debug\\\\" /Fd"cmTC_4cd20.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\src.cxx"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.36.32537 for x64
+          src.cxx
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_4cd20.dir\\Debug\\\\" /Fd"cmTC_4cd20.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\src.cxx"
+        C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\src.cxx(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\cmTC_4cd20.vcxproj]
+        Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\cmTC_4cd20.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\cmTC_4cd20.vcxproj" (default target) (1) ->
+        (ClCompile target) -> 
+          C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\src.cxx(1,10): fatal  error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u7n3us\\cmTC_4cd20.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.60
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "CMakeLists.txt:28 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-6qmhr5"
+      binary: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-6qmhr5"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-6qmhr5'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_62744.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.6.3+07e294721 for .NET Framework
+        Build started 8/8/2023 8:19:10 AM.
+        
+        Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\cmTC_62744.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_62744.dir\\Debug\\".
+          Creating directory "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\Debug\\".
+          Creating directory "cmTC_62744.dir\\Debug\\cmTC_62744.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_62744.dir\\Debug\\cmTC_62744.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_62744.dir\\Debug\\\\" /Fd"cmTC_62744.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\CheckFunctionExists.cxx"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.36.32537 for x64
+          CheckFunctionExists.cxx
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_62744.dir\\Debug\\\\" /Fd"cmTC_62744.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\CheckFunctionExists.cxx"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\Debug\\cmTC_62744.exe" /INCREMENTAL /ILK:"cmTC_62744.dir\\Debug\\cmTC_62744.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-6qmhr5/Debug/cmTC_62744.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-6qmhr5/Debug/cmTC_62744.lib" /MACHINE:X64  /machine:x64 cmTC_62744.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\cmTC_62744.vcxproj]
+        Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\cmTC_62744.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\cmTC_62744.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-6qmhr5\\cmTC_62744.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.77
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/CheckLibraryExists.cmake:69 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/CMake/share/cmake-3.27/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "CMakeLists.txt:28 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-sjyxik"
+      binary: "C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-sjyxik"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-sjyxik'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_d621a.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.6.3+07e294721 for .NET Framework
+        Build started 8/8/2023 8:19:11 AM.
+        
+        Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\cmTC_d621a.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_d621a.dir\\Debug\\".
+          Creating directory "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\Debug\\".
+          Creating directory "cmTC_d621a.dir\\Debug\\cmTC_d621a.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_d621a.dir\\Debug\\cmTC_d621a.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_d621a.dir\\Debug\\\\" /Fd"cmTC_d621a.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\CheckFunctionExists.cxx"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.36.32537 for x64
+          CheckFunctionExists.cxx
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_d621a.dir\\Debug\\\\" /Fd"cmTC_d621a.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\CheckFunctionExists.cxx"
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\VC\\Tools\\MSVC\\14.36.32532\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\Debug\\cmTC_d621a.exe" /INCREMENTAL /ILK:"cmTC_d621a.dir\\Debug\\cmTC_d621a.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-sjyxik/Debug/cmTC_d621a.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/ewilson/source/repos/PointCloudProcessing/build/CMakeFiles/CMakeScratch/TryCompile-sjyxik/Debug/cmTC_d621a.lib" /MACHINE:X64  /machine:x64 cmTC_d621a.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\cmTC_d621a.vcxproj]
+        Done Building Project "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\cmTC_d621a.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\cmTC_d621a.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Users\\ewilson\\source\\repos\\PointCloudProcessing\\build\\CMakeFiles\\CMakeScratch\\TryCompile-sjyxik\\cmTC_d621a.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.76
+        
+      exitCode: 1
+...

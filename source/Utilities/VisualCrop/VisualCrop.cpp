@@ -1,9 +1,9 @@
 /*
-Crops point cloud using coordinates from stdin
-Usage: cat dim.txt | ./Capture.exe input.pcd output.pcd
+Crops point cloud using coordinates from txt/startingDimensions.txt,
+Allows user to adjust coordinates using command prompts,
+Writes final dimensions to txt/newDimensions.txt
+Usage:  ./VisualCrop.exe input.pcd
 */
-
-
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/features/normal_3d.h>
@@ -16,22 +16,49 @@ Usage: cat dim.txt | ./Capture.exe input.pcd output.pcd
 #include <fstream>
 #include <mutex>
 
-pcl::PointCloud<pcl::PointXYZRGB> cloud_out;
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_out(new pcl::PointCloud<pcl::PointXYZRGB>);
+std::vector <float> dimensions;
+
+bool changed = false;
 bool stopViewer;
 std::mutex mtx;
 
 void view() {
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudptr;
+
+
 	auto viewer = pcl::visualization::PCLVisualizer("Viewer");
-	viewer.setBackgroundColor(1, 1, 1);
-	viewer.addPointCloud<pcl::PointXYZRGB>(cloud_out.makeShared());
+	vtkObject::GlobalWarningDisplayOff(); // Hide vtk warning window
+	pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> scene_color_handler(cloud, 100, 100, 100); // Set excluded points to grey
+	viewer.setSize(1500, 750);
 
+	viewer.addPointCloud<pcl::PointXYZRGB>(cloud, scene_color_handler, "cloud"); // excluded points
+	viewer.addPointCloud<pcl::PointXYZRGB>(cloud_out, "cloud_out"); // included points
+	viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, .5, "cloud");
 
-	viewer.setCameraPosition(0, 0, -100, 0, -1, 0);
+	viewer.addCube(dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4], dimensions[5], 252, 252, 0);
+	viewer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "cube");
+
+	viewer.setCameraPosition(0, 50, -50, 0, -1, 0);
+	viewer.resetCamera();
 
 	while (!viewer.wasStopped())
 	{
 		viewer.spinOnce(100);
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+		// Check for updated dimensions, update cropped cloud and box
+		mtx.lock();
+		if (changed) {
+			viewer.updatePointCloud(cloud_out, "cloud_out");
+			viewer.removeShape("cube");
+			viewer.addCube(dimensions[0], dimensions[1], dimensions[2], dimensions[3], dimensions[4], dimensions[5], 252, 252, 0);
+			changed = false;
+			mtx.unlock();
+			viewer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "cube");
+		} else mtx.unlock();
+
+		// Exit viewer when closed
 		mtx.lock();
 		if (stopViewer) {
 			stopViewer = false;
@@ -44,21 +71,20 @@ void view() {
 int main(int argc, char** argv) {
 
 	std::string s;
-	std::vector <float> dimensions;
 	fstream dimFile;
 	stopViewer = false;
 	bool done = false;
 
-	std::vector <std::string> dimensionPrompts = {"xmin: ", "ymin: ", "zmin: ", "xmax: ", "ymax: ", "zmax: "};
+	std::vector <std::string> dimensionPrompts = {"xmin: ", "xmax: ", "ymin: ", "ymax: ", "zmin: ", "zmax: "};
 
-	dimFile.open("txt/dim.txt", ios::in);
+	dimFile.open("txt/startingDimensions.txt", ios::in);
 	// Reads cropping dimensions from stdin or txt file if redirection is used
 	for (int i = 0; i < 6; i++) {
 		std::getline(dimFile, s);
 		dimensions.push_back(atof(s.c_str()));
 	}
+	dimFile.close();
 
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
 	if (pcl::io::loadPCDFile<pcl::PointXYZRGB>(argv[1], *cloud) != 0)
 	{
 		std::cout << "load failed" << endl;
@@ -68,11 +94,11 @@ int main(int argc, char** argv) {
 	//Define CropBox
 	pcl::CropBox<pcl::PointXYZRGB> cropBoxFilter(true);
 	cropBoxFilter.setInputCloud(cloud);
-
+	std::thread viewThread(view);
 
 	while (1) {
-		Eigen::Vector4f min_pt(dimensions[0], dimensions[1], dimensions[2], 500.0f);
-		Eigen::Vector4f max_pt(dimensions[3], dimensions[4], dimensions[5], 500.0f);
+		Eigen::Vector4f min_pt(dimensions[0], dimensions[2], dimensions[4], 500.0f);
+		Eigen::Vector4f max_pt(dimensions[1], dimensions[3], dimensions[5], 500.0f);
 
 		std::cout << "test done" << endl;
 
@@ -87,11 +113,14 @@ int main(int argc, char** argv) {
 		std::cout << "box done" << endl;
 
 		// Cloud
-		cropBoxFilter.filter(cloud_out);
+		cropBoxFilter.filter(*cloud_out);
 
 		std::cout << "filter done" << endl;
 
-		std::thread viewThread(view);
+		mtx.lock();
+		changed = true;
+		mtx.unlock();
+		
 
 		std::cout << "Current Dimensions - ";
 		for (int i = 0; i < 6; i++) {
@@ -110,12 +139,18 @@ int main(int argc, char** argv) {
 			dimensions[i] = atof(s.c_str());
 		}
 
-		mtx.lock();
-		stopViewer = true;
-		mtx.unlock();
-		viewThread.join();
 		if (done) break;
 	}
+	mtx.lock();
+	stopViewer = true;
+	mtx.unlock();
+	viewThread.join();
+
+	dimFile.open("txt/newDimensions.txt", ios::out);
+	for (int i = 0; i < dimensions.size(); i++) {
+		dimFile << dimensions[i] << endl;
+	}
+	dimFile.close();
 
 	return 0;
 }
