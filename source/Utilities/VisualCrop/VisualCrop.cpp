@@ -100,8 +100,6 @@ int main(int argc, char** argv) {
 		Eigen::Vector4f min_pt(dimensions[0], dimensions[2], dimensions[4], 500.0f);
 		Eigen::Vector4f max_pt(dimensions[1], dimensions[3], dimensions[5], 500.0f);
 
-		std::cout << "test done" << endl;
-
 		// Cropbox slighlty bigger then bounding box of points
 		cropBoxFilter.setMin(min_pt);
 		cropBoxFilter.setMax(max_pt);
@@ -110,19 +108,15 @@ int main(int argc, char** argv) {
 		std::vector<int> indices;
 		cropBoxFilter.filter(indices);
 
-		std::cout << "box done" << endl;
-
 		// Cloud
 		cropBoxFilter.filter(*cloud_out);
-
-		std::cout << "filter done" << endl;
 
 		mtx.lock();
 		changed = true;
 		mtx.unlock();
 		
 
-		std::cout << "Current Dimensions - ";
+		std::cout << "Current Bounds - ";
 		for (int i = 0; i < 6; i++) {
 			std::cout << dimensionPrompts[i] << dimensions[i] << ", ";
 		}
