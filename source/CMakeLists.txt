@@ -8,12 +8,12 @@ include(CompilerOptions)
 
 set(ZIVID_VERSION 2.9.0)
 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(PROGRAMS
     Camera/Basic/CaptureAssistant
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D
-    Applications/FeatureDetection
     )
 
 find_package(
@@ -57,7 +57,9 @@ endif()
 foreach(PROGRAM ${PROGRAMS})
     get_filename_component(PROGRAM_NAME ${PROGRAM} NAME)
 
-    add_executable(${PROGRAM_NAME} ${PROGRAM}/${PROGRAM_NAME}.cpp)
+    FILE(GLOB SRCFILES ${PROGRAM}/*.c*)
+    set(project_SOURCES ${SRCFILES})
+    add_executable(${PROGRAM_NAME} ${project_SOURCES})
 
     target_link_libraries(${PROGRAM_NAME} Zivid::Core)
 
