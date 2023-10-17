@@ -1,8 +1,0 @@
-model_ss = .5
-scene_ss = 2.5
-rf_rad = 10
-descr_rad = 20
-cg_size = 10
-max_objects = 8
-cg_thresh = 1
-view_result = true

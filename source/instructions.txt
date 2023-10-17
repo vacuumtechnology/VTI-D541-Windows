@@ -1,0 +1,8 @@
+FeatureDetection
+| build
+| source (this folder)
+
+configure with cmake
+open in vs
+build all
+run from command line
