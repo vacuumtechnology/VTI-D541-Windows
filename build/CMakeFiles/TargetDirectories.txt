@@ -1,5 +1,6 @@
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/CaptureAssistant.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/CaptureVis3D.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/ReadPCLVis3D.dir
+C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/FeatureDetection.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/ALL_BUILD.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/ZERO_CHECK.dir

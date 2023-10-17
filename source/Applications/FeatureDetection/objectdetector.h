@@ -1,22 +1,38 @@
 #pragma once
+#include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
 #include <pcl/correspondence.h>
+#include <pcl/features/board.h>
+#include <pcl/recognition/cg/hough_3d.h>
+#include <pcl/recognition/cg/geometric_consistency.h>
+#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/kdtree/impl/kdtree_flann.hpp>
+#include <pcl/common/transforms.h>
+#include <pcl/console/parse.h>
+#include <pcl/filters/filter.h>
+#include <pcl/common/centroid.h>
+#include <pcl/registration/correspondence_rejection_sample_consensus.h>
+#include <pcl/point_types.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/features/shot_omp.h>
 #include <pcl/filters/uniform_sampling.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <map>
+#include <cmath>
+#include <chrono>
+#include <thread>
+#include <mutex>
+#include <fstream>
 
 typedef pcl::PointXYZRGB PointType;
 typedef pcl::Normal NormalType;
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::SHOT352 DescriptorType;
 
-class Model{
+class Model {
 public:
-    Model(std::string modelPath, float resolution);
+    Model(std::string pcdFile, std::string configFile, float resolution);
     pcl::PointCloud<PointType>::Ptr cloud;
     void RemoveOutliers();
     void ComputeNormals();
@@ -26,6 +42,7 @@ public:
     pcl::PointCloud<NormalType>::Ptr model_normals;
     pcl::PointCloud<PointType>::Ptr model_keypoints;
     pcl::PointCloud<DescriptorType>::Ptr model_descriptors;
+    pcl::PointCloud<RFType>::Ptr model_rf;
     pcl::CorrespondencesPtr model_scene_corrs;
     pcl::StatisticalOutlierRemoval<PointType> sor;
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
@@ -33,8 +50,6 @@ public:
     pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
     std::vector<Eigen::Matrix4f, Eigen::aligned_allocator<Eigen::Matrix4f> > rototranslations;
     std::vector<pcl::Correspondences> clustered_corrs;
-    std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>> bestMatches;
-
 
     float model_ss;
     float descr_rad;
@@ -48,24 +63,38 @@ public:
     std::vector<PointType> pick_points;
 };
 
+struct ModelGroup {
+    std::vector<Model*> models;
+    std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>> bestMatches;
+    int size;
+    int max_objects;
+};
+
 class ObjectDetector {
 	public:
         ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud);
-        float CalculateResolution();
         void LoadParams(float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad, float out_thresh, int num_threads);
+        void ScenePreview();
+        void CloseScenePreview();
         void ProcessScene();
+        void LoadModel(std::string modelFile);
         void Detect();
+        int VisualizeResults();
+        void SortMatches(ModelGroup* modGroup);
 
+    private:
         void SearchThread(int i, Model *mod);
+        float CalculateResolution();
         void FindCorrespondences(Model *mod);
 
-        void DetermineBestMatches(Model *mod);
+        void DetermineBestMatches(ModelGroup* modGroup);
         void PrintInstances();
-        int VisualizeResults();
-        void LoadModel(std::string modelFile);
+
+        pcl::visualization::PCLVisualizer::Ptr viewer;
+        pcl::visualization::PCLVisualizer::Ptr previewer;
 
         pcl::PointCloud<PointType>::Ptr scene;
-        std::vector<Model *> models;
+        std::vector<ModelGroup*> modelGroups;
 
         pcl::StatisticalOutlierRemoval<PointType> sor;
 
@@ -74,6 +103,9 @@ class ObjectDetector {
 
         pcl::UniformSampling<PointType> uniform_sampling;
         pcl::PointCloud<PointType>::Ptr scene_keypoints;
+
+        pcl::PointCloud<RFType>::Ptr scene_rf;
+        pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
 
         pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
         pcl::PointCloud<DescriptorType>::Ptr scene_descriptors;
@@ -93,4 +125,5 @@ class ObjectDetector {
         float out_thresh;
         int num_threads;
         std::string config;
+        bool closeScene = false;
 };

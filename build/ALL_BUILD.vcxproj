@@ -181,6 +181,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{D699FCE8-3788-338B-A21D-A709A315461B}</Project>
       <Name>CaptureVis3D</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\FeatureDetection.vcxproj">
+      <Project>{327D3E4A-B0BF-3D30-A12F-B8A7905B5220}</Project>
+      <Name>FeatureDetection</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\ReadPCLVis3D.vcxproj">
       <Project>{42778042-945E-365D-98B7-18D972DF446C}</Project>
       <Name>ReadPCLVis3D</Name>

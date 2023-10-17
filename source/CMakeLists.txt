@@ -14,6 +14,7 @@ set(PROGRAMS
     Camera/Basic/CaptureAssistant
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D
+    Applications/FeatureDetection
     )
 
 find_package(
