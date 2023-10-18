@@ -54,7 +54,7 @@ int main (int argc, char *argv[])
 {
 	
     pcl::PointCloud<PointType>::Ptr scene(new pcl::PointCloud<PointType>());
-    string modelPath = "../pcd/";
+    string modelPath = "../../pcd/";
     float model_ss = 0;
     float scene_ss = 0;
     float rf_rad = 0;
@@ -63,7 +63,7 @@ int main (int argc, char *argv[])
     float cg_thresh = 0;
     float out_thresh = 0;
     int max_objects = 0;
-    float num_threads = 1;
+    float num_threads = 10;
     bool view_result = true;
     
     if(argc < 3){
@@ -114,7 +114,7 @@ int main (int argc, char *argv[])
 
     ObjectDetector *obj = new ObjectDetector(scene);
     obj->LoadParams(scene_ss, descr_rad, cg_size, cg_thresh, rf_rad, out_thresh, num_threads);
-    //thread sceneViewer(&ObjectDetector::ScenePreview, obj);
+    thread sceneViewer(&ObjectDetector::ScenePreview, obj);
 
     obj->ProcessScene();
 
@@ -125,14 +125,16 @@ int main (int argc, char *argv[])
         cout << "\t" << models[i] << endl;
     }
 
-    string s;
+    string modelString;
     while (true) {
         cout << "Add a model('d' when done): ";
-        cin >> s;
-        if (s == "d") break;
+        cin >> modelString;
+        if (modelString == "d") break;
 
+        cout << "Expected number of occurences: ";
+        cin >> max_objects;
         try {
-            obj->LoadModel(modelPath + s);
+            obj->LoadModel(modelPath + modelString, max_objects);
         }catch(exception e){
             cout << "invalid model" << endl;
         }
@@ -141,7 +143,7 @@ int main (int argc, char *argv[])
 
     obj->Detect();
     obj->CloseScenePreview();
-    //sceneViewer.join();
+    sceneViewer.join();
     if(view_result){
         obj->VisualizeResults();
     }

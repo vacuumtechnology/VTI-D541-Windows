@@ -36,7 +36,7 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
     model_keypoints.reset(new pcl::PointCloud<PointType>);
     model_descriptors.reset(new pcl::PointCloud<DescriptorType>);
     model_scene_corrs.reset(new pcl::Correspondences());
-    model_rf.reset(new pcl::PointCloud<RFType>());
+    //model_rf.reset(new pcl::PointCloud<RFType>());
 
     // Load Cloud
     if (pcl::io::loadPCDFile(pcdFile, *cloud) < 0) {
@@ -105,12 +105,12 @@ void ObjectDetector::CloseScenePreview() {
     closeScene = true;
 }
 
-void ObjectDetector::LoadModel(std::string modelFile) {
+void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
     std::string folder = modelFile.substr(modelFile.find_last_of("/") + 1);
     std::string filename = modelFile + "/" + folder;
     ModelGroup* modelGroup = new ModelGroup;
     Model* model = new Model(filename + ".pcd", filename + ".config", resolution);
-    modelGroup->max_objects = model->max_objects;
+    modelGroup->max_objects = occurences;
     modelGroup->models.push_back(model);
     modelGroup->size = 1;
 
@@ -218,13 +218,13 @@ void ObjectDetector::ProcessScene() {
     uniform_sampling.filter(*scene_keypoints);
     std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
 
-    /*sor.setInputCloud(scene_keypoints);
+    sor.setInputCloud(scene_keypoints);
     sor.setMeanK(10);
     sor.setStddevMulThresh(out_thresh);
     sor.filter(*scene_keypoints);
-    cout << "here" << endl;*/
+    cout << "here" << endl;
 
-    //descr_est.setNumberOfThreads(10);
+    descr_est.setNumberOfThreads(10);
     descr_est.setRadiusSearch(descr_rad);
     descr_est.setInputCloud(scene_keypoints);
     descr_est.setInputNormals(scene_normals);
@@ -343,6 +343,7 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
     //
     //  Compute (Keypoints) Reference Frames for Hough
     //
+    pcl::PointCloud<RFType>::Ptr model_rf(new pcl::PointCloud<RFType>());
 
     rf_est.setFindHoles(false);
     rf_est.setRadiusSearch(mod->rf_rad);
@@ -350,7 +351,7 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
     rf_est.setInputCloud(mod->model_keypoints);
     rf_est.setInputNormals(mod->model_normals);
     rf_est.setSearchSurface(mod->cloud);
-    rf_est.compute(*mod->model_rf);
+    rf_est.compute(*model_rf);
 
 
     //  Clustering
@@ -361,7 +362,7 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
     clusterer.setUseDistanceWeight(false);
 
     clusterer.setInputCloud(mod->model_keypoints);
-    clusterer.setInputRf(mod->model_rf);
+    clusterer.setInputRf(model_rf);
     clusterer.setSceneCloud(scene_keypoints);
     clusterer.setSceneRf(scene_rf);
     clusterer.setModelSceneCorrespondences(mod->model_scene_corrs);
@@ -480,10 +481,10 @@ void ObjectDetector::Detect(){
             model->Downsample();
             cout << "here" << endl;
 
-            //t1 = std::chrono::steady_clock::now();
-            //model->RemoveOutliers();
-            //t2 = std::chrono::steady_clock::now();
-            //auto RO = std::chrono::duration <double, std::milli> (t2-t1).count();
+            t1 = std::chrono::steady_clock::now();
+            model->RemoveOutliers();
+            t2 = std::chrono::steady_clock::now();
+            auto RO = std::chrono::duration <double, std::milli> (t2-t1).count();
 
             model->ComputeDescriptors();
             cout << "here" << endl;
@@ -516,7 +517,8 @@ void ObjectDetector::Detect(){
 int ObjectDetector::VisualizeResults() {
     viewer.reset(new pcl::visualization::PCLVisualizer("viewer"));
     viewer->setBackgroundColor(.3, .3, .3);
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cloud");
+    viewer->addPointCloud(scene, "scene_cloud");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "scene_cloud");
     viewer->setCameraPosition(0, 0, -50, 0, -1, 0);
     viewer->resetCamera();
 

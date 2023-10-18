@@ -15,6 +15,7 @@ set(PROGRAMS
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/FeatureDetection
+    Applications/Base
     )
 
 find_package(

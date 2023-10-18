@@ -42,7 +42,7 @@ public:
     pcl::PointCloud<NormalType>::Ptr model_normals;
     pcl::PointCloud<PointType>::Ptr model_keypoints;
     pcl::PointCloud<DescriptorType>::Ptr model_descriptors;
-    pcl::PointCloud<RFType>::Ptr model_rf;
+    //pcl::PointCloud<RFType>::Ptr model_rf;
     pcl::CorrespondencesPtr model_scene_corrs;
     pcl::StatisticalOutlierRemoval<PointType> sor;
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
@@ -77,7 +77,7 @@ class ObjectDetector {
         void ScenePreview();
         void CloseScenePreview();
         void ProcessScene();
-        void LoadModel(std::string modelFile);
+        void LoadModel(std::string modelFile, int max_objects);
         void Detect();
         int VisualizeResults();
         void SortMatches(ModelGroup* modGroup);

@@ -4,7 +4,7 @@
     <ClCompile Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\source\Applications\FeatureDetection\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Applications\FeatureDetection\objectdetector.cpp">
+    <ClCompile Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\source\Applications\FeatureDetection\objectdetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

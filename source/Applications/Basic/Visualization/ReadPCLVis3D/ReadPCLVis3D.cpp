@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 {
     try
     {
-        std::string pointCloudFile = argv[1];
+        std::string pointCloudFile = "C:\\Users\\ewilson\\source\\repos\\VTI-D541-Windows\\pcd\\spider1scene.pcd";
         std::cout << "Reading PCD point cloud from file: " << pointCloudFile << std::endl;
 
         auto pointCloudPCL = pcl::PointCloud<pcl::PointXYZRGB>();
