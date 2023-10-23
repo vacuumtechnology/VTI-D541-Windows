@@ -1,46 +1,61 @@
 /*
-Capture point clouds, with color, from the Zivid camera, and visualize it.
+Capture point clouds, with settings from file, from the Zivid camera, .
 */
 
-#include <Zivid/Visualization/Visualizer.h>
 #include <Zivid/Zivid.h>
+#include <pcl/point_types.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_cloud.h>
 
 #include <iostream>
 
-int main()
-{
-    try
-    {
-        Zivid::Application zivid;
+using namespace std;
 
+typedef pcl::PointXYZRGB PointType;
+
+class Capturer {
+private:
+    Zivid::Application zivid;
+    Zivid::Settings settings;
+    Zivid::Camera camera;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;;
+
+public:
+    Capturer::Capturer(string settingsFile) {
         std::cout << "Connecting to camera" << std::endl;
-        auto camera = zivid.connectCamera();
-
-        std::cout << "Creating settings" << std::endl;
-        const auto settings = Zivid::Settings{ Zivid::Settings::Acquisitions{
-            Zivid::Settings::Acquisition{ Zivid::Settings::Acquisition::Aperture{ 5.66 } } } };
-
-        std::cout << "Capturing frame" << std::endl;
-        const auto frame = camera.capture(settings);
-
-        std::cout << "Setting up visualization" << std::endl;
-        Zivid::Visualization::Visualizer visualizer;
-
-        std::cout << "Visualizing point cloud" << std::endl;
-        visualizer.showMaximized();
-        visualizer.show(frame);
-        visualizer.resetToFit();
-
-        std::cout << "Running visualizer. Blocking until window closes." << std::endl;
-        visualizer.run();
-    }
-    catch(const std::exception &e)
-    {
-        std::cerr << "Error: " << Zivid::toString(e) << std::endl;
-        std::cout << "Press enter to exit." << std::endl;
-        std::cin.get();
-        return EXIT_FAILURE;
+        camera = zivid.connectCamera();
+        std::cout << "Connected" << std::endl;
+        settings = Zivid::Settings(settingsFile);
+        std::cout << "Settings Loaded fromt file " << settingsFile << std::endl;
+        cloud.reset(new pcl::PointCloud<PointType>);
     }
 
-    return EXIT_SUCCESS;
+    pcl::PointCloud<PointType>::Ptr Capturer::Capture() {
+        auto frame = camera.capture(settings);
+        auto pointCloud = frame.pointCloud();
+        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+
+        cloud->width = data.width();
+        cloud->height = data.height();
+        cloud->is_dense = false;
+        cloud->points.resize(data.size());
+        for (size_t i = 0; i < data.size(); ++i)
+        {
+            cloud->points[i].x = data(i).point.x;
+            cloud->points[i].y = data(i).point.y;
+            cloud->points[i].z = data(i).point.z;
+            cloud->points[i].r = data(i).color.r;
+            cloud->points[i].g = data(i).color.g;
+            cloud->points[i].b = data(i).color.b;
+        }
+
+        return cloud;
+    }
+
+};
+
+int main() {
+    Capturer capturer("../../txt/set.yml");
+    auto cloud = capturer.Capture();
+    pcl::io::savePCDFileBinary("../../pcd/Capture.pcd", *cloud);
 }

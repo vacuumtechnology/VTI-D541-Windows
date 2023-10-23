@@ -17,7 +17,9 @@
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/features/shot_omp.h>
 #include <pcl/filters/uniform_sampling.h>
+#include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/extract_indices.h>
 #include <map>
 #include <cmath>
 #include <chrono>
@@ -29,6 +31,8 @@ typedef pcl::PointXYZRGB PointType;
 typedef pcl::Normal NormalType;
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::SHOT352 DescriptorType;
+
+
 
 class Model {
 public:
@@ -42,7 +46,7 @@ public:
     pcl::PointCloud<NormalType>::Ptr model_normals;
     pcl::PointCloud<PointType>::Ptr model_keypoints;
     pcl::PointCloud<DescriptorType>::Ptr model_descriptors;
-    //pcl::PointCloud<RFType>::Ptr model_rf;
+    pcl::PointCloud<RFType>::Ptr model_rf;
     pcl::CorrespondencesPtr model_scene_corrs;
     pcl::StatisticalOutlierRemoval<PointType> sor;
     pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
@@ -60,12 +64,21 @@ public:
     float min_distance;
     float out_thresh;
     int corr_thresh;
-    std::vector<PointType> pick_points;
+    std::string name;
+    pcl::PointCloud<PointType>::Ptr pick_points;
+};
+
+struct Match {
+    Model* model;
+    size_t correspondences;
+    pcl::PointCloud<PointType>::Ptr rotated_model;
+    Eigen::Matrix4f rototranslation;
+    pcl::PointCloud<PointType>::Ptr transformedPickPoints;
 };
 
 struct ModelGroup {
     std::vector<Model*> models;
-    std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>> bestMatches;
+    std::multimap<size_t, Match *> bestMatches;
     int size;
     int max_objects;
 };
@@ -74,13 +87,14 @@ class ObjectDetector {
 	public:
         ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud);
         void LoadParams(float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad, float out_thresh, int num_threads);
-        void ScenePreview();
-        void CloseScenePreview();
+        void SwitchScene();
         void ProcessScene();
-        void LoadModel(std::string modelFile, int max_objects);
-        void Detect();
+        void LoadModel(std::string modelFile);
+        std::vector<PointType> Detect();
+        void DetectCylinder();
         int VisualizeResults();
         void SortMatches(ModelGroup* modGroup);
+        pcl::PointCloud<PointType>::Ptr scene_keypoints;
 
     private:
         void SearchThread(int i, Model *mod);
@@ -96,13 +110,18 @@ class ObjectDetector {
         pcl::PointCloud<PointType>::Ptr scene;
         std::vector<ModelGroup*> modelGroups;
 
+        //Cylinder
+        pcl::NormalEstimationOMP<PointType, pcl::Normal> cyl_norm;
+        pcl::PointCloud<PointType>::Ptr cloud_cylinder;
+        pcl::PointCloud<NormalType>::Ptr cyl_normals;
+
+        // Detection Objects
         pcl::StatisticalOutlierRemoval<PointType> sor;
 
         pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
         pcl::PointCloud<NormalType>::Ptr scene_normals;
 
         pcl::UniformSampling<PointType> uniform_sampling;
-        pcl::PointCloud<PointType>::Ptr scene_keypoints;
 
         pcl::PointCloud<RFType>::Ptr scene_rf;
         pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
@@ -110,8 +129,12 @@ class ObjectDetector {
         pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
         pcl::PointCloud<DescriptorType>::Ptr scene_descriptors;
         pcl::KdTreeFLANN<DescriptorType> match_search;
-        std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>>::reverse_iterator it;
-        std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>>::reverse_iterator it2;
+
+        std::multimap<size_t, Match*>::reverse_iterator it;
+        std::multimap<size_t, Match*>::reverse_iterator it2;
+
+        std::vector<PointType> sniffPoints;
+        pcl::PointCloud<PointType>::Ptr sniffPointCloud;
 
         float model_ss;
         float scene_ss;
@@ -125,5 +148,5 @@ class ObjectDetector {
         float out_thresh;
         int num_threads;
         std::string config;
-        bool closeScene = false;
+        bool switchScene = false;
 };

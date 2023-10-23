@@ -177,6 +177,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{C2D89FEF-F4C9-34A4-AEEC-7BD5AD2A8B07}</Project>
       <Name>Base</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\Calibrate.vcxproj">
+      <Project>{CCC003B8-33F7-32DD-91F2-03F89DCE86EA}</Project>
+      <Name>Calibrate</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\CaptureAssistant.vcxproj">
       <Project>{499F8D7B-AD07-31EA-9E94-50ED9907A48B}</Project>
       <Name>CaptureAssistant</Name>
@@ -184,6 +188,14 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\CaptureVis3D.vcxproj">
       <Project>{D699FCE8-3788-338B-A21D-A709A315461B}</Project>
       <Name>CaptureVis3D</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\CreateModel.vcxproj">
+      <Project>{C3B1BA68-698C-3830-8A57-6E88F8A09433}</Project>
+      <Name>CreateModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\DetectCylinder.vcxproj">
+      <Project>{E3BBD3DD-257A-3BFF-854D-0AE3AE62B89E}</Project>
+      <Name>DetectCylinder</Name>
     </ProjectReference>
     <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\FeatureDetection.vcxproj">
       <Project>{327D3E4A-B0BF-3D30-A12F-B8A7905B5220}</Project>

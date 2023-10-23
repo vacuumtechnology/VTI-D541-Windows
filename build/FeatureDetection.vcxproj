@@ -321,6 +321,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\source\Applications\FeatureDetection\Capturer.cpp" />
+    <ClCompile Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\source\Applications\FeatureDetection\PointsToRobot.cpp" />
     <ClCompile Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\source\Applications\FeatureDetection\main.cpp" />
     <ClCompile Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\source\Applications\FeatureDetection\objectdetector.cpp" />
   </ItemGroup>

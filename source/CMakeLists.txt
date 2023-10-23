@@ -15,7 +15,10 @@ set(PROGRAMS
     Applications/Basic/Visualization/CaptureVis3D
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/FeatureDetection
+    Applications/DetectCylinder
+    Applications/Calibrate
     Applications/Base
+    Applications/CreateModel
     )
 
 find_package(
@@ -23,6 +26,7 @@ find_package(
     COMPONENTS Core
     REQUIRED)
 find_package(Threads REQUIRED)
+
 
 if(NOT DEFINED EIGEN3_INCLUDE_DIR)
     message(
@@ -75,6 +79,7 @@ foreach(PROGRAM ${PROGRAMS})
                                 PRIVATE ${PCL_INCLUDE_DIRS})
 
     target_link_libraries(${SAMPLE_NAME} Threads::Threads)
+
 
 endforeach()
 

@@ -25,6 +25,8 @@ ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud) {
     scene_keypoints.reset(new pcl::PointCloud<PointType>);
     scene_descriptors.reset(new pcl::PointCloud<DescriptorType>);
     scene_rf.reset(new pcl::PointCloud<RFType>());
+    cyl_normals.reset(new pcl::PointCloud<NormalType>);
+    sniffPointCloud.reset(new pcl::PointCloud<PointType>);
 }
 
 //
@@ -36,13 +38,26 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
     model_keypoints.reset(new pcl::PointCloud<PointType>);
     model_descriptors.reset(new pcl::PointCloud<DescriptorType>);
     model_scene_corrs.reset(new pcl::Correspondences());
-    //model_rf.reset(new pcl::PointCloud<RFType>());
+    model_rf.reset(new pcl::PointCloud<RFType>());
+    pick_points.reset(new pcl::PointCloud<PointType>);
 
     // Load Cloud
     if (pcl::io::loadPCDFile(pcdFile, *cloud) < 0) {
         std::cout << "Error loading model cloud." << std::endl;
         return;
     }
+
+    // FIX LATER : Add centroid to pick points
+    Eigen::Vector4d centroid1;
+    pcl::compute3DCentroid(*cloud, centroid1);
+    uint8_t black = 0;
+    PointType* p = new PointType();
+    p->x = centroid1.x();
+    p->y = centroid1.y();
+    p->z = centroid1.z();
+    
+    cout << "Adding Centroid: " << p->x << " " << p->y << " " << p->z << endl;
+    pick_points->push_back(*p);
 
     // Load config
     corr_thresh = 0;
@@ -69,12 +84,12 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
                 else if (name == "corr_thresh") corr_thresh = atoi(value.c_str());
             }
             else {
-                while (getline(cFile, line)) {
+                /*while (getline(cFile, line)) {
                     float x, y, z;
                     sscanf(line.c_str(), "(%f,%f,%f)", &x, &y, &z);
                     PointType pickPoint(x, y, z);
-                    pick_points.push_back(pickPoint);
-                }
+                    pick_points->push_back(pickPoint);
+                }*/
             }
         }
 
@@ -84,33 +99,29 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
     }
 }
 
-void ObjectDetector::ScenePreview() {
-    previewer.reset(new pcl::visualization::PCLVisualizer("previewer"));
-    //cout << "here" << endl;
-    //std::this_thread::sleep_for(std::chrono::seconds(10));
-    previewer->setBackgroundColor(.2, .2, .2);
-    previewer->addPointCloud(scene, "scene_cloud");
-    previewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "scene_cloud");
-    previewer->setCameraPosition(0, 0, -50, 0, -1, 0);
+//void ObjectDetector::ScenePreview() {
+//    previewer.reset(new pcl::visualization::PCLVisualizer("previewer"));
+//    previewer->setSize(900, 1000);
+//    previewer->setBackgroundColor(.2, .2, .2);
+//    previewer->addPointCloud(scene, "scene_cloud");
+//    previewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "scene_cloud");
+//    previewer->setCameraPosition(0, 0, -50, 0, -1, 0);
+//
+//    previewer->resetCamera();
+//
+//    while (!previewer->wasStopped() && !switchScene)
+//    {
+//        previewer->spinOnce();
+//    }
+//}
 
-    previewer->resetCamera();
-
-    while (!previewer->wasStopped() && !closeScene)
-    {
-        previewer->spinOnce();
-    }
-}
-
-void ObjectDetector::CloseScenePreview() {
-    closeScene = true;
-}
-
-void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
+void ObjectDetector::LoadModel(std::string modelFile) {
     std::string folder = modelFile.substr(modelFile.find_last_of("/") + 1);
     std::string filename = modelFile + "/" + folder;
     ModelGroup* modelGroup = new ModelGroup;
     Model* model = new Model(filename + ".pcd", filename + ".config", resolution);
-    modelGroup->max_objects = occurences;
+    modelGroup->max_objects = model->max_objects;
+    model->name = filename;
     modelGroup->models.push_back(model);
     modelGroup->size = 1;
 
@@ -120,6 +131,7 @@ void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
         filename = modelFile + "/" + folder + std::to_string(i);
         if (stat((filename + ".pcd").c_str(), &buffer) == 0) {
             Model* model = new Model(filename + ".pcd", filename + ".config", resolution);
+            model->name = filename;
             modelGroup->models.push_back(model);
             modelGroup->size++;
         }
@@ -211,18 +223,21 @@ void ObjectDetector::ProcessScene() {
     norm_est.setInputCloud(scene);
     norm_est.compute(*scene_normals);
 
-
-
     uniform_sampling.setInputCloud(scene);
     uniform_sampling.setRadiusSearch(scene_ss);
     uniform_sampling.filter(*scene_keypoints);
-    std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+    //std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
 
     sor.setInputCloud(scene_keypoints);
     sor.setMeanK(10);
     sor.setStddevMulThresh(out_thresh);
     sor.filter(*scene_keypoints);
-    cout << "here" << endl;
+    //std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+
+    // Estimate point normals
+    cyl_norm.setInputCloud(scene_keypoints);
+    cyl_norm.setKSearch(50);
+    cyl_norm.compute(*cyl_normals);
 
     descr_est.setNumberOfThreads(10);
     descr_est.setRadiusSearch(descr_rad);
@@ -239,7 +254,7 @@ void ObjectDetector::ProcessScene() {
     rf_est.setSearchSurface(scene);
     rf_est.compute(*scene_rf);
 
-
+    DetectCylinder();
 }
 
 //
@@ -343,7 +358,6 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
     //
     //  Compute (Keypoints) Reference Frames for Hough
     //
-    pcl::PointCloud<RFType>::Ptr model_rf(new pcl::PointCloud<RFType>());
 
     rf_est.setFindHoles(false);
     rf_est.setRadiusSearch(mod->rf_rad);
@@ -351,7 +365,7 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
     rf_est.setInputCloud(mod->model_keypoints);
     rf_est.setInputNormals(mod->model_normals);
     rf_est.setSearchSurface(mod->cloud);
-    rf_est.compute(*model_rf);
+    rf_est.compute(*mod->model_rf);
 
 
     //  Clustering
@@ -362,60 +376,93 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
     clusterer.setUseDistanceWeight(false);
 
     clusterer.setInputCloud(mod->model_keypoints);
-    clusterer.setInputRf(model_rf);
+    clusterer.setInputRf(mod->model_rf);
     clusterer.setSceneCloud(scene_keypoints);
     clusterer.setSceneRf(scene_rf);
     clusterer.setModelSceneCorrespondences(mod->model_scene_corrs);
 
-    clusterer.recognize(mod->rototranslations, mod->clustered_corrs);
 
+    clusterer.recognize(mod->rototranslations, mod->clustered_corrs);
     std::cout << "Correspondences Found" << std::endl;
 
 }
 
+// Sort matches by # of correspondences,
+// Create transformed model cloud, store as ( # of correspondences, (index, rotated_model) )
 void ObjectDetector::SortMatches(ModelGroup* modGroup) {
-    // Sort matches by # of correspondences,
-    // Create transformed model cloud, store as ( # of correspondences, (index, rotated_model) )
+    Match* match;
+    int correspondences;
+
     for (int i = 0; i < modGroup->size; i++) {
         Model* mod = modGroup->models[i];
+
         for (std::size_t x = 0; x < mod->rototranslations.size(); ++x) {
-            if (mod->clustered_corrs[x].size() >= mod->corr_thresh) {
-                pcl::PointCloud<PointType>::Ptr rotated_model(new pcl::PointCloud<PointType>());
-                pcl::transformPointCloud(*mod->cloud, *rotated_model, mod->rototranslations[x]);
-                modGroup->bestMatches.insert(std::make_pair(mod->clustered_corrs[x].size(), std::make_pair(x, rotated_model)));
+            correspondences = mod->clustered_corrs[x].size();
+
+            if (correspondences >= mod->corr_thresh) {
+                match = new Match;
+                match->rotated_model.reset(new pcl::PointCloud<PointType>());
+                match->transformedPickPoints.reset(new pcl::PointCloud<PointType>());
+                match->model = mod;
+                match->rototranslation = mod->rototranslations[x];
+                match->correspondences = mod->clustered_corrs[x].size();
+                Eigen::Vector3f translationVec = match->rototranslation.block<3, 1>(0, 3);
+                pcl::transformPointCloud(*mod->cloud, *match->rotated_model, match->rototranslation);
+                pcl::transformPointCloud(*mod->pick_points, *match->transformedPickPoints, match->rototranslation);
+                modGroup->bestMatches.insert(std::make_pair(match->correspondences, match));
+
             }
         }
     }
 }
 
+
+// Rejects bad matches
 void ObjectDetector::DetermineBestMatches(ModelGroup* modGroup) {
     std::cout << "DetermineBestMatches" << std::endl;
-
+    
     int i = 0;
     int j = 0;
     float dist;
     Eigen::Vector4d diff;
+    
 
-
-    // Detects duplicate detections
     for (it = modGroup->bestMatches.rbegin(); it != modGroup->bestMatches.rend(); it++) {
-
         Eigen::Vector4d centroid1;
-        pcl::compute3DCentroid(*it->second.second, centroid1);
+        pcl::compute3DCentroid(*it->second->rotated_model, centroid1);
 
-        std::cout << "Instance i" << i << ": " << centroid1.x() << ",  " << centroid1.y() << ",  " << centroid1.z() << std::endl;
+        //std::cout << "Instance i" << i << ": " << centroid1.x() << ",  " << centroid1.y() << ",  " << centroid1.z() << std::endl;
 
+        // Rejects invalid rotations
+        Eigen::Matrix3f rotation = it->second->rototranslation.block<3, 3>(0, 0);
+        Eigen::Vector3f translation = it->second->rototranslation.block<3, 1>(0, 3);
+        //printf("\n");
+        //printf("            | %6.3f %6.3f %6.3f | \n", rotation(0, 0), rotation(0, 1), rotation(0, 2));
+        //printf("        R = | %6.3f %6.3f %6.3f | \n", rotation(1, 0), rotation(1, 1), rotation(1, 2));
+        //printf("            | %6.3f %6.3f %6.3f | \n", rotation(2, 0), rotation(2, 1), rotation(2, 2));
+        //printf("\n");
+        //printf("        t = < %0.3f, %0.3f, %0.3f >\n", translation(0), translation(1), translation(2));
+        if (rotation(0, 0) < .9 || rotation(1, 1) < .9 || rotation(2, 2) < .9) {
+            //std::cout << "\Invalid Rotation Detected\n" << std::endl;
+            // Erase duplicate instance and call recursively
+            it = decltype(it)(modGroup->bestMatches.erase(std::next(it).base()));
+            DetermineBestMatches(modGroup);
+            return;
+        }
+
+
+        // Rejects duplicate detections
         for (it2 = it; it2 != modGroup->bestMatches.rend(); it2++) {
             if (j >= modGroup->max_objects) break;
 
             Eigen::Vector4d centroid2;
-            pcl::compute3DCentroid(*it2->second.second, centroid2);
+            pcl::compute3DCentroid(*it2->second->rotated_model, centroid2);
 
             // Calculate distance between two translations
             diff = centroid2 - centroid1;
 
             dist = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2) + pow(diff.z(), 2));
-            std::cout << "Instances " << i << " " << j << ". Distance: " << dist << std::endl;
+            //std::cout << "Instances " << i << " " << j << ". Distance: " << dist << std::endl;
 
             if (dist < min_distance && i != j) {
                 std::cout << "\nDuplicate Detected\n" << std::endl;
@@ -431,6 +478,19 @@ void ObjectDetector::DetermineBestMatches(ModelGroup* modGroup) {
         j = i;
         if (i >= modGroup->max_objects) break;
     }
+
+    // Add transformed pick points to vector of all pick points
+    i = 0;
+    for (it = modGroup->bestMatches.rbegin(); it != modGroup->bestMatches.rend(); it++) {
+        for (int j = 0; j < it->second->transformedPickPoints->points.size(); j++) {
+            sniffPoints.push_back(it->second->transformedPickPoints->points[j]);
+        }
+        *sniffPointCloud += *it->second->transformedPickPoints;
+
+        i++;
+        if (i >= modGroup->max_objects) break;
+    }
+
 }
 
 //
@@ -442,29 +502,29 @@ void ObjectDetector::PrintInstances() {
         int c = 0;
         for (it = modelGroups[j]->bestMatches.rbegin(); it != modelGroups[j]->bestMatches.rend(); it++) {
             std::cout << "\n    Instance " << c << ":" << std::endl;
-            std::cout << "        Correspondences belonging to this instance: " << it->first << std::endl;
-
+            std::cout << "        Correspondences belonging to this instance: " << it->second->correspondences << std::endl;
+            Model* model = it->second->model;
             // Print the rotation matrix and translation vector
-//                Eigen::Matrix3f rotation = models[i]->rototranslations[it->second.first].block<3, 3>(0, 0);
-//                Eigen::Vector3f translation = models[i]->rototranslations[it->second.first].block<3, 1>(0, 3);
+                Eigen::Matrix3f rotation = it->second->rototranslation.block<3, 3>(0, 0);
+                Eigen::Vector3f translation = it->second->rototranslation.block<3, 1>(0, 3);
 
-//                printf("\n");
-//                printf("            | %6.3f %6.3f %6.3f | \n", rotation(0, 0), rotation(0, 1), rotation(0, 2));
-//                printf("        R = | %6.3f %6.3f %6.3f | \n", rotation(1, 0), rotation(1, 1), rotation(1, 2));
-//                printf("            | %6.3f %6.3f %6.3f | \n", rotation(2, 0), rotation(2, 1), rotation(2, 2));
-//                printf("\n");
-//                printf("        t = < %0.3f, %0.3f, %0.3f >\n", translation(0), translation(1), translation(2));
-//                c++;
+                printf("\n");
+                printf("            | %6.3f %6.3f %6.3f | \n", rotation(0, 0), rotation(0, 1), rotation(0, 2));
+                printf("        R = | %6.3f %6.3f %6.3f | \n", rotation(1, 0), rotation(1, 1), rotation(1, 2));
+                printf("            | %6.3f %6.3f %6.3f | \n", rotation(2, 0), rotation(2, 1), rotation(2, 2));
+                printf("\n");
+                printf("        t = < %0.3f, %0.3f, %0.3f >\n", translation(0), translation(1), translation(2));
+                c++;
             if (c >= modelGroups[j]->max_objects) break;
         }
     }
+    std::cout << "Pick Points: " << endl;
+    for (int i = 0; i < sniffPoints.size(); i++) {
+        cout << sniffPoints[i].x << " " << sniffPoints[i].y << " " << sniffPoints[i].z << endl;
+    }
 }
 
-void ObjectDetector::Detect(){
-
-    std::chrono::steady_clock::time_point t0, tf;
-    t0 = std::chrono::steady_clock::now();
-    std::chrono::steady_clock::time_point t1, t2;
+std::vector<PointType> ObjectDetector::Detect(){
 
     std::cout << "groups: " << modelGroups.size() << std::endl;
     for(int i = 0; i < modelGroups.size(); i++){
@@ -475,40 +535,91 @@ void ObjectDetector::Detect(){
             }
             Model *model = modelGroups[i]->models[j];
 
+            std::cout << "\nDetecting model: " << model->name << endl;
+
             model->ComputeNormals();
-            cout << "here" << endl;
 
             model->Downsample();
-            cout << "here" << endl;
 
-            t1 = std::chrono::steady_clock::now();
             model->RemoveOutliers();
-            t2 = std::chrono::steady_clock::now();
-            auto RO = std::chrono::duration <double, std::milli> (t2-t1).count();
 
             model->ComputeDescriptors();
-            cout << "here" << endl;
 
             FindCorrespondences(model);
-            cout << "done " << j << endl;
         }
 
         SortMatches(modelGroups[i]);
 
         DetermineBestMatches(modelGroups[i]);
-        auto DB = std::chrono::duration <double, std::milli> (t2-t1).count();
 
     }
 
    
     PrintInstances();
 
-    tf = std::chrono::steady_clock::now();
-    auto totalTime = std::chrono::duration <double, std::milli> (tf-t0).count();
-
-//    cout << "\n\nTIMING\nRemoveOutliers: " << RO << "ms\nComputeNormals: " << CN << "ms\nDownsample: " << DS << "ms\nComputeDescriptors: " << CD << "ms\nFindCorrespondences: " << FC << "ms\nDetermineBest: " << DB << endl;
-    cout << "Total Time: " << totalTime << endl;
+    return sniffPoints;
   
+}
+
+void ObjectDetector::DetectCylinder() {
+    pcl::SACSegmentationFromNormals<PointType, pcl::Normal> seg;
+    pcl::ModelCoefficients::Ptr coefficients_cylinder(new pcl::ModelCoefficients);
+    pcl::PointIndices::Ptr inliers_cylinder(new pcl::PointIndices);
+    pcl::ExtractIndices<PointType> extract;
+    cloud_cylinder.reset(new pcl::PointCloud<PointType>());
+    std::map<float, PointType> cyl_map;
+    std::map<float, PointType> cyl_edge_map;
+
+    // Create the segmentation object for cylinder segmentation and set all the parameters
+    seg.setOptimizeCoefficients(true);
+    seg.setModelType(pcl::SACMODEL_CYLINDER);
+    seg.setMethodType(pcl::SAC_RANSAC);
+    seg.setNormalDistanceWeight(0.1);
+    seg.setMaxIterations(10000);
+    seg.setDistanceThreshold(.5);
+    seg.setRadiusLimits(0, 12);
+    seg.setInputCloud(scene_keypoints);
+    seg.setInputNormals(cyl_normals);
+
+    // Obtain the cylinder inliers and coefficients
+    seg.segment(*inliers_cylinder, *coefficients_cylinder);
+    //std::cerr << "Cylinder coefficients: " << *coefficients_cylinder << std::endl;
+
+    // Write the cylinder inliers to disk
+    extract.setInputCloud(scene_keypoints);
+    extract.setIndices(inliers_cylinder);
+    extract.setNegative(false);
+    extract.filter(*cloud_cylinder);
+    if (cloud_cylinder->points.empty())
+        std::cerr << "Can't find the cylindrical component." << std::endl;
+
+    // Sort cylinder points by position on x axis
+    for (int i = 0; i < cloud_cylinder->points.size(); i++) {
+        cyl_map.insert(std::make_pair(cloud_cylinder->points[i].x, cloud_cylinder->points[i]));
+    }
+
+    // Sort 50 least x points by z value
+    std::map<float, PointType>::iterator it;
+    int c = 0;
+    for (it = cyl_map.begin(); it != cyl_map.end(); it++) {
+        cyl_edge_map.insert(std::make_pair(it->second.z, it->second));
+        //    std::cout << "x: " << it->second.x << " y: " << it->second.y << " z: " << it->second.z << std::endl;
+        if (c >= 49) break;
+        c++;
+    }
+
+
+    // Subtract radius from z val of point to (hopefully) get center of cylinder endcap
+    PointType p = cyl_edge_map.begin()->second;
+    p.z += coefficients_cylinder->values[6];
+    p.x -= 10;
+    sniffPoints.push_back(p);
+    sniffPointCloud->push_back(p);
+}
+
+// Switch from scene preview to results view
+void ObjectDetector::SwitchScene() {
+    switchScene = !switchScene;
 }
 
 //
@@ -516,44 +627,54 @@ void ObjectDetector::Detect(){
 //
 int ObjectDetector::VisualizeResults() {
     viewer.reset(new pcl::visualization::PCLVisualizer("viewer"));
+    viewer->setSize(900, 1000);
     viewer->setBackgroundColor(.3, .3, .3);
     viewer->addPointCloud(scene, "scene_cloud");
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "scene_cloud");
     viewer->setCameraPosition(0, 0, -50, 0, -1, 0);
     viewer->resetCamera();
 
+    while (!viewer->wasStopped() && !switchScene)
+    {
+        viewer->spinOnce();
+    }
+
     pcl::PointCloud<PointType>::Ptr off_scene_model(new pcl::PointCloud<PointType>());
     pcl::PointCloud<PointType>::Ptr off_scene_model_keypoints(new pcl::PointCloud<PointType>());
-    std::multimap<size_t, std::pair <int, pcl::PointCloud<PointType>::Ptr>>::reverse_iterator it;
 
-    std::ofstream myfile;
-    myfile.open("txt/points.txt");
+    pcl::visualization::PointCloudColorHandlerCustom<PointType> cylinder_model_color_handler(cloud_cylinder, 44, 148, 18);
+    viewer->addPointCloud(cloud_cylinder, cylinder_model_color_handler, "cyl_cloud");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "cyl_cloud");
+
+    pcl::visualization::PointCloudColorHandlerCustom<PointType> pick_point_color_handler(sniffPointCloud, 255, 186, 0);
+    viewer->addPointCloud(sniffPointCloud, pick_point_color_handler, "sniff");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "sniff");
+
     for (int i = 0; i < modelGroups.size(); i++) {
         int c = 0;
         std::cout << "matches: " << modelGroups[i]->bestMatches.size();
         for (it = modelGroups[i]->bestMatches.rbegin(); it != modelGroups[i]->bestMatches.rend(); it++) {
 
-            Eigen::Vector4d centroid1;
-            pcl::compute3DCentroid(*it->second.second, centroid1);
-
-
-            myfile << centroid1.x() << " " << centroid1.y() << " " << centroid1.z() << endl;
+            Model* mod = it->second->model;
+            pcl::PointCloud<PointType>::Ptr rotated_model = it->second->rotated_model;
 
 
             std::stringstream ss_cloud;
             ss_cloud << "instance" << i << "." << c;
 
-            pcl::visualization::PointCloudColorHandlerCustom<PointType> rotated_model_color_handler(it->second.second, 219, 66, 35);
-            viewer->addPointCloud(it->second.second, rotated_model_color_handler, ss_cloud.str());
+            std::stringstream ss_cloud2;
+            ss_cloud2 << "pickpoints" << i << "." << c;
+
+            pcl::visualization::PointCloudColorHandlerCustom<PointType> rotated_model_color_handler(rotated_model, 219, 66, 35);
+            viewer->addPointCloud(rotated_model, rotated_model_color_handler, ss_cloud.str());
             viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, ss_cloud.str());
+
             c++;
             if (c >= modelGroups[i]->max_objects) break;
         }
     }
-    myfile.close();
 
-
-    while (!viewer->wasStopped())
+    while (!viewer->wasStopped() && switchScene)
     {
         viewer->spinOnce();
     }

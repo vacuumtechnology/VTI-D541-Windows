@@ -475,6 +475,9 @@ VTK_DIR:PATH=C:/Program Files/PCL 1.9.1/3rdParty/VTK/lib/cmake/vtk-8.1
 //Enable compiler warnings
 WARNINGS:BOOL=OFF
 
+//Treat compiler warnings as errors
+WARNINGS_AS_ERRORS:BOOL=OFF
+
 //The directory containing a CMake configuration file for Zivid.
 Zivid_DIR:PATH=C:/Program Files/Zivid/CMake/Zivid
 
