@@ -77,14 +77,14 @@ Settings:
           Sigma: 1
   RegionOfInterest:
     Box:
-      Enabled: yes
+      Enabled: no
       Extents: [-10, 100]
       PointA: [309.680847, 217.265701, 871.682922]
       PointB: [29.2335835, -110.100227, 829.588379]
-      PointO: [11.189436, 213.359039, 833.933777]
+      PointO: [-100, 213.359039, 833.933777]
     Depth:
       Enabled: yes
-      Range: [300, 825]
+      Range: [300, 840]
   Sampling:
     Color: rgb
     Pixel: all

@@ -38,6 +38,7 @@ class Model {
 public:
     Model(std::string pcdFile, std::string configFile, float resolution);
     pcl::PointCloud<PointType>::Ptr cloud;
+    void Process();
     void RemoveOutliers();
     void ComputeNormals();
     void Downsample();
@@ -85,25 +86,26 @@ struct ModelGroup {
 
 class ObjectDetector {
 	public:
-        ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud);
+        ObjectDetector();
+        float CalculateResolution(pcl::PointCloud<PointType>::Ptr sceneCloud);
         void LoadParams(float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad, float out_thresh, int num_threads);
         void SwitchScene();
-        void ProcessScene();
+        void ProcessScene(pcl::PointCloud<PointType>::Ptr sceneCloud);
         void LoadModel(std::string modelFile);
         std::vector<PointType> Detect();
-        void DetectCylinder();
+        PointType DetectCylinder();
         int VisualizeResults();
         void SortMatches(ModelGroup* modGroup);
+        void ResetModels();
         pcl::PointCloud<PointType>::Ptr scene_keypoints;
 
     private:
         void SearchThread(int i, Model *mod);
-        float CalculateResolution();
         void FindCorrespondences(Model *mod);
 
         void DetermineBestMatches(ModelGroup* modGroup);
         void PrintInstances();
-
+        bool CheckUnmoved(Eigen::Matrix3f rotation, Eigen::Vector3f translation);
         pcl::visualization::PCLVisualizer::Ptr viewer;
         pcl::visualization::PCLVisualizer::Ptr previewer;
 
@@ -126,7 +128,7 @@ class ObjectDetector {
         pcl::PointCloud<RFType>::Ptr scene_rf;
         pcl::BOARDLocalReferenceFrameEstimation<PointType, NormalType, RFType> rf_est;
 
-        pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType> descr_est;
+        pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType>::Ptr descr_est;
         pcl::PointCloud<DescriptorType>::Ptr scene_descriptors;
         pcl::KdTreeFLANN<DescriptorType> match_search;
 
@@ -148,5 +150,5 @@ class ObjectDetector {
         float out_thresh;
         int num_threads;
         std::string config;
-        bool switchScene = false;
+        bool switchScene;
 };

@@ -1,7 +1,6 @@
 #include "PointsToRobot.h"
 
-PointsToRobot::PointsToRobot(std::vector<PointType> points, std::vector<float> calibration) {
-    this->points = points;
+PointsToRobot::PointsToRobot(std::vector<float> calibration) {
 
     if (calibration.size() != 6) {
         std::cout << "invalid calibration" << std::endl;
@@ -17,14 +16,18 @@ PointsToRobot::PointsToRobot(std::vector<PointType> points, std::vector<float> c
     CreateSocket();
 }
 
-void PointsToRobot::SendPoints() {
-    
+void PointsToRobot::SendPoints(std::vector<PointType> points) {
+
     float x, y, z;
     int msg[7];
     std::string responseStr = "";
     PointType point;
+    std::string startMessage = "go";
 
-    int ind = 0;
+    iSendResult = send(ClientSocket, startMessage.c_str(), startMessage.size(), 0);
+
+    RobotMoving = true;
+    int ind = -1;
     while (1) {
 
         iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
@@ -39,11 +42,11 @@ void PointsToRobot::SendPoints() {
             msg[0] = 111;
             msg[1] = (int)((-1 * point.x) + xOffset) * 10;
             msg[2] = (int)(point.y + yOffset) * 10;
-            msg[3] = (int)(((-1 * point.z) + zOffset) + 20) * 10; // CHECK IF -z IS UP OR DOWN
-            msg[4] = 110 * 10000;
+            msg[3] = (int)(((-1 * point.z) + zOffset) + 5) * 10; // CHECK IF -z IS UP OR DOWN
+            msg[4] = 30 * 10000;
             msg[5] = 0;
             msg[6] = 180 * 10000;
-
+            
         } else {
             std::cout << "resending..." << std::endl;
         }
@@ -65,11 +68,7 @@ void PointsToRobot::SendPoints() {
     iSendResult = send(ClientSocket, (char*)msg, 16, 0);
     printf("Goodbye message sent\n");
     iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-
-    // cleanup
-    closesocket(ClientSocket);
-    WSACleanup();
-
+    RobotMoving = false;
 }
 
 
@@ -147,4 +146,11 @@ void PointsToRobot::CreateSocket() {
         WSACleanup();
         exit(0);
     }
+}
+
+// Destructor
+PointsToRobot::~PointsToRobot() {
+    closesocket(ClientSocket);
+    closesocket(ListenSocket);
+    WSACleanup();
 }

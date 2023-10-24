@@ -15,6 +15,7 @@
 
 typedef pcl::PointXYZRGB PointType;
 
+
 class PointsToRobot {
 public:
 	float xOffset;
@@ -23,7 +24,8 @@ public:
 	float xFactor;
 	float yFactor;
 	float zFactor;
-	std::vector<PointType> points;
+	bool useRobot;
+	bool RobotMoving = false;
 	
 	//Winsock vars
 	WSADATA wsaData;
@@ -36,9 +38,10 @@ public:
 	char recvbuf[DEFAULT_BUFLEN];
 	int recvbuflen = DEFAULT_BUFLEN;
 
-	PointsToRobot(std::vector<PointType> points, std::vector<float> calibration);
+	PointsToRobot(std::vector<float> calibration);
+	~PointsToRobot();
 
-	void SendPoints();
+	void SendPoints(std::vector<PointType> points);
 
 private:
 	void CreateSocket();

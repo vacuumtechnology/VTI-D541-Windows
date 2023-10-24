@@ -54,8 +54,18 @@ public:
 
 };
 
-int main() {
+int main(int argc, char* argv[]) {
+
+    string filename = "../../pcd/";
+    if (argc > 1) {
+        filename += argv[1];
+    } else {
+        filename += "Capture.pcd";
+    }
+
     Capturer capturer("../../txt/set.yml");
     auto cloud = capturer.Capture();
-    pcl::io::savePCDFileBinary("../../pcd/Capture.pcd", *cloud);
+    pcl::io::savePCDFileBinary(filename, *cloud);
+
+    return 0;
 }

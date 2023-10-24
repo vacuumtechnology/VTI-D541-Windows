@@ -52,10 +52,11 @@ void getSubdirs(vector<string>& output, const string& path)
 }
 
 
-int main (int argc, char *argv[])
-{
-	
+int main (int argc, char *argv[]) {
     pcl::PointCloud<PointType>::Ptr scene(new pcl::PointCloud<PointType>());
+    vector<PointType> sniffPoints;
+    PointsToRobot* pointsToRobot;
+    Capturer* capturer;
     string modelPath = "../../pcd/";
     float model_ss = 0;
     float scene_ss = 0;
@@ -67,6 +68,8 @@ int main (int argc, char *argv[])
     int max_objects = 0;
     float num_threads = 10;
     bool view_result = true;
+    bool useRobot = true;
+    bool useCamera;
     
     if(argc < 3){
         cout << "Usage: ./FeatureDetection -c scene.pcd scene_config.txt" << endl;
@@ -77,23 +80,42 @@ int main (int argc, char *argv[])
     string sceneFile = argv[2];
     string configFile = argv[3];
 
+    // Init robot
+    if (useRobot) {
+        vector<float> calibration;
+        ifstream calFile("../../txt/EpsonCalibration.txt");
+        if (calFile.is_open())
+        {
+            string line;
+            while (getline(calFile, line)) {
+                calibration.push_back(atof(line.c_str()));
+            }
+        }
+
+        pointsToRobot = new PointsToRobot(calibration);
+    }
+
+    ObjectDetector* obj = new ObjectDetector(); // Object Detector init
+
+    // Init camera and capture/load
     if (flag == "-f") {
-        //  Load clouds
+        useCamera = false;
+        //  Load scene cloud
         if (pcl::io::loadPCDFile(sceneFile, *scene) < 0) {
             cout << "Error loading scene cloud." << endl;
             showHelp(argv[0]);
             return (-1);
         }
     } else {
-        Capturer capturer("../../txt/set.yml");
-        scene = capturer.Capture();
-
+        useCamera = true;
+        // Capture scene cloud
+        capturer = new Capturer("../../txt/set.yml");
+        scene = capturer->Capture();
     }
-   
 
-
-    // Load config
+    // Load config params
     ifstream cFile(configFile);
+    obj->CalculateResolution(scene);
     if (cFile.is_open())
     {
         string line;
@@ -115,26 +137,22 @@ int main (int argc, char *argv[])
             else if (name == "view_result") view_result = (value == "true");
             else if (name == "out_thresh") out_thresh = atof(value.c_str());
             else if (name == "num_threads") num_threads = atoi(value.c_str());
-
         }
-
     } else {
         cerr << "Couldn't open config file for reading.\n";
     }
-
-    ObjectDetector *obj = new ObjectDetector(scene);
     obj->LoadParams(scene_ss, descr_rad, cg_size, cg_thresh, rf_rad, out_thresh, num_threads);
-    thread sceneViewer(&ObjectDetector::VisualizeResults, obj);
 
-    thread sceneProcessor(&ObjectDetector::ProcessScene, obj); // Process scene and Detect Cylinder in background while collecting user input
+    
 
+
+    // Pick and Load Models
     vector<string> models;
     getSubdirs(models, modelPath);
     cout << "Models:" << endl;
     for (int i = 0; i < models.size(); i++) {
         cout << "\t" << models[i] << endl;
     }
-
     string s;
     while (true) {
         cout << "Add a model('d' when done): ";
@@ -143,29 +161,42 @@ int main (int argc, char *argv[])
 
         try {
             obj->LoadModel(modelPath + s);
-        }catch(exception e){
+        }
+        catch (exception e) {
             cout << "invalid model" << endl;
         }
-
     }
-    sceneProcessor.join();
-    std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << obj->scene_keypoints->size() << std::endl;
 
-    auto sniffPoints = obj->Detect();
-    obj->SwitchScene();
+    thread sceneViewer(&ObjectDetector::VisualizeResults, obj);
 
-    //vector<float> calibration;
-    //ifstream calFile("../../txt/EpsonCalibration.txt");
-    //if (calFile.is_open())
-    //{
-    //    string line;
-    //    while (getline(calFile, line)) {
-    //        calibration.push_back(atof(line.c_str()));
-    //    }
-    //}
+    thread moveRobot;
 
-    //PointsToRobot *pointsToRobot = new PointsToRobot(sniffPoints, calibration);
-    //pointsToRobot->SendPoints();
+
+    while (1) {
+        obj->ProcessScene(scene);
+        std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << obj->scene_keypoints->size() << std::endl;
+
+
+        PointType p1 = obj->DetectCylinder();
+        sniffPoints.push_back(p1);
+        if (useRobot) {
+            moveRobot = thread(&PointsToRobot::SendPoints, pointsToRobot, sniffPoints);
+        }
+
+        sniffPoints = obj->Detect();
+        obj->SwitchScene();
+        moveRobot.join();
+
+        if (useRobot) pointsToRobot->SendPoints(sniffPoints); // FIX: receive signal from robot when done moving before continuing
+
+        //Sleep(10000);
+        obj->ResetModels();
+        scene.reset(new pcl::PointCloud<PointType>());
+        sniffPoints.clear();
+        if (useCamera) scene = capturer->Capture();
+        obj->SwitchScene();
+    }
+    
 
     sceneViewer.join();
 
