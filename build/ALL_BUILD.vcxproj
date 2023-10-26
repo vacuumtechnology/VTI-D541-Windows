@@ -193,9 +193,17 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{C3B1BA68-698C-3830-8A57-6E88F8A09433}</Project>
       <Name>CreateModel</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\Crop.vcxproj">
+      <Project>{EDB95CDA-4898-3256-AACA-177054078EC2}</Project>
+      <Name>Crop</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\DetectCylinder.vcxproj">
       <Project>{E3BBD3DD-257A-3BFF-854D-0AE3AE62B89E}</Project>
       <Name>DetectCylinder</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\DetectSphere.vcxproj">
+      <Project>{DEE2FB1C-D661-3E21-BD53-7C963D716F04}</Project>
+      <Name>DetectSphere</Name>
     </ProjectReference>
     <ProjectReference Include="C:\Users\ewilson\source\repos\VTI-D541-Windows\build\FeatureDetection.vcxproj">
       <Project>{327D3E4A-B0BF-3D30-A12F-B8A7905B5220}</Project>

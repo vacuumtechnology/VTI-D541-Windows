@@ -68,7 +68,7 @@ int main (int argc, char *argv[]) {
     int max_objects = 0;
     float num_threads = 10;
     bool view_result = true;
-    bool useRobot = true;
+    bool useRobot;
     bool useCamera;
     
     if(argc < 3){
@@ -77,8 +77,15 @@ int main (int argc, char *argv[]) {
     }
 
     string flag = argv[1];
-    string sceneFile = argv[2];
-    string configFile = argv[3];
+    string flag2 = argv[2];
+    string sceneFile = argv[3];
+    string configFile = argv[4];
+
+    if (flag2 == "-r") {
+        useRobot = true;
+    } else {
+        useRobot = false;
+    }
 
     // Init robot
     if (useRobot) {
@@ -185,15 +192,21 @@ int main (int argc, char *argv[]) {
 
         sniffPoints = obj->Detect();
         obj->SwitchScene();
-        moveRobot.join();
+        if(useRobot) moveRobot.join();
 
-        if (useRobot) pointsToRobot->SendPoints(sniffPoints); // FIX: receive signal from robot when done moving before continuing
+        if (useRobot) {
+            pointsToRobot->SendPoints(sniffPoints);
+        }
+            
+        Sleep(10000);
+        
 
-        //Sleep(10000);
-        obj->ResetModels();
-        scene.reset(new pcl::PointCloud<PointType>());
+        obj->ResetAllModels();
         sniffPoints.clear();
-        if (useCamera) scene = capturer->Capture();
+        if (useCamera) {
+            scene.reset(new pcl::PointCloud<PointType>());
+            scene = capturer->Capture();
+        }
         obj->SwitchScene();
     }
     

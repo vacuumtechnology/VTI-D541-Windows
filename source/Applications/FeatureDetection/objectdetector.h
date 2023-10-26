@@ -96,14 +96,15 @@ class ObjectDetector {
         PointType DetectCylinder();
         int VisualizeResults();
         void SortMatches(ModelGroup* modGroup);
-        void ResetModels();
+        void ResetAllModels();
         pcl::PointCloud<PointType>::Ptr scene_keypoints;
 
     private:
         void SearchThread(int i, Model *mod);
         void FindCorrespondences(Model *mod);
+        void ResetModels(ModelGroup* modGroup);
 
-        void DetermineBestMatches(ModelGroup* modGroup);
+        bool DetermineBestMatches(ModelGroup* modGroup);
         void PrintInstances();
         bool CheckUnmoved(Eigen::Matrix3f rotation, Eigen::Vector3f translation);
         pcl::visualization::PCLVisualizer::Ptr viewer;

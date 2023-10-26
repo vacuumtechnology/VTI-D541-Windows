@@ -80,6 +80,10 @@ int main(int argc, char* argv[])
 		std::cerr << "PointCloud representing the cylindrical component: " << cloud_cylinder->size() << " data points." << std::endl;
 		pcl::visualization::PCLVisualizer viewer("Cylinder Grouping");
 
+		viewer.setSize(900, 1000);
+		viewer.setBackgroundColor(.3, .3, .3);
+		viewer.setCameraPosition(0, 0, -50, 0, -1, 0);
+
 		viewer.addPointCloud(cloud, "scene_cloud");
 		pcl::visualization::PointCloudColorHandlerCustom<PointT> rotated_model_color_handler(cloud_cylinder, 255, 0, 0);
 		viewer.addPointCloud(cloud_cylinder, rotated_model_color_handler, "cyl_cloud");

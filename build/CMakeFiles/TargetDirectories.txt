@@ -3,8 +3,10 @@ C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/CaptureVis3D.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/ReadPCLVis3D.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/FeatureDetection.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/DetectCylinder.dir
+C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/DetectSphere.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/Calibrate.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/Base.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/CreateModel.dir
+C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/Crop.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/ALL_BUILD.dir
 C:/Users/ewilson/source/repos/VTI-D541-Windows/build/CMakeFiles/ZERO_CHECK.dir

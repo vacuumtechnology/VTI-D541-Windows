@@ -16,9 +16,11 @@ set(PROGRAMS
     Applications/Basic/Visualization/ReadPCLVis3D
     Applications/FeatureDetection
     Applications/DetectCylinder
+    Applications/DetectSphere
     Applications/Calibrate
     Applications/Base
     Applications/CreateModel
+    Applications/Crop
     )
 
 find_package(
