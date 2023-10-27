@@ -38,9 +38,9 @@ void Calibrate::ReceivePoint() {
 		std::cout << position[i] << endl;
 	}
 	PointType p;
-	p.x = position[1];
-	p.y = position[2];
-	p.z = position[3];
+	p.x = ((float)position[1])/10;
+	p.y = ((float)position[2])/10;
+	p.z = ((float)position[3])/10;
 	robotPoints.push_back(p);
 }
 
@@ -125,13 +125,25 @@ void Calibrate::SendResponse() {
 }
 
 void Calibrate::CalculateCalibration() {
+	std::cout << "Robot points" << endl;
+	for (int i = 0; i < robotPoints.size(); i++) {
+		cout << "\t";
+		cout << robotPoints[i].x << " " << robotPoints[i].y << " " << robotPoints[i].z << endl;
+	}
+
+	std::cout << "Camera points" << endl;
+	for (int i = 0; i < robotPoints.size(); i++) {
+		cout << "\t";
+		cout << cameraPoints[i].x << " " << cameraPoints[i].y << " " << cameraPoints[i].z << endl;
+	}
+
 	xFactor = (robotPoints[1].x - robotPoints[0].x) / (cameraPoints[1].x - cameraPoints[0].x);
 	yFactor = (robotPoints[3].y - robotPoints[2].y) / (cameraPoints[3].y - cameraPoints[2].y);
 	zFactor = (robotPoints[5].z - robotPoints[4].z) / (cameraPoints[5].z - cameraPoints[4].z);
 
 	xOffset = robotPoints[0].x - (xFactor * cameraPoints[0].x);
-	yOffset = robotPoints[2].y - (xFactor * cameraPoints[2].y);
-	zOffset = robotPoints[4].z - (xFactor * cameraPoints[4].z);
+	yOffset = robotPoints[2].y - (yFactor * cameraPoints[2].y);
+	zOffset = robotPoints[4].z - (zFactor * cameraPoints[4].z);
 }
 
 void Calibrate::WriteCalibration(std::string calFile) {

@@ -67,12 +67,12 @@ private:
 	std::vector<PointType> cameraPoints;
 	std::vector<PointType> robotPoints;
 
-	int xOffset;
-	int yOffset;
-	int zOffset;
-	int xFactor;
-	int yFactor;
-	int zFactor;
+	float xOffset;
+	float yOffset;
+	float zOffset;
+	float xFactor;
+	float yFactor;
+	float zFactor;
 
 	bool refreshViewer = true;
 	bool useCamera;
