@@ -90,7 +90,7 @@ int main (int argc, char *argv[]) {
     // Init robot
     if (useRobot) {
         vector<float> calibration;
-        ifstream calFile("../../txt/cal.txt");
+        ifstream calFile("../../txt/EpsonCalibration.txt");
         if (calFile.is_open())
         {
             string line;
