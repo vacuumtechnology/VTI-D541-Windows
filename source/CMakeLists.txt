@@ -4,7 +4,6 @@ project(FeatureDetection)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake
                       ${CMAKE_CURRENT_SOURCE_DIR}/cmake/3rd-party)
-include(CompilerOptions)
 
 set(ZIVID_VERSION 2.9.0)
 
