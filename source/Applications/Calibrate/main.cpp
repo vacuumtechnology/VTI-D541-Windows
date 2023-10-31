@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
 	thread sceneViewer(&Calibrate::VisualizeSphere, cal);
 
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 10; i++) {
 		cal->ReceivePoint();
 		cal->FindSphere();
 		cal->SendResponse();
