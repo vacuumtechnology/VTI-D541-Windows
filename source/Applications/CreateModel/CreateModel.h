@@ -5,6 +5,7 @@
 #include <pcl/filters/crop_box.h>
 #include <iostream>
 #include <string>
+#include <thread>
 
 typedef pcl::PointXYZRGB PointType;
 typedef pcl::PointCloud<PointType> PointCloudType;
@@ -13,6 +14,7 @@ class CreateModel {
 public:
 	CreateModel(std::string filename);
 	void Configure();
+	void Visualizer();
 	pcl::visualization::PCLVisualizer::Ptr viewer;
 	std::vector<PointType> pickPoints;
 	int cubeCounter = 0;
@@ -29,4 +31,7 @@ private:
 
 	std::string filename;
 	std::string saveFile;
+
+	bool switchScene;
+	bool cloudUpdated;
 };

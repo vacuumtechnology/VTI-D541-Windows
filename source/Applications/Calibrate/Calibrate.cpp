@@ -124,26 +124,62 @@ void Calibrate::SendResponse() {
 	iResult = send(ConnectSocket, response.c_str(), (int)strlen(response.c_str()), 0);
 }
 
+void Calibrate::LinearRegression(std::vector<float> xVals, std::vector<float> yVals, float &a, float &b) {
+	float sum_x = 0, sum_x2 = 0, sum_y = 0, sum_xy = 0;
+	int n = xVals.size();
+
+	/* Calculating Required Sum */
+	for (int i = 0; i < n; i++) {
+		sum_x = sum_x + xVals[i];
+		sum_x2 = sum_x2 + xVals[i] * xVals[i];
+		sum_y = sum_y + yVals[i];
+		sum_xy = sum_xy + xVals[i] * yVals[i];
+	}
+	
+	/* Calculating a and b */
+	b = ((float)n * sum_xy - sum_x * sum_y) / ((float)n * sum_x2 - sum_x * sum_x);
+	a = (sum_y - b * sum_x) / (float)n;
+
+	/* Displaying value of a and b */
+	cout << "xVals" << endl;
+	for (int i = 0; i < xVals.size(); i++) cout << "\t" << xVals[i] << endl;
+	cout << "yVals" << endl;
+	for (int i = 0; i < yVals.size(); i++) cout << "\t" << yVals[i] << endl;
+	cout << "Calculated value of a is " << a << "and b is " << b << " n=" << n << endl;
+	cout << "Equation of best fit line is: y = " << a << " + " << b << "x" << endl;
+}
+
 void Calibrate::CalculateCalibration() {
+	std::vector<float> xCam, xRobo, yCam, yRobo, zCam, zRobo;
 	std::cout << "Robot points" << endl;
 	for (int i = 0; i < robotPoints.size(); i++) {
 		cout << "\t";
 		cout << robotPoints[i].x << " " << robotPoints[i].y << " " << robotPoints[i].z << endl;
+		xRobo.push_back(robotPoints[i].x);
+		yRobo.push_back(robotPoints[i].y);
+		zRobo.push_back(robotPoints[i].z);
 	}
 
 	std::cout << "Camera points" << endl;
-	for (int i = 0; i < robotPoints.size(); i++) {
+	for (int i = 0; i < cameraPoints.size(); i++) {
 		cout << "\t";
 		cout << cameraPoints[i].x << " " << cameraPoints[i].y << " " << cameraPoints[i].z << endl;
+		xCam.push_back(cameraPoints[i].x);
+		yCam.push_back(cameraPoints[i].y);
+		zCam.push_back(cameraPoints[i].z);
 	}
 
-	xFactor = (robotPoints[1].x - robotPoints[0].x) / (cameraPoints[1].x - cameraPoints[0].x);
+	LinearRegression(xCam, xRobo, xOffset, xFactor);
+	LinearRegression(yCam, yRobo, yOffset, yFactor);
+	LinearRegression(zCam, zRobo, zOffset, zFactor);
+
+	/*xFactor = (robotPoints[1].x - robotPoints[0].x) / (cameraPoints[1].x - cameraPoints[0].x);
 	yFactor = (robotPoints[3].y - robotPoints[2].y) / (cameraPoints[3].y - cameraPoints[2].y);
 	zFactor = (robotPoints[5].z - robotPoints[4].z) / (cameraPoints[5].z - cameraPoints[4].z);
 
 	xOffset = robotPoints[0].x - (xFactor * cameraPoints[0].x);
 	yOffset = robotPoints[2].y - (yFactor * cameraPoints[2].y);
-	zOffset = robotPoints[4].z - (zFactor * cameraPoints[4].z);
+	zOffset = robotPoints[4].z - (zFactor * cameraPoints[4].z);*/
 }
 
 void Calibrate::WriteCalibration(std::string calFile) {

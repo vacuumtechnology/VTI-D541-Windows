@@ -39,6 +39,7 @@ private:
 	void ConnectToSocket();
 	void CaptureScene();
 	void ProcessScene();
+	void LinearRegression(std::vector<float> xVals, std::vector<float> yVals, float &a, float &b);
 
 	Zivid::Application zivid;
 	Zivid::Settings settings;
