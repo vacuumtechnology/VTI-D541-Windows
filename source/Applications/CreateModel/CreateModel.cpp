@@ -32,7 +32,47 @@ void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& even
 
 void keyboardCallback(const pcl::visualization::KeyboardEvent& event, void* obj) {
     CreateModel* mod = (CreateModel*)obj;
+    int increment = 3;
     if (event.getKeySym() == "v" && event.keyUp()) {
+    }
+    switch (event.getKeyCode()) {
+        case '1':
+            mod->dimensions[0] -= increment;
+            std::cout << "1 pressed" << endl;
+            break;
+        case '2':
+            mod->dimensions[0] += increment;
+            break;
+        case '3':
+            mod->dimensions[1] -= increment;
+            break;
+        case '4':
+            mod->dimensions[1] += increment;
+            break;
+        case '5':
+            mod->dimensions[2] -= increment;
+            break;
+        case '6':
+            mod->dimensions[2] += increment;
+            break;
+        case '7':
+            mod->dimensions[3] -= increment;
+            break;
+        case '8':
+            mod->dimensions[3] += increment;
+            break;
+        case '9':
+            mod->dimensions[4] -= increment;
+            break;
+        case '0':
+            mod->dimensions[4] += increment;
+            break;
+        case '-':
+            mod->dimensions[5] -= increment;
+            break;
+        case '=':
+            mod->dimensions[5] += increment;
+            break;
     }
 }
 

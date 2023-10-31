@@ -17,6 +17,7 @@ public:
 	void Visualizer();
 	pcl::visualization::PCLVisualizer::Ptr viewer;
 	std::vector<PointType> pickPoints;
+	std::vector <float> dimensions;
 	int cubeCounter = 0;
 private:
 
@@ -26,7 +27,6 @@ private:
 
 	PointCloudType::Ptr cloud;
 	PointCloudType::Ptr cloud_out;
-	std::vector <float> dimensions;
 	pcl::CropBox<pcl::PointXYZRGB> cropBoxFilter;
 
 	std::string filename;

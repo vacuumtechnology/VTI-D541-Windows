@@ -9,7 +9,9 @@ int main (int argc, char *argv[])
 
 	thread sceneViewer(&CreateModel::Visualizer, model);
 
-	model->Configure();
+	//model->Configure();
+
+	sceneViewer.join();
 
 	delete(model);
 	return (0);
