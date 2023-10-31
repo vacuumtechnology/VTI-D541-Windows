@@ -269,7 +269,7 @@ void ObjectDetector::ProcessScene(pcl::PointCloud<PointType>::Ptr sceneCloud) {
     cyl_norm.compute(*cyl_normals);
 
     descr_est.reset(new pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType>);
-    descr_est->setNumberOfThreads(10);
+    descr_est->setNumberOfThreads(100);
     descr_est->setRadiusSearch(descr_rad);
     descr_est->setInputCloud(scene_keypoints);
     descr_est->setInputNormals(scene_normals);
