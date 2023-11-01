@@ -91,7 +91,7 @@ class ObjectDetector {
         void LoadParams(float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad, float out_thresh, int num_threads);
         void SwitchScene();
         void ProcessScene(pcl::PointCloud<PointType>::Ptr sceneCloud);
-        void LoadModel(std::string modelFile);
+        void LoadModel(std::string modelFile, int occurences);
         std::vector<PointType> Detect();
         PointType DetectCylinder();
         int VisualizeResults();
