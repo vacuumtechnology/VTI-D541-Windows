@@ -41,6 +41,8 @@ public:
 	PointsToRobot(std::vector<float> calibration);
 	~PointsToRobot();
 
+	void WaitForHome();
+
 	void SendPoints(std::vector<PointType> points);
 
 private:

@@ -16,6 +16,10 @@ PointsToRobot::PointsToRobot(std::vector<float> calibration) {
     CreateSocket();
 }
 
+void PointsToRobot::WaitForHome() {
+    iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
+}
+
 void PointsToRobot::SendPoints(std::vector<PointType> points) {
 
     float x, y, z;
