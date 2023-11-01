@@ -79,10 +79,15 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
             } else {
                 while (getline(cFile, line)) {
                     float x, y, z;
+                    cout << "line: " << line << endl;
                     sscanf(line.c_str(), "(%f,%f,%f)", &x, &y, &z);
-                    PointType pickPoint(x, y, z);
-                    cout << "Adding pick point: " << pickPoint.x << " " << pickPoint.y << " " << pickPoint.z << endl;
-                    pick_points->push_back(pickPoint);
+                    PointType *pickPoint = new PointType();
+                    pickPoint->x = x;
+                    pickPoint->y = y;
+                    pickPoint->z = z;
+
+                    cout << "Adding pick point: " << pickPoint->x << " " << pickPoint->y << " " << pickPoint->z << endl;
+                    pick_points->push_back(*pickPoint);
                 }
             }
         }
