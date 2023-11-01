@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <windows.h>
 
 typedef pcl::PointXYZRGB PointType;
 typedef pcl::PointCloud<PointType> PointCloudType;
@@ -13,17 +14,22 @@ typedef pcl::PointCloud<PointType> PointCloudType;
 class CreateModel {
 public:
 	CreateModel(std::string filename);
+	~CreateModel();
 	void Configure();
 	void Visualizer();
 	pcl::visualization::PCLVisualizer::Ptr viewer;
-	std::vector<PointType> pickPoints;
+	std::vector<PointType *> pickPoints;
 	std::vector <float> dimensions;
 	int cubeCounter = 0;
+	int increment = 3;
+	bool cloudUpdated;
 private:
 
 	void filterCloud();
 	void updateCloud();
-	void writeConfig(std::string foldername);
+
+	void writeCloud();
+	void writeConfig();
 
 	PointCloudType::Ptr cloud;
 	PointCloudType::Ptr cloud_out;
@@ -31,7 +37,18 @@ private:
 
 	std::string filename;
 	std::string saveFile;
+	std::string modelName;
+	std::string path = "../../pcd/";
 
 	bool switchScene;
-	bool cloudUpdated;
+
+	//Model parameters
+	float model_ss;
+	float descr_rad;
+	float cg_size;
+	float cg_thresh;
+	float rf_rad;
+	int max_objects;
+	float out_thresh;
+	int corr_thresh;
 };
