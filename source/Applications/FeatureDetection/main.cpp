@@ -161,13 +161,15 @@ int main (int argc, char *argv[]) {
         cout << "\t" << models[i] << endl;
     }
     string s;
+    int o;
     while (true) {
         cout << "Add a model('d' when done): ";
         cin >> s;
         if (s == "d") break;
-
+        cout << "\tExpected # of occurences: ";
         try {
-            obj->LoadModel(modelPath + s);
+            cin >> o;
+            obj->LoadModel(modelPath + s, o);
         }
         catch (exception e) {
             cout << "invalid model" << endl;

@@ -76,8 +76,7 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
                 else if (name == "max_objects") max_objects = atoi(value.c_str());
                 else if (name == "out_thresh") out_thresh = atof(value.c_str());
                 else if (name == "corr_thresh") corr_thresh = atoi(value.c_str());
-            }
-            else {
+            } else {
                 /*while (getline(cFile, line)) {
                     float x, y, z;
                     sscanf(line.c_str(), "(%f,%f,%f)", &x, &y, &z);
@@ -97,12 +96,12 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
     //std::cout << "Clustering bin size:    " << this->cg_size << std::endl << std::endl;
 }
 
-void ObjectDetector::LoadModel(std::string modelFile) {
+void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
     std::string folder = modelFile.substr(modelFile.find_last_of("/") + 1);
     std::string filename = modelFile + "/" + folder;
     ModelGroup* modelGroup = new ModelGroup;
     Model* model = new Model(filename + ".pcd", filename + ".config", resolution);
-    modelGroup->max_objects = model->max_objects;
+    modelGroup->max_objects = occurences;
     model->name = filename;
     model->Process();
     modelGroup->models.push_back(model);

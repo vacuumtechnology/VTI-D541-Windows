@@ -34,6 +34,7 @@ void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& even
     std::cout << "Point coordinate ( " << x << ", " << y << ", " << z << ")" << std::endl;
 }
 
+// visualizer keystroke handler for cropping step
 void keyboardCallback(const pcl::visualization::KeyboardEvent& event, void* obj) {
     CreateModel* mod = (CreateModel*)obj;
     if (event.getKeySym() == "v" && event.keyUp()) {
@@ -85,6 +86,7 @@ void keyboardCallback(const pcl::visualization::KeyboardEvent& event, void* obj)
     mod->cloudUpdated = true;
 }
 
+// constructor
 CreateModel::CreateModel(std::string filename) {
 
     // Setup the cloud pointer
@@ -96,12 +98,13 @@ CreateModel::CreateModel(std::string filename) {
     cropBoxFilter.setInputCloud(cloud);
 
     dimensions.resize(6);
-    dimensions = { -200, 200, -200, 200, 500, 900 };
+    dimensions = { -200, 200, -200, 200, 500, 900 }; // initial cropbox dimensions
     filterCloud();
 
     increment = 10;
 }
 
+// destructor
 CreateModel::~CreateModel() {
     for (int i = 0; i < pickPoints.size(); i++) {
         delete(pickPoints[i]);
