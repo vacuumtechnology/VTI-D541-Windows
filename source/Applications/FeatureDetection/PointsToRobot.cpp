@@ -42,7 +42,7 @@ void PointsToRobot::SendPoints(std::vector<PointType> points) {
             msg[0] = 111;
             msg[1] = (int)((-1 * point.x) + xOffset) * 10;
             msg[2] = (int)(point.y + yOffset) * 10;
-            msg[3] = (int)(((-1 * point.z) + zOffset) + 5) * 10; // CHECK IF -z IS UP OR DOWN
+            msg[3] = (int)(((-1 * point.z) + zOffset) + 2) * 10; // CHECK IF -z IS UP OR DOWN
             msg[4] = 30 * 10000;
             msg[5] = 0;
             msg[6] = 180 * 10000;
