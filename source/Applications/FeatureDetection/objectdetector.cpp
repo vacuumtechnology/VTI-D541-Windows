@@ -41,17 +41,17 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
         return;
     }
 
-    // FIX LATER : Add centroid to pick points
-    Eigen::Vector4d centroid1;
-    pcl::compute3DCentroid(*cloud, centroid1);
-    uint8_t black = 0;
-    PointType* p = new PointType();
-    p->x = centroid1.x();
-    p->y = centroid1.y();
-    p->z = centroid1.z();
-    
-    cout << "Adding Centroid: " << p->x << " " << p->y << " " << p->z << endl;
-    pick_points->push_back(*p);
+    //// FIX LATER : Add centroid to pick points
+    //Eigen::Vector4d centroid1;
+    //pcl::compute3DCentroid(*cloud, centroid1);
+    //uint8_t black = 0;
+    //PointType* p = new PointType();
+    //p->x = centroid1.x();
+    //p->y = centroid1.y();
+    //p->z = centroid1.z();
+    //
+    //cout << "Adding Centroid: " << p->x << " " << p->y << " " << p->z << endl;
+    //pick_points->push_back(*p);
 
     // Load config
     corr_thresh = 0;
@@ -77,12 +77,13 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
                 else if (name == "out_thresh") out_thresh = atof(value.c_str());
                 else if (name == "corr_thresh") corr_thresh = atoi(value.c_str());
             } else {
-                /*while (getline(cFile, line)) {
+                while (getline(cFile, line)) {
                     float x, y, z;
                     sscanf(line.c_str(), "(%f,%f,%f)", &x, &y, &z);
                     PointType pickPoint(x, y, z);
+                    cout << "Adding pick point: " << pickPoint.x << " " << pickPoint.y << " " << pickPoint.z << endl;
                     pick_points->push_back(pickPoint);
-                }*/
+                }
             }
         }
 
