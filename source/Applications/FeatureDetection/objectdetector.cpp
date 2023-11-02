@@ -479,8 +479,8 @@ bool ObjectDetector::DetermineBestMatches(ModelGroup* modGroup) {
         //std::cout << "Instance i" << i << ": " << centroid1.x() << ",  " << centroid1.y() << ",  " << centroid1.z() << std::endl;
 
         // Rejects invalid rotations
-        Eigen::Matrix3f rotation = it->second->rototranslation.block<3, 3>(0, 0);
-        Eigen::Vector3f translation = it->second->rototranslation.block<3, 1>(0, 3);
+        //Eigen::Matrix3f rotation = it->second->rototranslation.block<3, 3>(0, 0);
+        //Eigen::Vector3f translation = it->second->rototranslation.block<3, 1>(0, 3);
         //printf("\n");
         //printf("            | %6.3f %6.3f %6.3f | \n", rotation(0, 0), rotation(0, 1), rotation(0, 2));
         //printf("        R = | %6.3f %6.3f %6.3f | \n", rotation(1, 0), rotation(1, 1), rotation(1, 2));
