@@ -100,6 +100,7 @@ int main (int argc, char *argv[]) {
         }
 
         pointsToRobot = new PointsToRobot(calibration);
+        pointsToRobot->WaitForHome();
     }
 
     ObjectDetector* obj = new ObjectDetector(); // Object Detector init
