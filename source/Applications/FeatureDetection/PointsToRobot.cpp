@@ -21,6 +21,7 @@ void PointsToRobot::WaitForHome() {
 }
 
 void PointsToRobot::SendPoints(std::vector<PointType> points) {
+    std::cout << "SendPoints called" << std::endl;
 
     float x, y, z;
     int msg[7];
@@ -29,6 +30,7 @@ void PointsToRobot::SendPoints(std::vector<PointType> points) {
     std::string startMessage = "go";
 
     iSendResult = send(ClientSocket, startMessage.c_str(), startMessage.size(), 0);
+    std::cout << "Start Message Sent to Robot" << std::endl;
 
     RobotMoving = true;
     int ind = -1;
@@ -150,6 +152,7 @@ void PointsToRobot::CreateSocket() {
         WSACleanup();
         exit(0);
     }
+    std::cout << "Client connected" << std::endl;
 }
 
 // Destructor

@@ -637,7 +637,7 @@ PointType ObjectDetector::DetectCylinder() {
     seg.setOptimizeCoefficients(true);
     seg.setModelType(pcl::SACMODEL_CYLINDER);
     seg.setMethodType(pcl::SAC_RANSAC);
-    seg.setNormalDistanceWeight(0.1);
+    seg.setNormalDistanceWeight(0.8);
     seg.setMaxIterations(10000);
     seg.setDistanceThreshold(.5);
     seg.setRadiusLimits(0, 12);
@@ -648,7 +648,7 @@ PointType ObjectDetector::DetectCylinder() {
     while (true) {
         // Obtain the cylinder inliers and coefficients
         seg.segment(*inliers_cylinder, *coefficients_cylinder);
-        //std::cerr << "Cylinder coefficients: " << *coefficients_cylinder << std::endl;
+        std::cerr << "Cylinder coefficients: " << *coefficients_cylinder << std::endl;
 
         // Write the cylinder inliers to disk
         extract.setInputCloud(scene_keypoints);

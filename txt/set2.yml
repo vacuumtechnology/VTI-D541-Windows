@@ -1,0 +1,90 @@
+__version__:
+  serializer: 1
+  data: 20
+Settings:
+  Acquisitions:
+    - Acquisition:
+        Aperture: 2.54971317774792
+        Brightness: 1.8
+        ExposureTime: 1677
+        Gain: 1.01906734896348
+    - Acquisition:
+        Aperture: 8.73117510232975
+        Brightness: 1.77398002908353
+        ExposureTime: 1677
+        Gain: 1
+    - Acquisition:
+        Aperture: 2.4005298661731
+        Brightness: 1.8
+        ExposureTime: 15093
+        Gain: 1.60587788963599
+    - Acquisition:
+        Aperture: 2
+        Brightness: 1.8
+        ExposureTime: 98943
+        Gain: 2.69197999903655
+  Diagnostics:
+    Enabled: no
+  Experimental:
+    Engine: phase
+  Processing:
+    Color:
+      Balance:
+        Blue: 1
+        Green: 1
+        Red: 1
+      Experimental:
+        Mode: toneMapping
+      Gamma: 1
+    Filters:
+      Cluster:
+        Removal:
+          Enabled: yes
+          MaxNeighborDistance: 10
+          MinArea: 100
+      Experimental:
+        ContrastDistortion:
+          Correction:
+            Enabled: yes
+            Strength: 0.3
+          Removal:
+            Enabled: no
+            Threshold: 0.2
+        HoleFilling:
+          Enabled: no
+          HoleSize: 0.2
+          Strictness: 2
+      Noise:
+        Removal:
+          Enabled: yes
+          Threshold: 5
+        Repair:
+          Enabled: no
+        Suppression:
+          Enabled: no
+      Outlier:
+        Removal:
+          Enabled: yes
+          Threshold: 10
+      Reflection:
+        Removal:
+          Enabled: yes
+          Experimental:
+            Mode: global
+      Smoothing:
+        Gaussian:
+          Enabled: yes
+          Sigma: 1
+  RegionOfInterest:
+    Box:
+      Enabled: no
+      Extents: [-10, 100]
+      PointA: [309.680847, 217.265701, 871.682922]
+      PointB: [29.2335835, -110.100227, 829.588379]
+      PointO: [-100, 213.359039, 833.933777]
+    Depth:
+      Enabled: yes
+      Range: [300, 900]
+  Sampling:
+    Color: rgb
+    Pixel: all
