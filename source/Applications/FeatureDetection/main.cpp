@@ -103,7 +103,6 @@ int main (int argc, char *argv[]) {
         pointsToRobot->WaitForHome();
     }
 
-    ObjectDetector* obj = new ObjectDetector(); // Object Detector init
 
     // Init camera and capture/load
     if (flag == "-f") {
@@ -121,9 +120,10 @@ int main (int argc, char *argv[]) {
         scene = capturer->Capture();
     }
 
+    ObjectDetector* obj = new ObjectDetector(scene); // Object Detector init
+
     // Load config params
     ifstream cFile(configFile);
-    obj->CalculateResolution(scene);
     if (cFile.is_open())
     {
         string line;
@@ -183,25 +183,28 @@ int main (int argc, char *argv[]) {
 
 
     while (1) {
-        obj->ProcessScene(scene);
-        std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << obj->scene_keypoints->size() << std::endl;
+        obj->LoadScene(scene);
 
-
+        obj->ProcessSceneCylinder();
         PointType p1 = obj->DetectCylinder();
+        obj->SwitchView();
         sniffPoints.push_back(p1);
         if (useRobot) {
             moveRobot = thread(&PointsToRobot::SendPoints, pointsToRobot, sniffPoints);
         }
 
+        obj->ProcessScene();
+        std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << obj->scene_keypoints->size() << std::endl;
+
         sniffPoints = obj->Detect();
-        obj->SwitchScene();
+        obj->SwitchView();
         if(useRobot) moveRobot.join();
 
         if (useRobot) {
             pointsToRobot->SendPoints(sniffPoints);
         }
             
-        Sleep(1000);
+        Sleep(4000);
         
 
         obj->ResetAllModels();
@@ -210,7 +213,7 @@ int main (int argc, char *argv[]) {
             scene.reset(new pcl::PointCloud<PointType>());
             scene = capturer->Capture();
         }
-        obj->SwitchScene();
+        obj->SwitchView();
     }
     
 

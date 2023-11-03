@@ -17,9 +17,11 @@ std::mutex mtx;
 //
 // Constructor
 //
-ObjectDetector::ObjectDetector() {
+ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud) {
     this->min_distance = 6;
     switchScene = false;
+    this->scene = sceneCloud;
+    CalculateResolution(sceneCloud);
 }
 
 //
@@ -242,17 +244,34 @@ void ObjectDetector::ResetModels(ModelGroup *modGroup) {
     modGroup->bestMatches.clear();
 }
 
-void ObjectDetector::ProcessScene(pcl::PointCloud<PointType>::Ptr sceneCloud) {
-    std::cout << "Processing Scene" << std::endl;
+void ObjectDetector::LoadScene(pcl::PointCloud<PointType>::Ptr sceneCloud) {
     this->scene = sceneCloud;
-
+    sniffPointCloud.reset(new pcl::PointCloud<PointType>);
     scene_normals.reset(new pcl::PointCloud<NormalType>);
     scene_keypoints.reset(new pcl::PointCloud<PointType>);
     scene_descriptors.reset(new pcl::PointCloud<DescriptorType>);
     scene_rf.reset(new pcl::PointCloud<RFType>());
     cyl_normals.reset(new pcl::PointCloud<NormalType>);
-    sniffPointCloud.reset(new pcl::PointCloud<PointType>);
 
+}
+
+void ObjectDetector::ProcessSceneCylinder() {
+    std::cout << "Process Scene Cylinder" << std::endl;
+
+    uniform_sampling.setInputCloud(scene);
+    uniform_sampling.setRadiusSearch(scene_ss);
+    uniform_sampling.filter(*scene_keypoints);
+
+    // Estimate point normals
+    cyl_norm.setInputCloud(scene_keypoints);
+    cyl_norm.setKSearch(50);
+    cyl_norm.compute(*cyl_normals);
+
+
+}
+
+void ObjectDetector::ProcessScene() {
+    std::cout << "Processing Scene" << std::endl;
     norm_est.setKSearch(15);
     norm_est.setInputCloud(scene);
     norm_est.compute(*scene_normals);
@@ -268,10 +287,6 @@ void ObjectDetector::ProcessScene(pcl::PointCloud<PointType>::Ptr sceneCloud) {
     sor.filter(*scene_keypoints);
     //std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
 
-    // Estimate point normals
-    cyl_norm.setInputCloud(scene_keypoints);
-    cyl_norm.setKSearch(50);
-    cyl_norm.compute(*cyl_normals);
 
     descr_est.reset(new pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType>);
     descr_est->setNumberOfThreads(100);
@@ -290,6 +305,8 @@ void ObjectDetector::ProcessScene(pcl::PointCloud<PointType>::Ptr sceneCloud) {
     rf_est.compute(*scene_rf);
 
 }
+
+
 
 //
 // Computes normal vectors of all points in model and scene
@@ -664,6 +681,7 @@ PointType ObjectDetector::DetectCylinder() {
 
 
     // Subtract radius from z val of point to (hopefully) get center of cylinder endcap
+    // Offset pick point 10 units away from end of manifold
     PointType p = cyl_edge_map.begin()->second;
     p.z += coefficients_cylinder->values[6];
     p.x += 10;
@@ -674,8 +692,8 @@ PointType ObjectDetector::DetectCylinder() {
 }
 
 // Switch from scene preview to results view
-void ObjectDetector::SwitchScene() {
-    switchScene = !switchScene;
+void ObjectDetector::SwitchView() {
+    switchScene = true;
 }
 
 //
@@ -688,6 +706,8 @@ int ObjectDetector::VisualizeResults() {
     viewer->setCameraPosition(0, 0, -50, 0, -1, 0);
 
     while (true) {
+
+        // Show just scene cloud
         viewer->addPointCloud(scene, "scene_cloud");
         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "scene_cloud");
         viewer->resetCamera();
@@ -696,10 +716,9 @@ int ObjectDetector::VisualizeResults() {
         {
             viewer->spinOnce();
         }
+        switchScene = false;
 
-        pcl::PointCloud<PointType>::Ptr off_scene_model(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr off_scene_model_keypoints(new pcl::PointCloud<PointType>());
-
+        // Show cylinder cloud
         pcl::visualization::PointCloudColorHandlerCustom<PointType> cylinder_model_color_handler(cloud_cylinder, 65, 72, 145);
         viewer->addPointCloud(cloud_cylinder, cylinder_model_color_handler, "cyl_cloud");
         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cyl_cloud");
@@ -707,6 +726,17 @@ int ObjectDetector::VisualizeResults() {
         pcl::visualization::PointCloudColorHandlerCustom<PointType> pick_point_color_handler(sniffPointCloud, 78, 163, 49);
         viewer->addPointCloud(sniffPointCloud, pick_point_color_handler, "sniff");
         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 8, "sniff");
+
+        while (!viewer->wasStopped() && !switchScene)
+        {
+            viewer->spinOnce();
+        }
+        switchScene = false;
+
+        // Show all detected models
+        pcl::PointCloud<PointType>::Ptr off_scene_model(new pcl::PointCloud<PointType>());
+        pcl::PointCloud<PointType>::Ptr off_scene_model_keypoints(new pcl::PointCloud<PointType>());
+        viewer->updatePointCloud(sniffPointCloud, pick_point_color_handler, "sniff");
 
         for (int i = 0; i < modelGroups.size(); i++) {
             int c = 0;
@@ -732,10 +762,11 @@ int ObjectDetector::VisualizeResults() {
             }
         }
 
-        while (!viewer->wasStopped() && switchScene)
+        while (!viewer->wasStopped() && !switchScene)
         {
             viewer->spinOnce();
         }
+        switchScene = false;
         viewer->removeAllPointClouds();
     }
     
