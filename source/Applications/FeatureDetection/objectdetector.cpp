@@ -479,21 +479,21 @@ bool ObjectDetector::DetermineBestMatches(ModelGroup* modGroup) {
         //std::cout << "Instance i" << i << ": " << centroid1.x() << ",  " << centroid1.y() << ",  " << centroid1.z() << std::endl;
 
         // Rejects invalid rotations
-        //Eigen::Matrix3f rotation = it->second->rototranslation.block<3, 3>(0, 0);
-        //Eigen::Vector3f translation = it->second->rototranslation.block<3, 1>(0, 3);
+        Eigen::Matrix3f rotation = it->second->rototranslation.block<3, 3>(0, 0);
+        Eigen::Vector3f translation = it->second->rototranslation.block<3, 1>(0, 3);
         //printf("\n");
         //printf("            | %6.3f %6.3f %6.3f | \n", rotation(0, 0), rotation(0, 1), rotation(0, 2));
         //printf("        R = | %6.3f %6.3f %6.3f | \n", rotation(1, 0), rotation(1, 1), rotation(1, 2));
         //printf("            | %6.3f %6.3f %6.3f | \n", rotation(2, 0), rotation(2, 1), rotation(2, 2));
         //printf("\n");
         //printf("        t = < %0.3f, %0.3f, %0.3f >\n", translation(0), translation(1), translation(2));
-        //if (rotation(0, 0) < .9 || rotation(1, 1) < .9 || rotation(2, 2) < .9 || CheckUnmoved(rotation, translation)) {
-        //    std::cout << "\tInvalid Rotation Detected\n" << std::endl;
-        //    // Erase duplicate instance and call recursively
-        //    it = decltype(it)(modGroup->bestMatches.erase(std::next(it).base()));
-        //    
-        //    return DetermineBestMatches(modGroup);
-        //}
+        if (CheckUnmoved(rotation, translation)) {
+            std::cout << "\tInvalid Rotation Detected\n" << std::endl;
+            // Erase duplicate instance and call recursively
+            it = decltype(it)(modGroup->bestMatches.erase(std::next(it).base()));
+            
+            return DetermineBestMatches(modGroup);
+        }
 
 
         // Rejects duplicate detections
@@ -620,7 +620,7 @@ PointType ObjectDetector::DetectCylinder() {
     seg.setOptimizeCoefficients(true);
     seg.setModelType(pcl::SACMODEL_CYLINDER);
     seg.setMethodType(pcl::SAC_RANSAC);
-    seg.setNormalDistanceWeight(0.8);
+    seg.setNormalDistanceWeight(0.1);
     seg.setMaxIterations(10000);
     seg.setDistanceThreshold(.5);
     seg.setRadiusLimits(0, 12);
