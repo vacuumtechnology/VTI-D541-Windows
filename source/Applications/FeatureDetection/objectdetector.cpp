@@ -18,20 +18,24 @@ std::mutex mtx;
 // Constructor
 //
 ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, std::string sceneConfig, std::string cylConfig) {
+    // Default values
     this->min_distance = 6;
-    model_ss = 0;
     scene_ss = 0;
     rf_rad = 0;
     descr_rad = 0;
     cg_size = 0;
     cg_thresh = 0;
     out_thresh = 0;
-    max_objects = 0;
     num_threads = 10;
+    norm_weight = .1;
+    max_iter = 10000;
+    dist_thresh = .5;
+    rad_min = 0;
+    rad_max = 12;
     switchScene = false;
     this->scene = sceneCloud;
     CalculateResolution(sceneCloud);
-    LoadParams(sceneConfig);
+    LoadParams(sceneConfig, cylConfig);
 }
 
 //
@@ -52,18 +56,6 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
         std::cout << "Error loading model cloud." << std::endl;
         return;
     }
-
-    //// FIX LATER : Add centroid to pick points
-    //Eigen::Vector4d centroid1;
-    //pcl::compute3DCentroid(*cloud, centroid1);
-    //uint8_t black = 0;
-    //PointType* p = new PointType();
-    //p->x = centroid1.x();
-    //p->y = centroid1.y();
-    //p->z = centroid1.z();
-    //
-    //cout << "Adding Centroid: " << p->x << " " << p->y << " " << p->z << endl;
-    //pick_points->push_back(*p);
 
     // Load config
     corr_thresh = 0;
@@ -108,6 +100,7 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
     else {
         std::cerr << "Couldn't open config file for reading.\n";
     }
+    cFile.close();
     //std::cout << "Model sampling size:    " << this->model_ss << std::endl;
     //std::cout << "LRF support radius:     " << this->rf_rad << std::endl;
     //std::cout << "SHOT descriptor radius: " << this->descr_rad << std::endl;
@@ -217,7 +210,7 @@ void Model::RemoveOutliers() {
 //
 // Loads config parameters for scene
 //
-void ObjectDetector::LoadParams(std::string sceneConfig) {
+void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) {
 
     // Load config params
     ifstream cFile(sceneConfig);
@@ -243,11 +236,36 @@ void ObjectDetector::LoadParams(std::string sceneConfig) {
     } else {
         cerr << "Couldn't open config file for reading.\n";
     }
+    cFile.close();
 
     scene_ss = scene_ss * resolution;
     descr_rad = descr_rad * resolution;
     cg_size = cg_size * resolution;
     rf_rad = rf_rad * resolution;
+
+    // Load config params
+    ifstream cFile2(cylConfig);
+    if (cFile2.is_open())
+    {
+        std::string line;
+        while (getline(cFile2, line)) {
+            line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
+            if (line[0] == '#' || line.empty()) continue;
+
+            auto delimiterPos = line.find("=");
+            auto name = line.substr(0, delimiterPos);
+            auto value = line.substr(delimiterPos + 1);
+
+            if (name == "norm_weight") norm_weight = atof(value.c_str());
+            else if (name == "max_iter") max_iter = atoi(value.c_str());
+            else if (name == "dist_thresh") dist_thresh = atof(value.c_str());
+            else if (name == "rad_min") rad_min = atoi(value.c_str());
+            else if (name == "rad_max") rad_max = atoi(value.c_str());
+        }
+    } else {
+        cerr << "Couldn't open config file for reading.\n";
+    }
+    cFile2.close();
 }
 
 void ObjectDetector::ResetAllModels() {
@@ -669,10 +687,10 @@ PointType ObjectDetector::DetectCylinder() {
     seg.setOptimizeCoefficients(true);
     seg.setModelType(pcl::SACMODEL_CYLINDER);
     seg.setMethodType(pcl::SAC_RANSAC);
-    seg.setNormalDistanceWeight(0.8);
-    seg.setMaxIterations(10000);
-    seg.setDistanceThreshold(.5);
-    seg.setRadiusLimits(0, 12);
+    seg.setNormalDistanceWeight(norm_weight);
+    seg.setMaxIterations(max_iter);
+    seg.setDistanceThreshold(dist_thresh);
+    seg.setRadiusLimits(rad_min, rad_max);
     seg.setInputCloud(scene_keypoints);
     seg.setInputNormals(cyl_normals);
 

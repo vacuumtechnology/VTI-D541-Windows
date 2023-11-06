@@ -106,6 +106,7 @@ int main (int argc, char *argv[]) {
     } else {
         cerr << "Couldn't open config file for reading.\n";
     }
+    cFile.close();
     cout << useRobot << " " << useCamera << endl;
 
     // Init robot

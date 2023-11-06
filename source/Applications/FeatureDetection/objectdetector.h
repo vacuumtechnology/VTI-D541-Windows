@@ -102,7 +102,7 @@ class ObjectDetector {
         pcl::PointCloud<PointType>::Ptr scene_keypoints;
 
     private:
-        void LoadParams(std::string sceneConfig);
+        void LoadParams(std::string sceneConfig, std::string cylConfig);
         void SearchThread(int i, Model *mod);
         void FindCorrespondences(Model *mod);
         void ResetModels(ModelGroup* modGroup);
@@ -142,17 +142,24 @@ class ObjectDetector {
         std::vector<PointType> sniffPoints;
         pcl::PointCloud<PointType>::Ptr sniffPointCloud;
 
-        float model_ss;
+        // Scene params
         float scene_ss;
         float descr_rad;
         float cg_size;
         float cg_thresh; 
         float rf_rad;
-        int max_objects;
 		float min_distance;
         float resolution;
         float out_thresh;
         int num_threads;
+
+        // Cylinder params
+        float norm_weight;
+        int max_iter;
+        float dist_thresh;
+        int rad_min;
+        int rad_max;
+
         std::string config;
         bool switchScene;
 };
