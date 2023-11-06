@@ -87,9 +87,8 @@ struct ModelGroup {
 
 class ObjectDetector {
 	public:
-        ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud);
+        ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, std::string sceneConfig, std::string cylConfig);
         float CalculateResolution(pcl::PointCloud<PointType>::Ptr sceneCloud);
-        void LoadParams(float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad, float out_thresh, int num_threads);
         void SwitchView();
         void LoadScene(pcl::PointCloud<PointType>::Ptr scene);
         void ProcessScene();
@@ -103,6 +102,7 @@ class ObjectDetector {
         pcl::PointCloud<PointType>::Ptr scene_keypoints;
 
     private:
+        void LoadParams(std::string sceneConfig);
         void SearchThread(int i, Model *mod);
         void FindCorrespondences(Model *mod);
         void ResetModels(ModelGroup* modGroup);

@@ -17,11 +17,21 @@ std::mutex mtx;
 //
 // Constructor
 //
-ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud) {
+ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, std::string sceneConfig, std::string cylConfig) {
     this->min_distance = 6;
+    model_ss = 0;
+    scene_ss = 0;
+    rf_rad = 0;
+    descr_rad = 0;
+    cg_size = 0;
+    cg_thresh = 0;
+    out_thresh = 0;
+    max_objects = 0;
+    num_threads = 10;
     switchScene = false;
     this->scene = sceneCloud;
     CalculateResolution(sceneCloud);
+    LoadParams(sceneConfig);
 }
 
 //
@@ -81,7 +91,7 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
             } else {
                 while (getline(cFile, line)) {
                     float x, y, z;
-                    cout << "line: " << line << endl;
+                    cout << "pick point: " << line << endl;
                     sscanf(line.c_str(), "(%f,%f,%f)", &x, &y, &z);
                     PointType *pickPoint = new PointType();
                     pickPoint->x = x;
@@ -207,16 +217,37 @@ void Model::RemoveOutliers() {
 //
 // Loads config parameters for scene
 //
-void ObjectDetector::LoadParams(float scene_ss, float descr_rad, float cg_size, float cg_thresh, float rf_rad, float out_thresh, int num_threads) {
+void ObjectDetector::LoadParams(std::string sceneConfig) {
 
-    this->scene_ss = scene_ss * resolution;
-    this->descr_rad = descr_rad * resolution;
-    this->cg_size = cg_size * resolution;
-    this->cg_thresh = cg_thresh;
-    this->rf_rad = rf_rad * resolution;
-    this->out_thresh = out_thresh;
-    this->num_threads = num_threads;
+    // Load config params
+    ifstream cFile(sceneConfig);
+    if (cFile.is_open())
+    {
+        std::string line;
+        while (getline(cFile, line)) {
+            line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
+            if (line[0] == '#' || line.empty()) continue;
 
+            auto delimiterPos = line.find("=");
+            auto name = line.substr(0, delimiterPos);
+            auto value = line.substr(delimiterPos + 1);
+
+            if (name == "scene_ss") scene_ss = atof(value.c_str());
+            else if (name == "rf_rad") rf_rad = atof(value.c_str());
+            else if (name == "descr_rad") descr_rad = atof(value.c_str());
+            else if (name == "cg_size") cg_size = atof(value.c_str());
+            else if (name == "cg_thresh") cg_thresh = atof(value.c_str());
+            else if (name == "out_thresh") out_thresh = atof(value.c_str());
+            else if (name == "num_threads") num_threads = atoi(value.c_str());
+        }
+    } else {
+        cerr << "Couldn't open config file for reading.\n";
+    }
+
+    scene_ss = scene_ss * resolution;
+    descr_rad = descr_rad * resolution;
+    cg_size = cg_size * resolution;
+    rf_rad = rf_rad * resolution;
 }
 
 void ObjectDetector::ResetAllModels() {
@@ -595,6 +626,7 @@ std::vector<PointType> ObjectDetector::Detect(){
         int c = 0;
         while (true) {
             std::cout << "models: " << modelGroups[i]->size << std::endl;
+            std::cout << "expected: " << modelGroups[i]->max_objects << std::endl;
             for(int j = 0; j < modelGroups[i]->size; j++){
                 if(modelGroups[i]->models[j] == NULL){
                     continue;

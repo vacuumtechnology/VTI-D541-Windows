@@ -6,3 +6,4 @@ cg_size = 10
 max_objects = 1
 cg_thresh = 1
 view_result = true
+num_threads = 100

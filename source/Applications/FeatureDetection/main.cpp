@@ -58,34 +58,55 @@ int main (int argc, char *argv[]) {
     PointsToRobot* pointsToRobot;
     Capturer* capturer;
     string modelPath = "../../pcd/";
-    float model_ss = 0;
-    float scene_ss = 0;
-    float rf_rad = 0;
-    float descr_rad = 0;
-    float cg_size = 0;
-    float cg_thresh = 0;
-    float out_thresh = 0;
-    int max_objects = 0;
-    float num_threads = 10;
-    bool view_result = true;
+    vector< pair< string, int > > models;
     bool useRobot;
     bool useCamera;
+    string sceneFile, sceneConfig, cylConfig;
     
-    if(argc < 3){
-        cout << "Usage: ./FeatureDetection -c scene.pcd scene_config.txt" << endl;
+    if(argc < 2){
+        cout << "Usage: ./FeatureDetection ../../runconfigs/runconfig.config" << endl;
     	return 0;
     }
 
-    string flag = argv[1];
-    string flag2 = argv[2];
-    string sceneFile = argv[3];
-    string configFile = argv[4];
+    string runConfig = argv[1];
 
-    if (flag2 == "-r") {
-        useRobot = true;
+    // Load config params
+    ifstream cFile(runConfig);
+    if (cFile.is_open())
+    {
+        string line;
+        while (getline(cFile, line)) {
+            line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
+            if (line[0] == '#' || line.empty()) continue;
+
+            auto delimiterPos = line.find("=");
+            auto name = line.substr(0, delimiterPos);
+            auto value = line.substr(delimiterPos + 1);
+
+            if (name == "camera") useCamera = (value == "true");
+            else if (name == "robot") useRobot = (value == "true");
+            else if (name == "cylConfig") cylConfig = value;
+            else if (name == "sceneConfig") sceneConfig = value;
+            else if (name == "sceneFile") sceneFile = value;
+            else if (name == "models") {
+                while (getline(cFile, line)) {
+                    line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
+                    if (line[0] == '#' || line.empty()) continue;
+
+                    auto delimiterPos = line.find("=");
+                    auto name = line.substr(0, delimiterPos);
+                    auto value = line.substr(delimiterPos + 1);
+
+                    if (name == "endmodels") break;
+
+                    models.push_back(make_pair(name, atoi(value.c_str())));
+                }
+            }
+        }
     } else {
-        useRobot = false;
+        cerr << "Couldn't open config file for reading.\n";
     }
+    cout << useRobot << " " << useCamera << endl;
 
     // Init robot
     if (useRobot) {
@@ -105,8 +126,7 @@ int main (int argc, char *argv[]) {
 
 
     // Init camera and capture/load
-    if (flag == "-f") {
-        useCamera = false;
+    if (!useCamera) {
         //  Load scene cloud
         if (pcl::io::loadPCDFile(sceneFile, *scene) < 0) {
             cout << "Error loading scene cloud." << endl;
@@ -114,67 +134,17 @@ int main (int argc, char *argv[]) {
             return (-1);
         }
     } else {
-        useCamera = true;
         // Capture scene cloud
         capturer = new Capturer("../../txt/set.yml");
         scene = capturer->Capture();
     }
 
-    ObjectDetector* obj = new ObjectDetector(scene); // Object Detector init
+    ObjectDetector* obj = new ObjectDetector(scene, sceneConfig, cylConfig); // Object Detector init
 
-    // Load config params
-    ifstream cFile(configFile);
-    if (cFile.is_open())
-    {
-        string line;
-        while (getline(cFile, line)) {
-            line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
-            if (line[0] == '#' || line.empty()) continue;
-
-            auto delimiterPos = line.find("=");
-            auto name = line.substr(0, delimiterPos);
-            auto value = line.substr(delimiterPos + 1);
-
-            if (name == "model_ss") model_ss = atof(value.c_str());
-            else if (name == "scene_ss") scene_ss = atof(value.c_str());
-            else if (name == "rf_rad") rf_rad = atof(value.c_str());
-            else if (name == "descr_rad") descr_rad = atof(value.c_str());
-            else if (name == "cg_size") cg_size = atof(value.c_str());
-            else if (name == "cg_thresh") cg_thresh = atof(value.c_str());
-            else if (name == "max_objects") max_objects = atoi(value.c_str());
-            else if (name == "view_result") view_result = (value == "true");
-            else if (name == "out_thresh") out_thresh = atof(value.c_str());
-            else if (name == "num_threads") num_threads = atoi(value.c_str());
-        }
-    } else {
-        cerr << "Couldn't open config file for reading.\n";
-    }
-    obj->LoadParams(scene_ss, descr_rad, cg_size, cg_thresh, rf_rad, out_thresh, num_threads);
-
-    
-
-
-    // Pick and Load Models
-    vector<string> models;
-    getSubdirs(models, modelPath);
-    cout << "Models:" << endl;
+    // Load Models
     for (int i = 0; i < models.size(); i++) {
-        cout << "\t" << models[i] << endl;
-    }
-    string s;
-    int o;
-    while (true) {
-        cout << "Add a model('d' when done): ";
-        cin >> s;
-        if (s == "d") break;
-        cout << "\tExpected # of occurences: ";
-        try {
-            cin >> o;
-            obj->LoadModel(modelPath + s, o);
-        }
-        catch (exception e) {
-            cout << "invalid model" << endl;
-        }
+        cout << "loading: " << modelPath + models[i].first << " " << models[i].second << endl;
+        obj->LoadModel(modelPath + models[i].first, models[i].second);
     }
 
     thread sceneViewer(&ObjectDetector::VisualizeResults, obj);
