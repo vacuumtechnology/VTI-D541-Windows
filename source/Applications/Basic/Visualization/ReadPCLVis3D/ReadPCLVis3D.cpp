@@ -55,9 +55,17 @@ namespace
 
 int main(int argc, char **argv)
 {
+    std::string pointCloudFile;
+
     try
     {
-        std::string pointCloudFile = argv[1];
+        if (argc > 1) {
+            pointCloudFile = argv[1];
+        } else {
+            pointCloudFile = "../../pcd/Capture.pcd";
+        }
+
+        
         std::cout << "Reading PCD point cloud from file: " << pointCloudFile << std::endl;
 
         auto pointCloudPCL = pcl::PointCloud<pcl::PointXYZRGB>();

@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 	seg.setOptimizeCoefficients(true);
 	seg.setModelType(pcl::SACMODEL_CYLINDER);
 	seg.setMethodType(pcl::SAC_RANSAC);
-	seg.setNormalDistanceWeight(0.1);
+	seg.setNormalDistanceWeight(0.8);
 	seg.setMaxIterations(10000);
 	seg.setDistanceThreshold(.5);
 	seg.setRadiusLimits(0, 12);

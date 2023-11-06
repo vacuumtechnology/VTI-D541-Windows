@@ -701,6 +701,7 @@ void ObjectDetector::SwitchView() {
 //
 int ObjectDetector::VisualizeResults() {
     viewer.reset(new pcl::visualization::PCLVisualizer("viewer"));
+    viewer->getRenderWindow()->GlobalWarningDisplayOff();
     viewer->setSize(900, 1000);
     viewer->setBackgroundColor(.3, .3, .3);
     viewer->setCameraPosition(0, 0, -50, 0, -1, 0);

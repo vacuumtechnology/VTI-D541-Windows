@@ -20,6 +20,7 @@
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/extract_indices.h>
+#include <vtkRenderWindow.h>
 #include <map>
 #include <cmath>
 #include <chrono>

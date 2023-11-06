@@ -30,13 +30,13 @@ public:
 	//Winsock vars
 	WSADATA wsaData;
 	int iResult;
-	SOCKET ListenSocket = INVALID_SOCKET;
-	SOCKET ClientSocket = INVALID_SOCKET;
+	SOCKET ConnectSocket = INVALID_SOCKET;
 	struct addrinfo* result = NULL;
+	struct addrinfo* ptr = NULL;
 	struct addrinfo hints;
-	int iSendResult;
 	char recvbuf[DEFAULT_BUFLEN];
 	int recvbuflen = DEFAULT_BUFLEN;
+	std::string servername = "localhost";
 
 	PointsToRobot(std::vector<float> calibration);
 	~PointsToRobot();
@@ -46,7 +46,7 @@ public:
 	void SendPoints(std::vector<PointType> points);
 
 private:
-	void CreateSocket();
+	void ConnectToSocket();
 	char *IntToBytes(int msg[]);
 };
 
