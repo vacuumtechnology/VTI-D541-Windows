@@ -1,6 +1,6 @@
 __version__:
   serializer: 1
-  data: 20
+  data: 21
 Settings:
   Acquisitions:
     - Acquisition:
@@ -84,7 +84,7 @@ Settings:
       PointO: [-100, 213.359039, 833.933777]
     Depth:
       Enabled: yes
-      Range: [300, 840]
+      Range: [300, 847]
   Sampling:
     Color: rgb
     Pixel: all
