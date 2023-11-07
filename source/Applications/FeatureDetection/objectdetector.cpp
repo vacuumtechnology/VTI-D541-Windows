@@ -485,7 +485,7 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
     clusterer.setSceneRf(scene_rf);
     clusterer.setModelSceneCorrespondences(mod->model_scene_corrs);
 
-    for (int i = 0; i < 10; i++) clusterer.train();
+    //for (int i = 0; i < 10; i++) clusterer.train();
     clusterer.recognize(mod->rototranslations, mod->clustered_corrs);
     std::cout << "Correspondences Found" << std::endl;
 
@@ -559,7 +559,7 @@ bool ObjectDetector::DetermineBestMatches(ModelGroup* modGroup) {
         //printf("            | %6.3f %6.3f %6.3f | \n", rotation(2, 0), rotation(2, 1), rotation(2, 2));
         //printf("\n");
         //printf("        t = < %0.3f, %0.3f, %0.3f >\n", translation(0), translation(1), translation(2));
-        if (CheckUnmoved(rotation, translation)) {
+        if (/*rotation(0, 0) < .9 || rotation(1, 1) < .9 || rotation(2, 2) < .9 || */ CheckUnmoved(rotation, translation)) {
             std::cout << "\tInvalid Rotation Detected\n" << std::endl;
             // Erase duplicate instance and call recursively
             it = decltype(it)(modGroup->bestMatches.erase(std::next(it).base()));
