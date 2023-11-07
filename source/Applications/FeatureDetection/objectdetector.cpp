@@ -321,14 +321,17 @@ void ObjectDetector::ProcessSceneCylinder() {
 
 void ObjectDetector::ProcessScene() {
     std::cout << "Processing Scene" << std::endl;
+    norm_est.setNumberOfThreads(num_threads);
     norm_est.setKSearch(15);
     norm_est.setInputCloud(scene);
     norm_est.compute(*scene_normals);
+    std::cout << 1 << std::endl;
 
     uniform_sampling.setInputCloud(scene);
     uniform_sampling.setRadiusSearch(scene_ss);
     uniform_sampling.filter(*scene_keypoints);
     //std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+    std::cout << 2 << std::endl;
 
     sor.setInputCloud(scene_keypoints);
     sor.setMeanK(10);
@@ -336,15 +339,17 @@ void ObjectDetector::ProcessScene() {
     sor.filter(*scene_keypoints);
     //std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
 
+    std::cout << 3 << std::endl;
 
     descr_est.reset(new pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType>);
-    descr_est->setNumberOfThreads(100);
+    descr_est->setNumberOfThreads(num_threads);
     descr_est->setRadiusSearch(descr_rad);
     descr_est->setInputCloud(scene_keypoints);
     descr_est->setInputNormals(scene_normals);
     descr_est->setSearchSurface(scene);
     descr_est->compute(*scene_descriptors);
 
+    std::cout << 4 << std::endl;
 
     rf_est.setFindHoles(false);
     rf_est.setRadiusSearch(rf_rad);
@@ -352,6 +357,7 @@ void ObjectDetector::ProcessScene() {
     rf_est.setInputNormals(scene_normals);
     rf_est.setSearchSurface(scene);
     rf_est.compute(*scene_rf);
+    std::cout << 5 << std::endl;
 
 }
 

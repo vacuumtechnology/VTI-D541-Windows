@@ -11,6 +11,7 @@ The PCD file for this sample can be found under the main instructions for Zivid 
 #include <pcl/point_types.h>
 #include <pcl/visualization/cloud_viewer.h>
 
+#include <vtkRenderWindow.h>
 #include <iostream>
 #include <thread>
 
@@ -38,6 +39,8 @@ namespace
     void visualizePointCloud(const pcl::PointCloud<T> &pointCloud)
     {
         auto viewer = pcl::visualization::PCLVisualizer("Viewer");
+        int *id = (int *)viewer.getRenderWindow()->GetGenericWindowId();
+        cout << "id: " << *id << endl;
 
         addPointCloudToViewer(viewer, pointCloud.makeShared());
 

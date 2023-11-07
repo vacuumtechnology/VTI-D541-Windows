@@ -20,6 +20,7 @@ set(PROGRAMS
     Applications/Base
     Applications/CreateModel
     Applications/Crop
+    Applications/FormTest
     )
 
 find_package(
