@@ -782,7 +782,7 @@ int ObjectDetector::VisualizeResults() {
 
         pcl::visualization::PointCloudColorHandlerCustom<PointType> pick_point_color_handler(sniffPointCloud, 78, 163, 49);
         viewer->addPointCloud(sniffPointCloud, pick_point_color_handler, "sniff");
-        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 8, "sniff");
+        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "sniff");
 
         while (!viewer->wasStopped() && !switchScene)
         {
