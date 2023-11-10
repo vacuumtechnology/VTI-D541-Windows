@@ -199,9 +199,9 @@ int main() try
 
         // Resize/move point cloud to appear similar to zivid
         for (int i = 0; i < cloud->points.size(); i++) {
-            cloud->points[i].x *= 100;
-            cloud->points[i].y *= 100;
-            cloud->points[i].z *= 100;
+            cloud->points[i].x *= 200;
+            cloud->points[i].y *= 200;
+            cloud->points[i].z *= 200;
             cloud->points[i].z += 800;
         }
 
