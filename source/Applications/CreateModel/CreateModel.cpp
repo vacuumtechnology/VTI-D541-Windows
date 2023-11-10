@@ -1,7 +1,9 @@
 #include "CreateModel.h"
 #include <vtkRenderWindow.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/search/kdtree.h>
 #include <mutex>
+#include <pcl/point_types.h>
 
 std::mutex mtx;
 
@@ -16,12 +18,20 @@ void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& even
         return;
     }
 
+    std::vector<int> indices(1);
+    std::vector<float> dist(1);
+    pcl::search::KdTree<pcl::PointXYZRGB> search;
+
     event.getPoint(x, y, z);
+
     PointType *pickPoint = new PointType();
     pickPoint->x = x;
     pickPoint->y = y;
     pickPoint->z = z;
     Viewer->pickPoints.push_back(pickPoint);
+
+    search.nearestKSearch(*pickPoint, 1, indices, dist);
+    cout << Viewer->cloud_out->at(indices[0]).r << " " << Viewer->cloud_out->at(indices[0]).g << " " << Viewer->cloud_out->at(indices[0]).b << endl;
     
     std::stringstream cubenameStream;
     cubenameStream << "cube" << Viewer->cubeCounter;
@@ -31,7 +41,7 @@ void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& even
     Viewer->viewer->addCube(x - 2, x + 2, y - 2, y + 2, z - 2, z + 2, 1, .5, 0, cubename);
     Viewer->viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, cubename);
     
-    std::cout << "Point coordinate ( " << x << ", " << y << ", " << z << ")" << std::endl;
+    std::cout << "Point ( " << x << ", " << y << ", " << z << ")" << std::endl;
 }
 
 // visualizer keystroke handler for cropping step
