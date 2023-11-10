@@ -221,7 +221,7 @@ int main() try
         //==============================
         // Take Cloud Data and write to .PCD File Format
         cout << "Generating PCD Point Cloud File... " << endl;
-        pcl::io::savePCDFileBinary(cloudFile, *newCloud); // Input cloud to be saved to .pcd
+        pcl::io::savePCDFileASCII(cloudFile, *newCloud); // Input cloud to be saved to .pcd
         cout << cloudFile << " successfully generated. " << endl;
 
         //Load generated PCD file for viewing
