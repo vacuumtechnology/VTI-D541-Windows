@@ -115,17 +115,6 @@ foreach(PROGRAM ${PROGRAMS})
 
     include_directories(${PROGRAM_NAME} ${RS_INCLUDE_DIR})
     target_link_libraries(${PROGRAM_NAME} ${REALSENSE2_FOUND})
-    # target_link_libraries(rs-align ${realsense2_LIBRARY})
-
-    # Post Build script to copy realsense2.dll
-    # if(WIN32)
-    # message(STATUS "Adding Post build script to copy realsense2.dll to project's binary folder")
-    # message(STATUS "Will try to copy from ${RS_DLL_DIR} to ${PROJECT_BINARY_OUTPUT_PATH}")
-    # add_custom_command(TARGET ${PROGRAM_NAME} POST_BUILD        # Adds a post-build event to rs-getting-started
-    #     COMMAND ${CMAKE_COMMAND} -E copy_if_different              # which executes "cmake - E copy_if_different..."
-    #         "${DLL_DIR}/realsense2.dll"                            # <--this is in-file
-    #         ${PROJECT_BINARY_OUTPUT_PATH})                 # <--this is out-file path
-    # endif()
 
 endforeach()
 

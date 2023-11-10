@@ -39,12 +39,14 @@ namespace
     void visualizePointCloud(const pcl::PointCloud<T> &pointCloud)
     {
         auto viewer = pcl::visualization::PCLVisualizer("Viewer");
-        int *id = (int *)viewer.getRenderWindow()->GetGenericWindowId();
-        cout << "id: " << *id << endl;
-
+        /*int *id = (int *)viewer.getRenderWindow()->GetGenericWindowId();
+        cout << "id: " << *id << endl;*/
+        viewer.setBackgroundColor(.3, .3, .3);
+        double pos = (double)pointCloud.width / -20;
+        viewer.setCameraPosition(0, 0, pos,  0, -1, 0);
+        cout << "back: " << pos;
         addPointCloudToViewer(viewer, pointCloud.makeShared());
 
-        viewer.setCameraPosition(0, 0, -100, 0, -1, 0);
 
         std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
         std::cout << "Press q to exit the viewer application" << std::endl;
@@ -75,6 +77,7 @@ int main(int argc, char **argv)
 
         pcl::io::loadPCDFile<pcl::PointXYZRGB>(pointCloudFile, pointCloudPCL);
         std::cout << "Loaded " << pointCloudPCL.width * pointCloudPCL.height << " points" << std::endl;
+        std::cout << "width: " << pointCloudPCL.width << " points" << std::endl;
 
         visualizePointCloud(pointCloudPCL);
     }
