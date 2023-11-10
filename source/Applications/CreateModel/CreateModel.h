@@ -4,6 +4,7 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/filters/crop_box.h>
 #include <iostream>
+#include <pcl/common/common.h>
 #include <string>
 #include <thread>
 #include <windows.h>
@@ -23,6 +24,7 @@ public:
 	int cubeCounter = 0;
 	int increment = 3;
 	bool cloudUpdated;
+	PointCloudType::Ptr cloud_out;
 private:
 
 	void filterCloud();
@@ -32,7 +34,6 @@ private:
 	void writeConfig();
 
 	PointCloudType::Ptr cloud;
-	PointCloudType::Ptr cloud_out;
 	pcl::CropBox<pcl::PointXYZRGB> cropBoxFilter;
 
 	std::string filename;

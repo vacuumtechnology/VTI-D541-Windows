@@ -42,9 +42,7 @@ namespace
         /*int *id = (int *)viewer.getRenderWindow()->GetGenericWindowId();
         cout << "id: " << *id << endl;*/
         viewer.setBackgroundColor(.3, .3, .3);
-        double pos = (double)pointCloud.width / -20;
-        viewer.setCameraPosition(0, 0, pos,  0, -1, 0);
-        cout << "back: " << pos;
+        viewer.setCameraPosition(0, 0, -100,  0, -1, 0);
         addPointCloudToViewer(viewer, pointCloud.makeShared());
 
 
