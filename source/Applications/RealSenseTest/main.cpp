@@ -129,6 +129,7 @@ int main() try
     // Object Declaration
     //====================
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr newCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     boost::shared_ptr<pcl::visualization::PCLVisualizer> openCloud;
 
     // Declare pointcloud object, for calculating pointclouds and texture mappings
@@ -169,19 +170,15 @@ int main() try
     }
 
     // Begin Stream with default configs
+    if (!userInput()) return 0;
 
-    // Loop and take frame captures upon user input
-    while (captureLoop == true) {
+    // Wait for frames from the camera to settle
+    for (int i = 0; i < 30; i++) {
+        auto frames = pipe.wait_for_frames(); //Drop several frames for auto-exposure
+    }
 
-        // Set loop flag based on user input
-        captureLoop = userInput();
-        if (captureLoop == false) { break; }
-
-
-        // Wait for frames from the camera to settle
-        for (int i = 0; i < 30; i++) {
-            auto frames = pipe.wait_for_frames(); //Drop several frames for auto-exposure
-        }
+    // Loop and take frame captures
+    for (int i = 0; i < 10; i++) {
 
         // Capture a single frame and obtain depth + RGB values from it    
         auto frames = pipe.wait_for_frames();
@@ -205,39 +202,32 @@ int main() try
             cloud->points[i].z += 800;
         }
 
-        //========================================
-        // Filter PointCloud (PassThrough Method)
-        //========================================
-        pcl::PassThrough<pcl::PointXYZRGB> Cloud_Filter; // Create the filtering object
-        Cloud_Filter.setInputCloud(cloud);           // Input generated cloud to filter
-        Cloud_Filter.setFilterFieldName("z");        // Set field name to Z-coordinate
-        Cloud_Filter.setFilterLimits(800, 1000);      // Set accepted interval values
-        Cloud_Filter.filter(*newCloud);              // Filtered Cloud Outputted
+        *newCloud += *cloud;
 
-        cloudFile = "../../pcd/Captured_Frame" + to_string(i) + ".pcd";
-
-        //==============================
-        // Write PC to .pcd File Format
-        //==============================
-        // Take Cloud Data and write to .PCD File Format
-        cout << "Generating PCD Point Cloud File... " << endl;
-        pcl::io::savePCDFileASCII(cloudFile, *newCloud); // Input cloud to be saved to .pcd
-        cout << cloudFile << " successfully generated. " << endl;
-
-        //Load generated PCD file for viewing
-        Visualize(newCloud);
-        i++; // Increment File Name
     }//End-while
+
+    std::cout << "Cloud size: " << newCloud->size() << " points" << endl;
+
+    cloudFile = "../../pcd/Captured_Frame.pcd";
+
+    //==============================
+    // Write PC to .pcd File Format
+    //==============================
+    // Take Cloud Data and write to .PCD File Format
+    cout << "Generating PCD Point Cloud File... " << endl;
+    pcl::io::savePCDFileASCII(cloudFile, *newCloud); // Input cloud to be saved to .pcd
+    cout << cloudFile << " successfully generated. " << endl;
+
+    //Load generated PCD file for viewing
+    Visualize(newCloud);
 
 
     cout << "Exiting Program... " << endl;
     return EXIT_SUCCESS;
-} catch (const rs2::error& e)
-{
+} catch (const rs2::error& e) {
     std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
     return EXIT_FAILURE;
-} catch (const std::exception& e)
-{
+} catch (const std::exception& e) {
     std::cerr << e.what() << std::endl;
     return EXIT_FAILURE;
 }
