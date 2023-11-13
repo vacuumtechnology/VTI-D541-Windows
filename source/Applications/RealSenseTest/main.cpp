@@ -13,11 +13,14 @@
 #include <boost/thread/thread.hpp>
 #include <pcl/io/io.h>
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/filters/uniform_sampling.h>
+#include <pcl/filters/random_sample.h>
 
 using namespace std;
 
-typedef pcl::PointXYZRGB RGB_Cloud;
-typedef pcl::PointCloud<RGB_Cloud> point_cloud;
+typedef pcl::PointXYZRGB PointType;
+typedef pcl::PointCloud<PointType> point_cloud;
 typedef point_cloud::Ptr cloud_pointer;
 typedef point_cloud::Ptr prevCloud;
 
@@ -128,8 +131,8 @@ int main() try
     //====================
     // Object Declaration
     //====================
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr newCloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<PointType>::Ptr newCloud(new pcl::PointCloud<PointType>);
+    pcl::PointCloud<PointType>::Ptr cloud(new pcl::PointCloud<PointType>);
     boost::shared_ptr<pcl::visualization::PCLVisualizer> openCloud;
 
     // Declare pointcloud object, for calculating pointclouds and texture mappings
@@ -196,15 +199,41 @@ int main() try
 
         // Resize/move point cloud to appear similar to zivid
         for (int i = 0; i < cloud->points.size(); i++) {
-            cloud->points[i].x *= 200;
-            cloud->points[i].y *= 200;
-            cloud->points[i].z *= 200;
-            cloud->points[i].z += 800;
+            cloud->points[i].x *= 300;
+            cloud->points[i].y *= 300;
+            cloud->points[i].z *= 300;
+            cloud->points[i].z += 700;
         }
+
+        pcl::PassThrough<PointType> Cloud_Filter; // Create the filtering object
+        Cloud_Filter.setInputCloud(cloud);           // Input generated cloud to filter
+        Cloud_Filter.setFilterFieldName("z");        // Set field name to Z-coordinate
+        Cloud_Filter.setFilterLimits(500, 820);      // Set accepted interval values
+        Cloud_Filter.filter(*cloud);              // Filtered Cloud Outputted
 
         *newCloud += *cloud;
 
     }//End-while
+
+    std::cout << "Downsample" << std::endl;
+
+    /*pcl::UniformSampling<PointType> uniform_sampling;
+    uniform_sampling.setInputCloud(newCloud);
+    uniform_sampling.setRadiusSearch(.6);
+    uniform_sampling.filter(*newCloud);
+    std::cout << "Cloud size after downsample: " << newCloud->size() << " points" << endl;*/
+
+    pcl::RandomSample<PointType> random_sampling;
+    random_sampling.setInputCloud(newCloud);
+    random_sampling.setSample(200000);
+    random_sampling.filter(*newCloud);
+    std::cout << "Cloud size after downsample: " << newCloud->size() << " points" << endl;
+
+    pcl::StatisticalOutlierRemoval<PointType> sor;
+    sor.setInputCloud(newCloud);
+    sor.setMeanK(15);
+    sor.setStddevMulThresh(.7);
+    sor.filter(*newCloud);
 
     std::cout << "Cloud size: " << newCloud->size() << " points" << endl;
 
@@ -246,7 +275,7 @@ void Visualize(cloud_pointer cloudView)
     // Set background of viewer to black
     viewer->setBackgroundColor(.3, .3, .3);
     // Add generated point cloud and identify with string "Cloud"
-    viewer->addPointCloud<pcl::PointXYZRGB>(cloudView, "Cloud");
+    viewer->addPointCloud<PointType>(cloudView, "Cloud");
     // Default size for rendered points
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Cloud");
     viewer->setCameraPosition(0, 0, -100, 0, -1, 0);

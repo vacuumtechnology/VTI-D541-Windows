@@ -30,8 +30,8 @@ void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& even
     pickPoint->z = z;
     Viewer->pickPoints.push_back(pickPoint);
 
-    search.nearestKSearch(*pickPoint, 1, indices, dist);
-    cout << Viewer->cloud_out->at(indices[0]).r << " " << Viewer->cloud_out->at(indices[0]).g << " " << Viewer->cloud_out->at(indices[0]).b << endl;
+    //search.nearestKSearch(*pickPoint, 1, indices, dist);
+    //cout << Viewer->cloud_out->at(indices[0]).r << " " << Viewer->cloud_out->at(indices[0]).g << " " << Viewer->cloud_out->at(indices[0]).b << endl;
     
     std::stringstream cubenameStream;
     cubenameStream << "cube" << Viewer->cubeCounter;
