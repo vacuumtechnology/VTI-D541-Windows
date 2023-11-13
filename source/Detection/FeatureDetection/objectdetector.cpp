@@ -34,14 +34,13 @@ ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, std::
     rad_max = 12;
     switchScene = false;
     this->scene = sceneCloud;
-    CalculateResolution(sceneCloud);
     LoadParams(sceneConfig, cylConfig);
 }
 
 //
 // Model Constructor
 //
-Model::Model(std::string pcdFile, std::string configFile, float resolution) {
+Model::Model(std::string pcdFile, std::string configFile) {
     //std::cout << "Creating model, pcd: " << pcdFile << " config: " << configFile << std::endl;
     cloud.reset(new pcl::PointCloud<PointType>);
     model_normals.reset(new pcl::PointCloud<NormalType>);
@@ -72,14 +71,15 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
                 auto name = line.substr(0, delimiterPos);
                 auto value = line.substr(delimiterPos + 1);
 
-                if (name == "model_ss") model_ss = atof(value.c_str()) * resolution;
-                else if (name == "rf_rad") rf_rad = atof(value.c_str()) * resolution;
-                else if (name == "descr_rad") descr_rad = atof(value.c_str()) * resolution;
-                else if (name == "cg_size") cg_size = atof(value.c_str()) * resolution;
+                if (name == "model_ss") model_ss = atof(value.c_str());
+                else if (name == "rf_rad") rf_rad = atof(value.c_str());
+                else if (name == "descr_rad") descr_rad = atof(value.c_str());
+                else if (name == "cg_size") cg_size = atof(value.c_str()) ;
                 else if (name == "cg_thresh") cg_thresh = atof(value.c_str());
                 else if (name == "max_objects") max_objects = atoi(value.c_str());
                 else if (name == "out_thresh") out_thresh = atof(value.c_str());
                 else if (name == "corr_thresh") corr_thresh = atoi(value.c_str());
+
             } else {
                 while (getline(cFile, line)) {
                     float x, y, z;
@@ -96,6 +96,11 @@ Model::Model(std::string pcdFile, std::string configFile, float resolution) {
             }
         }
 
+        std::cout << "Model sampling size:    " << this->model_ss << std::endl;
+        std::cout << "LRF support radius:     " << this->rf_rad << std::endl;
+        std::cout << "SHOT descriptor radius: " << this->descr_rad << std::endl;
+        std::cout << "Clustering bin size:    " << this->cg_size << std::endl << std::endl;
+
     }
     else {
         std::cerr << "Couldn't open config file for reading.\n";
@@ -111,7 +116,7 @@ void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
     std::string folder = modelFile.substr(modelFile.find_last_of("/") + 1);
     std::string filename = modelFile + "/" + folder;
     ModelGroup* modelGroup = new ModelGroup;
-    Model* model = new Model(filename + ".pcd", filename + ".config", resolution);
+    Model* model = new Model(filename + ".pcd", filename + ".config");
     modelGroup->max_objects = occurences;
     model->name = filename;
     model->Process();
@@ -123,7 +128,7 @@ void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
     while (true) {
         filename = modelFile + "/" + folder + std::to_string(i);
         if (stat((filename + ".pcd").c_str(), &buffer) == 0) {
-            Model* model = new Model(filename + ".pcd", filename + ".config", resolution);
+            Model* model = new Model(filename + ".pcd", filename + ".config");
             model->name = filename;
             model->Process();
             modelGroup->models.push_back(model);
@@ -238,10 +243,10 @@ void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) 
     }
     cFile.close();
 
-    scene_ss = scene_ss * resolution;
-    descr_rad = descr_rad * resolution;
-    cg_size = cg_size * resolution;
-    rf_rad = rf_rad * resolution;
+    std::cout << "Scene sampling size:    " << this->scene_ss << std::endl;
+    std::cout << "LRF support radius:     " << this->rf_rad << std::endl;
+    std::cout << "SHOT descriptor radius: " << this->descr_rad << std::endl;
+    std::cout << "Clustering bin size:    " << this->cg_size << std::endl << std::endl;
 
     // Load config params
     ifstream cFile2(cylConfig);

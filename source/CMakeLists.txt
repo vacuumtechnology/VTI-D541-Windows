@@ -24,18 +24,19 @@ set(ZIVID_VERSION 2.9.0)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(PROGRAMS
-    Camera/Basic/CaptureAssistant
-    Applications/Basic/Visualization/CaptureVis3D
-    Applications/Basic/Visualization/ReadPCLVis3D
-    Applications/FeatureDetection
-    Applications/DetectCylinder
-    Applications/DetectSphere
-    Applications/Calibrate
-    Applications/Base
-    Applications/CreateModel
-    Applications/Crop
-    Applications/FormTest
-    Applications/RealSenseTest
+    Camera/CaptureAssistant
+    Utilities/CaptureVis3D
+    Utilities/ReadPCLVis3D
+    Detection/FeatureDetection
+    Detection/DetectCylinder
+    Detection/DetectSphere
+    Detection/Calibrate
+    Detection/Base
+    Utilities/CreateModel
+    Utilities/Crop
+    Utilities/RemoveRegions
+    Utilities/FormTest
+    Camera/RealSenseTest
     )
 
 # Simple non robust way to find the librealsense library

@@ -33,11 +33,9 @@ typedef pcl::Normal NormalType;
 typedef pcl::ReferenceFrame RFType;
 typedef pcl::SHOT352 DescriptorType;
 
-
-
 class Model {
 public:
-    Model(std::string pcdFile, std::string configFile, float resolution);
+    Model(std::string pcdFile, std::string configFile);
     pcl::PointCloud<PointType>::Ptr cloud;
     void Process();
     void RemoveOutliers();

@@ -175,7 +175,7 @@ int main (int argc, char *argv[]) {
             pointsToRobot->SendPoints(sniffPoints);
         }
             
-        Sleep(4000);
+        Sleep(10000);
         
 
         obj->ResetAllModels();
