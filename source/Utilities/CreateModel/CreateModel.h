@@ -22,7 +22,7 @@ public:
 	std::vector<PointType *> pickPoints;
 	std::vector <float> dimensions;
 	int cubeCounter = 0;
-	int increment = 3;
+	int increment;
 	bool cloudUpdated;
 	PointCloudType::Ptr cloud_out;
 private:
