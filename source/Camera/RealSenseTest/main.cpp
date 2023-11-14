@@ -199,10 +199,10 @@ int main() try
 
         // Resize/move point cloud to appear similar to zivid
         for (int i = 0; i < cloud->points.size(); i++) {
-            cloud->points[i].x *= 300;
-            cloud->points[i].y *= 300;
-            cloud->points[i].z *= 300;
-            cloud->points[i].z += 700;
+            cloud->points[i].x *= 900;
+            cloud->points[i].y *= 900;
+            cloud->points[i].z *= 900;
+            cloud->points[i].z += 400;
         }
 
         pcl::PassThrough<PointType> Cloud_Filter; // Create the filtering object
@@ -222,6 +222,8 @@ int main() try
     uniform_sampling.setRadiusSearch(.6);
     uniform_sampling.filter(*newCloud);
     std::cout << "Cloud size after downsample: " << newCloud->size() << " points" << endl;*/
+
+
 
     pcl::RandomSample<PointType> random_sampling;
     random_sampling.setInputCloud(newCloud);
