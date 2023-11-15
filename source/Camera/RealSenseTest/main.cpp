@@ -111,9 +111,9 @@ cloud_pointer PCL_Conversion(const rs2::points& points, const rs2::video_frame& 
         RGB_Color = RGB_Texture(color, Texture_Coord[i]);
 
         // Mapping Color (BGR due to Camera Model)
-        cloud->points[i].r = get<2>(RGB_Color); // Reference tuple<2>
+        cloud->points[i].r = get<0>(RGB_Color); // Reference tuple<2>
         cloud->points[i].g = get<1>(RGB_Color); // Reference tuple<1>
-        cloud->points[i].b = get<0>(RGB_Color); // Reference tuple<0>
+        cloud->points[i].b = get<2>(RGB_Color); // Reference tuple<0>
 
     }
 
