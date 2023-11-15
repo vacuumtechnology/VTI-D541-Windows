@@ -1,6 +1,6 @@
 /*
     Detects Instances of a model pointcloud in a scene pointcloud, takes parameters from a config file
-    Usage: ./ObjectDetector scene.pcd sceneconfig.txt
+    Usage: ./FeatureDetection runconfig.config
     Eli Wilson - VTI
 */
 
@@ -56,7 +56,7 @@ Model::Model(std::string pcdFile, std::string configFile) {
         return;
     }
 
-    // Load config
+    // Load scene config parameters
     corr_thresh = 0;
     std::ifstream cFile(configFile);
     if (cFile.is_open())
@@ -106,12 +106,9 @@ Model::Model(std::string pcdFile, std::string configFile) {
         std::cerr << "Couldn't open config file for reading.\n";
     }
     cFile.close();
-    //std::cout << "Model sampling size:    " << this->model_ss << std::endl;
-    //std::cout << "LRF support radius:     " << this->rf_rad << std::endl;
-    //std::cout << "SHOT descriptor radius: " << this->descr_rad << std::endl;
-    //std::cout << "Clustering bin size:    " << this->cg_size << std::endl << std::endl;
 }
 
+// Find model and backup model files and pass them to model constructor
 void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
     std::string folder = modelFile.substr(modelFile.find_last_of("/") + 1);
     std::string filename = modelFile + "/" + folder;
@@ -143,6 +140,9 @@ void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
     modelGroups.push_back(modelGroup);
 }
 
+// 
+// Perform initial processing on model point clouds
+// 
 void Model::Process() {
     ComputeNormals();
 
@@ -155,7 +155,7 @@ void Model::Process() {
 }
 
 //
-// Calculates resolution of model which is later used to adjust parameters
+// Calculates resolution of scene (no longer used)
 //
 float ObjectDetector::CalculateResolution(pcl::PointCloud<PointType>::Ptr sceneCloud) {
     resolution = 0.0;
@@ -186,13 +186,6 @@ float ObjectDetector::CalculateResolution(pcl::PointCloud<PointType>::Ptr sceneC
     {
         resolution /= n_points;
     }
-
-
-    //    std::cout << "Model sampling size:    " << this->model_ss << std::endl;
-    //    std::cout << "Scene sampling size:    " << this->scene_ss << std::endl;
-    //    std::cout << "LRF support radius:     " << this->rf_rad << std::endl;
-    //    std::cout << "SHOT descriptor radius: " << this->descr_rad << std::endl;
-    //    std::cout << "Clustering bin size:    " << this->cg_size << std::endl << std::endl;
 
     return resolution;
 }
@@ -248,7 +241,7 @@ void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) 
     std::cout << "SHOT descriptor radius: " << this->descr_rad << std::endl;
     std::cout << "Clustering bin size:    " << this->cg_size << std::endl << std::endl;
 
-    // Load config params
+    // Load cylinder config params
     ifstream cFile2(cylConfig);
     if (cFile2.is_open())
     {
@@ -273,6 +266,9 @@ void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) 
     cFile2.close();
 }
 
+//
+// Iterate through models and reset them between detections
+//
 void ObjectDetector::ResetAllModels() {
     sniffPoints.clear();
     for (int i = 0; i < modelGroups.size(); i++) {
@@ -280,6 +276,9 @@ void ObjectDetector::ResetAllModels() {
     }
 }
 
+//
+//  Resets a models correspondence information between detections
+//
 void ObjectDetector::ResetModels(ModelGroup *modGroup) {
 
     for (int j = 0; j < modGroup->size; j++) {
@@ -298,6 +297,9 @@ void ObjectDetector::ResetModels(ModelGroup *modGroup) {
     modGroup->bestMatches.clear();
 }
 
+//
+// Update scene cloud and reset scene info to be recomputed
+//
 void ObjectDetector::LoadScene(pcl::PointCloud<PointType>::Ptr sceneCloud) {
     this->scene = sceneCloud;
     sniffPointCloud.reset(new pcl::PointCloud<PointType>);
@@ -309,6 +311,9 @@ void ObjectDetector::LoadScene(pcl::PointCloud<PointType>::Ptr sceneCloud) {
 
 }
 
+//
+// Performs scene processing necessary to search for the shape of a cylinder
+//
 void ObjectDetector::ProcessSceneCylinder() {
     std::cout << "Process Scene Cylinder" << std::endl;
 
@@ -324,6 +329,9 @@ void ObjectDetector::ProcessSceneCylinder() {
 
 }
 
+//
+// Perform initial processing on scene point cloud before main detection loop
+//
 void ObjectDetector::ProcessScene() {
     std::cout << "Processing Scene" << std::endl;
     norm_est.setNumberOfThreads(num_threads);
@@ -401,6 +409,10 @@ void Model::ComputeDescriptors() {
 
 }
 
+
+//
+//  Computes a portion of correspondence matching based on number of threads
+//
 void ObjectDetector::SearchThread(int i, Model* mod) {
     int start, finish, segmentSize;
 
@@ -517,6 +529,9 @@ void ObjectDetector::SortMatches(ModelGroup* modGroup) {
     }
 }
 
+//
+//  Check for false unmoved detection
+//
 bool ObjectDetector::CheckUnmoved(Eigen::Matrix3f rotation, Eigen::Vector3f translation) {
     for (int i = 0; i < 3; i++) {
         if (translation(i) != 0.0) return false;
@@ -640,6 +655,9 @@ void ObjectDetector::PrintInstances() {
     }
 }
 
+//
+//  Loops through modelGroups and detects instances of them
+//
 std::vector<PointType> ObjectDetector::Detect(){
 
     std::cout << "groups: " << modelGroups.size() << std::endl;
@@ -677,6 +695,9 @@ std::vector<PointType> ObjectDetector::Detect(){
   
 }
 
+//
+//  Detects an instance of the shape of a cylinder, Used to find endcap of manifold
+//
 PointType ObjectDetector::DetectCylinder() {
     pcl::SACSegmentationFromNormals<PointType, pcl::Normal> seg;
     pcl::ModelCoefficients::Ptr coefficients_cylinder(new pcl::ModelCoefficients);
