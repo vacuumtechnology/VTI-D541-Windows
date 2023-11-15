@@ -202,7 +202,7 @@ int main() try
             cloud->points[i].x *= 900;
             cloud->points[i].y *= 900;
             cloud->points[i].z *= 900;
-            cloud->points[i].z += 400;
+            cloud->points[i].z += 700;
         }
 
         pcl::PassThrough<PointType> Cloud_Filter; // Create the filtering object
@@ -227,15 +227,15 @@ int main() try
 
     pcl::RandomSample<PointType> random_sampling;
     random_sampling.setInputCloud(newCloud);
-    random_sampling.setSample(200000);
+    random_sampling.setSample(150000);
     random_sampling.filter(*newCloud);
     std::cout << "Cloud size after downsample: " << newCloud->size() << " points" << endl;
 
-    pcl::StatisticalOutlierRemoval<PointType> sor;
-    sor.setInputCloud(newCloud);
-    sor.setMeanK(15);
-    sor.setStddevMulThresh(.7);
-    sor.filter(*newCloud);
+    //pcl::StatisticalOutlierRemoval<PointType> sor;
+    //sor.setInputCloud(newCloud);
+    //sor.setMeanK(15);
+    //sor.setStddevMulThresh(.7);
+    //sor.filter(*newCloud);
 
     std::cout << "Cloud size: " << newCloud->size() << " points" << endl;
 

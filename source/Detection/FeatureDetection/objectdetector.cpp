@@ -237,6 +237,7 @@ void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) 
             else if (name == "cg_thresh") cg_thresh = atof(value.c_str());
             else if (name == "out_thresh") out_thresh = atof(value.c_str());
             else if (name == "num_threads") num_threads = atoi(value.c_str());
+            else if (name == "min_distance") min_distance = atof(value.c_str());
         }
     } else {
         cerr << "Couldn't open config file for reading.\n";
