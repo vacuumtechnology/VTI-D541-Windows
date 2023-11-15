@@ -37,6 +37,7 @@ set(PROGRAMS
     Utilities/RemoveRegions
     Utilities/FormTest
     Camera/RealSenseTest
+    Utilities/ColorFilter
     )
 
 # Simple non robust way to find the librealsense library
