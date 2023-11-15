@@ -592,7 +592,7 @@ bool ObjectDetector::DetermineBestMatches(ModelGroup* modGroup) {
             diff = centroid2 - centroid1;
 
             dist = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2) + pow(diff.z(), 2));
-            //std::cout << "Instances " << i << " " << j << ". Distance: " << dist << std::endl;
+            std::cout << "Instances " << i << " " << j << ". Distance: " << dist << std::endl;
 
             if (dist < min_distance && i != j) {
                 std::cout << "\tDuplicate Detected\n" << std::endl;
