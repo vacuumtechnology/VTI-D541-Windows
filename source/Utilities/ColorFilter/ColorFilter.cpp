@@ -97,7 +97,7 @@ int main(int argc, char* argv[]){
 
     ColorFilter obj(cloud);
 
-    obj.minb = 100;
+    obj.minb = 30;
 
     cloud = obj.Filter();
     std::cout << "out size: " << cloud->size() << endl;
