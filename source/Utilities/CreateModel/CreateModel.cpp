@@ -1,5 +1,5 @@
 #include "CreateModel.h"
-#include <vtkRenderWindow.h>
+//#include <vtkRenderWindow.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/search/kdtree.h>
 #include <mutex>
@@ -175,7 +175,7 @@ void CreateModel::Configure() {
 
 void CreateModel::Visualizer() {
     viewer.reset(new pcl::visualization::PCLVisualizer("viewer"));
-    viewer->getRenderWindow()->GlobalWarningDisplayOff();
+    //viewer->getRenderWindow()->GlobalWarningDisplayOff();
     viewer->setSize(900, 1000);
     viewer->setBackgroundColor(.3, .3, .3);
     viewer->setCameraPosition(0, 0, -40, 0, -1, 0);
@@ -245,7 +245,7 @@ void CreateModel::writeCloud() {
 void CreateModel::writeConfig() {
     std::string filename = saveFile + ".config";
 
-    ofstream myfile;
+    std::ofstream myfile;
     myfile.open(filename);
     myfile << "model_ss = " << model_ss << endl;
     myfile << "rf_rad = " << rf_rad << endl;

@@ -61,7 +61,7 @@ int main (int argc, char *argv[]) {
     vector< pair< string, int > > models;
     bool useRobot;
     bool useCamera;
-    string sceneFile, sceneConfig, cylConfig;
+    string sceneFile, sceneConfig, cylConfig, keypointType;
     
     if(argc < 2){
         cout << "Usage: ./FeatureDetection ../../runconfigs/runconfig.config" << endl;
@@ -88,6 +88,7 @@ int main (int argc, char *argv[]) {
             else if (name == "cylConfig") cylConfig = value;
             else if (name == "sceneConfig") sceneConfig = value;
             else if (name == "sceneFile") sceneFile = value;
+            else if (name == "keypoint") keypointType = value;
             else if (name == "models") {
                 while (getline(cFile, line)) {
                     line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
@@ -164,7 +165,7 @@ int main (int argc, char *argv[]) {
             moveRobot = thread(&PointsToRobot::SendPoints, pointsToRobot, sniffPoints);
         }
 
-        obj->ProcessScene();
+        obj->ProcessScene(keypointType);
         std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << obj->scene_keypoints->size() << std::endl;
 
         sniffPoints = obj->Detect();

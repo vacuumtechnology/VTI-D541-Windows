@@ -1,5 +1,5 @@
 #include "Calibrate.h"
-#include <vtkRenderWindow.h>
+//#include <vtkRenderWindow.h>
 
 Calibrate::Calibrate(pcl::PointCloud<PointType>::Ptr scene) {
 	Reset();
@@ -183,7 +183,7 @@ void Calibrate::CalculateCalibration() {
 }
 
 void Calibrate::WriteCalibration(std::string calFile) {
-	ofstream calStream;
+	std::ofstream calStream;
 	calStream.open(calFile);
 	calStream << xOffset << endl;
 	calStream << yOffset << endl;
@@ -196,7 +196,7 @@ void Calibrate::WriteCalibration(std::string calFile) {
 
 void Calibrate::VisualizeSphere() {
 	viewer.reset(new pcl::visualization::PCLVisualizer("sphere Grouping"));
-	viewer->getRenderWindow()->GlobalWarningDisplayOff();
+	//viewer->getRenderWindow()->GlobalWarningDisplayOff();
 	viewer->setSize(900, 1000);
 	viewer->setBackgroundColor(.3, .3, .3);
 	viewer->setCameraPosition(0, 0, -50, 0, -1, 0);

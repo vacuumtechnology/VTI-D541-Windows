@@ -14,6 +14,7 @@
 #include <pcl/common/centroid.h>
 #include <pcl/registration/correspondence_rejection_sample_consensus.h>
 #include <pcl/point_types.h>
+#include <pcl/keypoints/iss_3d.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/features/shot_omp.h>
 #include <pcl/filters/uniform_sampling.h>
@@ -37,10 +38,10 @@ class Model {
 public:
     Model(std::string pcdFile, std::string configFile);
     pcl::PointCloud<PointType>::Ptr cloud;
-    void Process();
+    void Process(std::string keypointType);
     void RemoveOutliers();
     void ComputeNormals();
-    void Downsample();
+    void SelectKeypoints(std::string keypointType);
     void ComputeDescriptors();
 
     pcl::PointCloud<NormalType>::Ptr model_normals;
@@ -89,7 +90,7 @@ class ObjectDetector {
         float CalculateResolution(pcl::PointCloud<PointType>::Ptr sceneCloud);
         void SwitchView();
         void LoadScene(pcl::PointCloud<PointType>::Ptr scene);
-        void ProcessScene();
+        void ProcessScene(std::string keypointType);
         void ProcessSceneCylinder();
         void LoadModel(std::string modelFile, int occurences);
         std::vector<PointType> Detect();
@@ -101,6 +102,7 @@ class ObjectDetector {
 
     private:
         void LoadParams(std::string sceneConfig, std::string cylConfig);
+        void SelectKeypoints(std::string keypointType);
         void SearchThread(int i, Model *mod);
         void FindCorrespondences(Model *mod);
         void ResetModels(ModelGroup* modGroup);
@@ -150,6 +152,7 @@ class ObjectDetector {
         float resolution;
         float out_thresh;
         int num_threads;
+        std::string keypointType;
 
         // Cylinder params
         float norm_weight;

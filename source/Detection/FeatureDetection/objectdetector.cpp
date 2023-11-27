@@ -116,7 +116,7 @@ void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
     Model* model = new Model(filename + ".pcd", filename + ".config");
     modelGroup->max_objects = occurences;
     model->name = filename;
-    model->Process();
+    model->Process(keypointType);
     modelGroup->models.push_back(model);
     modelGroup->size = 1;
 
@@ -127,7 +127,7 @@ void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
         if (stat((filename + ".pcd").c_str(), &buffer) == 0) {
             Model* model = new Model(filename + ".pcd", filename + ".config");
             model->name = filename;
-            model->Process();
+            model->Process(keypointType);
             modelGroup->models.push_back(model);
             modelGroup->size++;
         }
@@ -143,12 +143,12 @@ void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
 // 
 // Perform initial processing on model point clouds
 // 
-void Model::Process() {
+void Model::Process(std::string keypointType) {
     ComputeNormals();
 
-    Downsample();
-
     RemoveOutliers();
+
+    SelectKeypoints(keypointType);
 
     ComputeDescriptors();
     std::cout << "Model Processed." << std::endl << std::endl;
@@ -211,7 +211,7 @@ void Model::RemoveOutliers() {
 void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) {
 
     // Load config params
-    ifstream cFile(sceneConfig);
+    std::ifstream cFile(sceneConfig);
     if (cFile.is_open())
     {
         std::string line;
@@ -231,6 +231,7 @@ void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) 
             else if (name == "out_thresh") out_thresh = atof(value.c_str());
             else if (name == "num_threads") num_threads = atoi(value.c_str());
             else if (name == "min_distance") min_distance = atof(value.c_str());
+            else if (name == "keypoint") keypointType = value;
         }
     } else {
         cerr << "Couldn't open config file for reading.\n";
@@ -240,10 +241,11 @@ void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) 
     std::cout << "Scene sampling size:    " << this->scene_ss << std::endl;
     std::cout << "LRF support radius:     " << this->rf_rad << std::endl;
     std::cout << "SHOT descriptor radius: " << this->descr_rad << std::endl;
-    std::cout << "Clustering bin size:    " << this->cg_size << std::endl << std::endl;
+    std::cout << "Clustering bin size:    " << this->cg_size << std::endl;
+    std::cout << "Keypoint Type:    " << this->keypointType << std::endl << std::endl;
 
     // Load cylinder config params
-    ifstream cFile2(cylConfig);
+    std::ifstream cFile2(cylConfig);
     if (cFile2.is_open())
     {
         std::string line;
@@ -330,19 +332,36 @@ void ObjectDetector::ProcessSceneCylinder() {
 
 }
 
+void ObjectDetector::SelectKeypoints(std::string keypointType) {
+    this->keypointType = keypointType;
+    if (keypointType == "downsample") {
+        uniform_sampling.setInputCloud(scene);
+        uniform_sampling.setRadiusSearch(scene_ss);
+        uniform_sampling.filter(*scene_keypoints);
+    } else if (keypointType == "iss") {
+ /*       pcl::ISSKeypoint3D<PointType, PointType> iss_detector(scene_ss);
+        iss_detector.setNumberOfThreads(num_threads);
+        iss_detector.setInputCloud(scene);
+        iss_detector.compute(*scene_keypoints);*/
+    } else if (keypointType == "narf") {
+        
+    } else {
+        std::cout << "Invalid Keypoint type" << endl;
+        exit(0);
+    }
+}
+
 //
 // Perform initial processing on scene point cloud before main detection loop
 //
-void ObjectDetector::ProcessScene() {
+void ObjectDetector::ProcessScene(std::string keypointType) {
     std::cout << "Processing Scene" << std::endl;
     norm_est.setNumberOfThreads(num_threads);
     norm_est.setKSearch(15);
     norm_est.setInputCloud(scene);
     norm_est.compute(*scene_normals);
 
-    uniform_sampling.setInputCloud(scene);
-    uniform_sampling.setRadiusSearch(scene_ss);
-    uniform_sampling.filter(*scene_keypoints);
+    SelectKeypoints(keypointType);
 
     sor.setInputCloud(scene_keypoints);
     sor.setMeanK(10);
@@ -384,12 +403,23 @@ void Model::ComputeNormals() {
 //
 //  Downsample Clouds to Extract keypoints
 //
-void Model::Downsample() {
-    std::cout << "Downsample" << std::endl;
+void Model::SelectKeypoints(std::string keypointType) {
+    if (keypointType == "downsample") {
+        std::cout << "Downsample" << std::endl;
+        uniform_sampling.setInputCloud(cloud);
+        uniform_sampling.setRadiusSearch(model_ss);
+        uniform_sampling.filter(*model_keypoints);
+    } else if (keypointType == "iss") {
+        //pcl::ISSKeypoint3D<PointType, PointType> iss_detector(model_ss);
+        //iss_detector.setInputCloud(cloud);
+        //iss_detector.compute(*model_keypoints);
+    } else if (keypointType == "narf") {
 
-    uniform_sampling.setInputCloud(cloud);
-    uniform_sampling.setRadiusSearch(model_ss);
-    uniform_sampling.filter(*model_keypoints);
+    } else {
+        std::cout << "Invalid Keypoint type" << endl;
+        exit(0);
+    }
+
     std::cout << "Model total points: " << cloud->size() << "; Selected Keypoints: " << model_keypoints->size() << std::endl;
 
 }
@@ -470,7 +500,7 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
     std::cout << "Correspondences found: " << mod->model_scene_corrs->size() << " time taken: " << std::chrono::duration <double, std::milli>(end - start).count() << " ms" << std::endl;
 
     //
-    //  Compute (Keypoints) Reference Frames for Hough
+    //  Compute Keypoint Reference Frames for Hough
     //
 
     rf_est.setFindHoles(false);
@@ -502,7 +532,7 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
 }
 
 // Sort matches by # of correspondences,
-// Create transformed model cloud, store as ( # of correspondences, (index, rotated_model) )
+// Create transformed model cloud, store as ( # of correspondences, Match )
 void ObjectDetector::SortMatches(ModelGroup* modGroup) {
     Match* match;
     int correspondences;
