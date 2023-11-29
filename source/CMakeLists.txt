@@ -38,6 +38,8 @@ set(PROGRAMS
     Utilities/FormTest
     Camera/RealSenseTest
     Utilities/ColorFilter
+    Utilities/KeypointTest
+    Camera/Stitch
     )
 
 # Simple non robust way to find the librealsense library
