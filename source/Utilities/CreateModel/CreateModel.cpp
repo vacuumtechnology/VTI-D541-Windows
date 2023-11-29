@@ -1,5 +1,4 @@
 #include "CreateModel.h"
-//#include <vtkRenderWindow.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/search/kdtree.h>
 #include <mutex>
@@ -48,9 +47,8 @@ void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& even
 // visualizer keystroke handler for cropping step
 void keyboardCallback(const pcl::visualization::KeyboardEvent& event, void* obj) {
     CreateModel* mod = (CreateModel*)obj;
-    if (event.getKeySym() == "v" && event.keyUp()) {
-    }
-    switch (event.getKeyCode()) {
+    if (event.keyDown()) {
+        switch (event.getKeyCode()) {
         case '1':
             mod->dimensions[0] -= mod->increment;
             break;
@@ -93,8 +91,10 @@ void keyboardCallback(const pcl::visualization::KeyboardEvent& event, void* obj)
         case 'o':
             mod->increment = 10;
             break;
+        }
+        mod->cloudUpdated = true;
     }
-    mod->cloudUpdated = true;
+    
 }
 
 // constructor
@@ -102,11 +102,19 @@ CreateModel::CreateModel(std::string filename) {
 
     // Setup the cloud pointer
     cloud.reset(new PointCloudType);
+    cloudx.reset(new PointCloudType);
+    cloudy.reset(new PointCloudType);
     cloud_out.reset(new PointCloudType);
 
     // Fill the cloud with some points
     pcl::io::loadPCDFile<PointType>(filename, *cloud);
     cropBoxFilter.setInputCloud(cloud);
+    passX.setInputCloud(cloud);
+    passX.setFilterFieldName("x");
+    passY.setInputCloud(cloudx);
+    passY.setFilterFieldName("y");
+    passZ.setInputCloud(cloudy);
+    passZ.setFilterFieldName("z");
 
     dimensions.resize(6);
     dimensions = { -200, 200, -200, 200, 500, 900 }; // initial cropbox dimensions
@@ -175,7 +183,6 @@ void CreateModel::Configure() {
 
 void CreateModel::Visualizer() {
     viewer.reset(new pcl::visualization::PCLVisualizer("viewer"));
-    //viewer->getRenderWindow()->GlobalWarningDisplayOff();
     viewer->setSize(900, 1000);
     viewer->setBackgroundColor(.3, .3, .3);
     viewer->setCameraPosition(0, 0, -40, 0, -1, 0);
@@ -213,19 +220,18 @@ void CreateModel::Visualizer() {
 }
 
 void CreateModel::filterCloud() {
-    Eigen::Vector4f min_pt(dimensions[0], dimensions[2], dimensions[4], 500.0f);
-    Eigen::Vector4f max_pt(dimensions[1], dimensions[3], dimensions[5], 500.0f);
+    cout << "before: " << cloud_out->size() << endl;
+    for (int i = 0; i < dimensions.size(); i++) {
+        std::cout << dimensions[i] << endl;
+    }
+    passX.setFilterLimits(dimensions[0], dimensions[1]);
+    passY.setFilterLimits(dimensions[2], dimensions[3]);
+    passZ.setFilterLimits(dimensions[4], dimensions[5]);
+    passX.filter(*cloudx);
+    passY.filter(*cloudy);
+    passZ.filter(*cloud_out);
+    cout << "after: " << cloud_out->size() << endl;
 
-    // Cropbox slighlty bigger then bounding box of points
-    cropBoxFilter.setMin(min_pt);
-    cropBoxFilter.setMax(max_pt);
-
-    // Indices
-    std::vector<int> indices;
-    cropBoxFilter.filter(indices);
-
-    // Cloud
-    cropBoxFilter.filter(*cloud_out);
 }
 
 void CreateModel::updateCloud() {

@@ -3,6 +3,7 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/filters/crop_box.h>
+#include <pcl/filters/passthrough.h>
 #include <iostream>
 #include <pcl/common/common.h>
 #include <string>
@@ -22,7 +23,7 @@ public:
 	std::vector<PointType *> pickPoints;
 	std::vector <float> dimensions;
 	int cubeCounter = 0;
-	int increment;
+	float increment;
 	bool cloudUpdated;
 	PointCloudType::Ptr cloud_out;
 private:
@@ -34,7 +35,12 @@ private:
 	void writeConfig();
 
 	PointCloudType::Ptr cloud;
+	PointCloudType::Ptr cloudx;
+	PointCloudType::Ptr cloudy;
 	pcl::CropBox<pcl::PointXYZRGB> cropBoxFilter;
+	pcl::PassThrough<pcl::PointXYZRGB> passX;
+	pcl::PassThrough<pcl::PointXYZRGB> passY;
+	pcl::PassThrough<pcl::PointXYZRGB> passZ;
 
 	std::string filename;
 	std::string saveFile;
