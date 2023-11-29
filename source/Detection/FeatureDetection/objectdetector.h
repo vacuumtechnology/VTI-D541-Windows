@@ -14,13 +14,13 @@
 #include <pcl/common/centroid.h>
 #include <pcl/registration/correspondence_rejection_sample_consensus.h>
 #include <pcl/point_types.h>
-#include <pcl/keypoints/iss_3d.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/features/shot_omp.h>
 #include <pcl/filters/uniform_sampling.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/keypoints/sift_keypoint.h>
 #include <vtkRenderWindow.h>
 #include <map>
 #include <cmath>

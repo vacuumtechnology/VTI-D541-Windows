@@ -339,16 +339,33 @@ void ObjectDetector::SelectKeypoints(std::string keypointType) {
         uniform_sampling.setRadiusSearch(scene_ss);
         uniform_sampling.filter(*scene_keypoints);
     } else if (keypointType == "iss") {
- /*       pcl::ISSKeypoint3D<PointType, PointType> iss_detector(scene_ss);
-        iss_detector.setNumberOfThreads(num_threads);
-        iss_detector.setInputCloud(scene);
-        iss_detector.compute(*scene_keypoints);*/
-    } else if (keypointType == "narf") {
-        
+        //pcl::ISSKeypoint3D<PointType, PointType> iss_detector(scene_ss);
+        //iss_detector.setNumberOfThreads(num_threads);
+        //iss_detector.setInputCloud(scene);
+        //iss_detector.compute(*scene_keypoints);
+    } else if (keypointType == "sift") {
+        // Parameters for sift computation
+        constexpr float min_scale = 0.1f;
+        constexpr int n_octaves = 6;
+        constexpr int n_scales_per_octave = 10;
+        constexpr float min_contrast = 0.5f;
+
+
+        // Estimate the sift interest points using Intensity values from RGB values
+        pcl::SIFTKeypoint<pcl::PointXYZRGB, pcl::PointXYZRGB> sift;
+        pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGB>());
+        sift.setSearchMethod(tree);
+        sift.setScales(min_scale, n_octaves, n_scales_per_octave);
+        sift.setMinimumContrast(min_contrast);
+        sift.setInputCloud(scene);
+        sift.compute(*scene_keypoints);
     } else {
         std::cout << "Invalid Keypoint type" << endl;
         exit(0);
     }
+
+    std::cout << "Model total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+
 }
 
 //
@@ -361,7 +378,7 @@ void ObjectDetector::ProcessScene(std::string keypointType) {
     norm_est.setInputCloud(scene);
     norm_est.compute(*scene_normals);
 
-    SelectKeypoints(keypointType);
+    SelectKeypoints(this->keypointType);
 
     sor.setInputCloud(scene_keypoints);
     sor.setMeanK(10);
@@ -413,8 +430,22 @@ void Model::SelectKeypoints(std::string keypointType) {
         //pcl::ISSKeypoint3D<PointType, PointType> iss_detector(model_ss);
         //iss_detector.setInputCloud(cloud);
         //iss_detector.compute(*model_keypoints);
-    } else if (keypointType == "narf") {
+    } else if (keypointType == "sift") {
+        // Parameters for sift computation
+        constexpr float min_scale = 0.1f;
+        constexpr int n_octaves = 6;
+        constexpr int n_scales_per_octave = 10;
+        constexpr float min_contrast = 0.5f;
 
+
+        // Estimate the sift interest points using Intensity values from RGB values
+        pcl::SIFTKeypoint<pcl::PointXYZRGB, pcl::PointXYZRGB> sift;
+        pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGB>());
+        sift.setSearchMethod(tree);
+        sift.setScales(min_scale, n_octaves, n_scales_per_octave);
+        sift.setMinimumContrast(min_contrast);
+        sift.setInputCloud(cloud);
+        sift.compute(*model_keypoints);
     } else {
         std::cout << "Invalid Keypoint type" << endl;
         exit(0);

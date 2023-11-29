@@ -88,7 +88,6 @@ int main (int argc, char *argv[]) {
             else if (name == "cylConfig") cylConfig = value;
             else if (name == "sceneConfig") sceneConfig = value;
             else if (name == "sceneFile") sceneFile = value;
-            else if (name == "keypoint") keypointType = value;
             else if (name == "models") {
                 while (getline(cFile, line)) {
                     line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
