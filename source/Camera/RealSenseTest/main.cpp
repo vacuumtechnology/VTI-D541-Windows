@@ -1,6 +1,8 @@
 
 // Intel Realsense Headers
 #include <librealsense2/rs.hpp> // Include RealSense Cross Platform API
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 // PCL Headers
 #include <pcl/io/pcd_io.h>
@@ -248,6 +250,23 @@ int main() try
     cout << "Generating PCD Point Cloud File... " << endl;
     pcl::io::savePCDFileASCII(cloudFile, *newCloud); // Input cloud to be saved to .pcd
     cout << cloudFile << " successfully generated. " << endl;
+
+    rs2::colorizer color_map;
+    for (auto&& frame : pipe.wait_for_frames())
+    {
+        // We can only save video frames as pngs, so we skip the rest
+        if (auto vf = frame.as<rs2::video_frame>())
+        {
+            auto stream = frame.get_profile().stream_type();
+            // Use the colorizer to get an rgb image for the depth stream
+            if (vf.is<rs2::depth_frame>()) vf = color_map.process(frame);
+
+            // Write images to disk
+            std::string png_file = "../../png/rs_frame.png";
+            stbi_write_png(png_file.c_str(), vf.get_width(), vf.get_height(), vf.get_bytes_per_pixel(), vf.get_data(), vf.get_stride_in_bytes());
+            std::cout << "Saved " << png_file << std::endl;
+        }
+    }
 
     //Load generated PCD file for viewing
     Visualize(newCloud);

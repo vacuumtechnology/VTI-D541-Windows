@@ -99,6 +99,9 @@ else()
     message(FATAL_ERROR "Unsupported operating system")
 endif()
 
+set(PROJECT_INCLUDE "${PROJECT_SOURCE_DIR}/../include")
+message(STATUS "project include: ${PROJECT_INCLUDE}")
+
 foreach(PROGRAM ${PROGRAMS})
     get_filename_component(PROGRAM_NAME ${PROGRAM} NAME)
 
@@ -119,6 +122,9 @@ foreach(PROGRAM ${PROGRAMS})
 
     include_directories(${PROGRAM_NAME} ${RS_INCLUDE_DIR})
     target_link_libraries(${PROGRAM_NAME} ${REALSENSE2_FOUND})
+
+    include_directories(${PROGRAM_NAME} ${PROJECT_INCLUDE})
+
 
 endforeach()
 
