@@ -364,7 +364,7 @@ void ObjectDetector::SelectKeypoints(std::string keypointType) {
         exit(0);
     }
 
-    std::cout << "Model total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+    std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
 
 }
 

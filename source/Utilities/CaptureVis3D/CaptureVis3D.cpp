@@ -69,10 +69,12 @@ int main(int argc, char* argv[]) {
     pcl::io::savePCDFileBinary(filename, *cloud);
 
     auto viewer = pcl::visualization::PCLVisualizer("Viewer");
+    viewer.setSize(900, 1000);
+    viewer.setBackgroundColor(.3, .3, .3);
+    viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
+    viewer.addPointCloud<pcl::PointXYZRGB>(cloud);
+    viewer.resetCamera();
 
-    viewer.addPointCloud(cloud);
-
-    viewer.setCameraPosition(0, 0, -100, 0, -1, 0);
 
     std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
     std::cout << "Press q to exit the viewer application" << std::endl;

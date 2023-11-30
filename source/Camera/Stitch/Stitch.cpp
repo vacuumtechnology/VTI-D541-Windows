@@ -135,8 +135,8 @@ main (int argc, char** argv) {
         tar_features_ptr, min_sample_dist, max_correspondence_dist, nr_iters);
   
     /* Uncomment this code to run ICP */
-    //tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
-    //    outlier_rejection_threshold, transformation_epsilon, max_iterations);
+    tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
+        outlier_rejection_threshold, transformation_epsilon, max_iterations);
   
  
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr transformed_cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -144,19 +144,26 @@ main (int argc, char** argv) {
     pcl::transformPointCloud(source_cloud, transformed_cloud, tform);
     cout << "Calculated transformation\n";
 
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr combined_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+    *combined_cloud = target_cloud + transformed_cloud;
+
+    cout << "organized: " << combined_cloud->isOrganized() << endl;
+
+    pcl::io::savePCDFileBinary("../../pcd/combined.pcd", *combined_cloud);
+
     // Create 3D viewer and add point clouds
     pcl::visualization::PCLVisualizer viewer ("3D Viewer");
 
     viewer.setSize(900, 1000);
     viewer.setBackgroundColor(.3, .3, .3);
     viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
-
+    viewer.addPointCloud(combined_cloud);
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> tar_cloud_color_handler (target_cloud_ptr, 0, 255, 255);
-    viewer.addPointCloud (target_cloud_ptr, tar_cloud_color_handler, "target cloud v2");
+    //viewer.addPointCloud (target_cloud_ptr, tar_cloud_color_handler, "target cloud v2");
   
     // Add transformed point cloud to viewer
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> tf_cloud_color_handler (transformed_cloud_ptr, 0, 255, 0);
-    viewer.addPointCloud<pcl::PointXYZRGB> (transformed_cloud_ptr, tf_cloud_color_handler, "initial aligned cloud");
+    //viewer.addPointCloud<pcl::PointXYZRGB> (transformed_cloud_ptr, tf_cloud_color_handler, "initial aligned cloud");
     viewer.resetCamera();
 
     //--------------------

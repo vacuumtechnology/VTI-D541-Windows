@@ -38,21 +38,7 @@ namespace
     template<typename T>
     void visualizePointCloud(const pcl::PointCloud<T> &pointCloud)
     {
-        auto viewer = pcl::visualization::PCLVisualizer("Viewer");
-        /*int *id = (int *)viewer.getRenderWindow()->GetGenericWindowId();
-        cout << "id: " << *id << endl;*/
-        viewer.setBackgroundColor(.3, .3, .3);
-        viewer.setCameraPosition(0, 0, -100,  0, -1, 0);
-        addPointCloudToViewer(viewer, pointCloud.makeShared());
-
-
-        std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
-        std::cout << "Press q to exit the viewer application" << std::endl;
-        while(!viewer.wasStopped())
-        {
-            viewer.spinOnce(100);
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
+        
     }
 } // namespace
 
@@ -77,7 +63,21 @@ int main(int argc, char **argv)
         std::cout << "Loaded " << pointCloudPCL.width * pointCloudPCL.height << " points" << std::endl;
         std::cout << "width: " << pointCloudPCL.width << " points" << std::endl;
 
-        visualizePointCloud(pointCloudPCL);
+        auto viewer = pcl::visualization::PCLVisualizer("Viewer");
+        viewer.setSize(900, 1000);
+        viewer.setBackgroundColor(.3, .3, .3);
+        viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
+        viewer.addPointCloud<pcl::PointXYZRGB>(pointCloudPCL.makeShared());
+        viewer.resetCamera();
+
+
+        std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
+        while (!viewer.wasStopped())
+        {
+            viewer.spinOnce(100);
+            //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     }
     catch(const std::exception &e)
     {

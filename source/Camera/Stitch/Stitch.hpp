@@ -27,9 +27,9 @@ const float max_correspondence_dist = 0.01f;
 const int nr_iters = 500;
 
 // ICP parameters (explanation below)
-const float max_correspondence_distance = 0.05f;
-const float outlier_rejection_threshold = 0.05f;
-const float transformation_epsilon = 0;
+const float max_correspondence_distance = 5.0;
+const float outlier_rejection_threshold = 0.5f;
+const float transformation_epsilon = .001f;
 const int max_iterations = 500;
 
 // --------------
@@ -56,7 +56,7 @@ setViewerPose (pcl::visualization::PCLVisualizer& viewer, const Eigen::Affine3f&
                             up_vector[0], up_vector[1], up_vector[2]); 
 }
 
-/* Use SampleConsensusInitialAlignment to find a rough alignment from the source cloud to the target cloud by fin    ding
+/* Use SampleConsensusInitialAlignment to find a rough alignment from the source cloud to the target cloud by finding
  * correspondences between two sets of local features
  * Inputs:
  *   source_points
@@ -132,9 +132,9 @@ refineAlignment (const ICPPointCloudPtr & source_points, const ICPPointCloudPtr 
                  float outlier_rejection_threshold, float transformation_epsilon, float max_iterations) {
 
   pcl::IterativeClosestPoint<ICPPointT, ICPPointT> icp;
-  //icp.setMaxCorrespondenceDistance (max_correspondence_distance);
-  //icp.setRANSACOutlierRejectionThreshold (outlier_rejection_threshold);
-  //icp.setTransformationEpsilon (transformation_epsilon);
+  icp.setMaxCorrespondenceDistance (max_correspondence_distance);
+  icp.setRANSACOutlierRejectionThreshold (outlier_rejection_threshold);
+  icp.setTransformationEpsilon (transformation_epsilon);
   icp.setMaximumIterations (max_iterations);
 
   ICPPointCloudPtr source_points_transformed (new ICPPointCloud);

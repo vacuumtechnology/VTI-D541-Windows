@@ -43,11 +43,11 @@ main(int argc, char** argv)
         pcl::console::print_warn("Keypoints indices are empty!\n");
 
     auto viewer = pcl::visualization::PCLVisualizer("Viewer");
-    /*int *id = (int *)viewer.getRenderWindow()->GetGenericWindowId();
-    cout << "id: " << *id << endl;*/
+    viewer.setSize(900, 1000);
     viewer.setBackgroundColor(.3, .3, .3);
-    viewer.setCameraPosition(0, 0, -100, 0, -1, 0);
+    viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
     viewer.addPointCloud<pcl::PointXYZI>(keypoints);
+    viewer.resetCamera();
 
 
     std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
@@ -55,5 +55,6 @@ main(int argc, char** argv)
     while (!viewer.wasStopped())
     {
         viewer.spinOnce(100);
+        //std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
