@@ -16,41 +16,8 @@ void
 showHelp(char* filename)
 {
     cout << endl;
-    cout << "Usage: " << filename << " model_filename.pcd scene_filename.pcd config_filename.txt" << endl << endl;
-    cout << "Configuration:" << endl;
-    cout << "     model_ss = val         Model uniform sampling radius" << endl;
-    cout << "     scene_ss = val         Scene uniform sampling radius" << endl;
-    cout << "     rf_rad = val           Reference frame radius" << endl;
-    cout << "     descr_rad = val        Descriptor radius" << endl;
-    cout << "     cg_size = val          Cluster size" << endl;
-    cout << "     max_objects = val      Number of objects to detect" << endl;
-    cout << "     cg_thresh = val        Clustering threshold" << endl << endl;
-    cout << "     out_thresh = val       Outlier filtering threshold" << endl << endl;
+    cout << "Usage: ./FeatureDetection ../../runconfigs/runconfig.config" << endl << endl;
 }
-
-void getSubdirs(vector<string>& output, const string& path)
-{
-    WIN32_FIND_DATA findfiledata;
-    HANDLE hFind = INVALID_HANDLE_VALUE;
-
-    char fullpath[MAX_PATH];
-    GetFullPathName(path.c_str(), MAX_PATH, fullpath, 0);
-    string fp(fullpath);
-
-    hFind = FindFirstFile((LPCSTR)(fp + "\\*").c_str(), &findfiledata);
-    if (hFind != INVALID_HANDLE_VALUE)
-    {
-        do
-        {
-            if ((findfiledata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0
-                && (findfiledata.cFileName[0] != '.'))
-            {
-                output.push_back(findfiledata.cFileName);
-            }
-        } while (FindNextFile(hFind, &findfiledata) != 0);
-    }
-}
-
 
 int main (int argc, char *argv[]) {
     pcl::PointCloud<PointType>::Ptr scene(new pcl::PointCloud<PointType>());
@@ -61,10 +28,10 @@ int main (int argc, char *argv[]) {
     vector< pair< string, int > > models;
     bool useRobot;
     bool useCamera;
-    string sceneFile, sceneConfig, cylConfig, keypointType;
+    string sceneFile, sceneConfig, cylConfig, keypointType, cameraConfig;
     
     if(argc < 2){
-        cout << "Usage: ./FeatureDetection ../../runconfigs/runconfig.config" << endl;
+        showHelp(argv[0]);
     	return 0;
     }
 
@@ -88,6 +55,7 @@ int main (int argc, char *argv[]) {
             else if (name == "cylConfig") cylConfig = value;
             else if (name == "sceneConfig") sceneConfig = value;
             else if (name == "sceneFile") sceneFile = value;
+            else if (name == "cameraConfig") cameraConfig = value;
             else if (name == "models") {
                 while (getline(cFile, line)) {
                     line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
@@ -136,7 +104,7 @@ int main (int argc, char *argv[]) {
         }
     } else {
         // Capture scene cloud
-        capturer = new Capturer("../../txt/set.yml");
+        capturer = new Capturer(cameraConfig);
         scene = capturer->Capture();
     }
 
