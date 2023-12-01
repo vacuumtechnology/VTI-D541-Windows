@@ -10,6 +10,7 @@ The PCD file for this sample can be found under the main instructions for Zivid 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl/filters/filter.h>
 
 #include <vtkRenderWindow.h>
 #include <iostream>
@@ -58,10 +59,15 @@ int main(int argc, char **argv)
         std::cout << "Reading PCD point cloud from file: " << pointCloudFile << std::endl;
 
         auto pointCloudPCL = pcl::PointCloud<pcl::PointXYZRGB>();
+        auto p2 = pcl::PointCloud<pcl::PointXYZRGB>();
 
         pcl::io::loadPCDFile<pcl::PointXYZRGB>(pointCloudFile, pointCloudPCL);
         std::cout << "Loaded " << pointCloudPCL.width * pointCloudPCL.height << " points" << std::endl;
         std::cout << "width: " << pointCloudPCL.width << " points" << std::endl;
+
+        std::vector<int> indices;
+        pcl::removeNaNFromPointCloud(pointCloudPCL, p2, indices);
+        std::cout << "size2: " << p2.size() << " points" << std::endl;
 
         auto viewer = pcl::visualization::PCLVisualizer("Viewer");
         viewer.setSize(900, 1000);

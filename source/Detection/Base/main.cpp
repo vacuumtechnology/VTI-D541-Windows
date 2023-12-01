@@ -13,6 +13,7 @@
 #include <pcl/common/transforms.h>
 #include <pcl/console/parse.h>
 
+#include <pcl/features/fpfh.h>
 typedef pcl::PointXYZRGBA PointType;
 typedef pcl::Normal NormalType;
 typedef pcl::ReferenceFrame RFType;
@@ -249,6 +250,16 @@ main (int argc, char *argv[])
   descr_est.setInputNormals (scene_normals);
   descr_est.setSearchSurface (scene);
   descr_est.compute (*scene_descriptors);
+
+  // FPFH estimation object.
+  pcl::FPFHEstimation<pcl::PointXYZRGBA, pcl::Normal, pcl::FPFHSignature33> fpfh;
+  fpfh.setInputCloud(model_keypoints);
+  fpfh.setInputNormals(model_normals);
+  // Search radius, to look for neighbors. Note: the value given here has to be
+  // larger than the radius used to estimate the normals.
+  fpfh.setRadiusSearch(descr_rad_);
+
+  //fpfh.compute(*model_descriptors);
 
   //
   //  Find Model-Scene Correspondences with KdTree
