@@ -11,37 +11,45 @@ The PCD file for this sample can be found under the main instructions for Zivid 
 #include <pcl/point_types.h>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/filters/filter.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/search/kdtree.h>
 
 #include <vtkRenderWindow.h>
 #include <iostream>
 #include <thread>
 
-namespace
-{
-    void addPointCloudToViewer(
-        pcl::visualization::PCLVisualizer &viewer,
-        const pcl::PointCloud<pcl::PointXYZRGBNormal>::ConstPtr &pointCloud)
-    {
-        viewer.addPointCloud<pcl::PointXYZRGBNormal>(pointCloud);
+float CalculateResolution(pcl::PointCloud<pcl::PointXYZRGB>::Ptr sceneCloud) {
+    double resolution = 0.0;
+    int n_points = 0;
+    int nres;
+    std::vector<int> indices(2);
+    std::vector<float> sqr_distances(2);
+    pcl::search::KdTree<pcl::PointXYZRGB> tree;
+    tree.setInputCloud(sceneCloud);
 
-        const int normalsSkipped = 10;
-        std::cout << "Note! 1 out of " << normalsSkipped << " normals are visualized" << std::endl;
-        viewer.addPointCloudNormals<pcl::PointXYZRGBNormal>(pointCloud, normalsSkipped, 1, "normals");
+    std::cout << "Calculating Resolution" << std::endl;
+
+    for (std::size_t i = 0; i < sceneCloud->size(); ++i)
+    {
+        if (!std::isfinite((*sceneCloud)[i].x))
+        {
+            continue;
+        }
+        //Considering the second neighbor since the first is the point itself.
+        nres = tree.nearestKSearch(i, 2, indices, sqr_distances);
+        if (nres == 2)
+        {
+            resolution += sqrt(sqr_distances[1]);
+            ++n_points;
+        }
+    }
+    if (n_points != 0)
+    {
+        resolution /= n_points;
     }
 
-    void addPointCloudToViewer(
-        pcl::visualization::PCLVisualizer &viewer,
-        const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr &pointCloud)
-    {
-        viewer.addPointCloud<pcl::PointXYZRGB>(pointCloud);
-    }
-
-    template<typename T>
-    void visualizePointCloud(const pcl::PointCloud<T> &pointCloud)
-    {
-        
-    }
-} // namespace
+    return resolution;
+}
 
 int main(int argc, char **argv)
 {
@@ -58,22 +66,27 @@ int main(int argc, char **argv)
         
         std::cout << "Reading PCD point cloud from file: " << pointCloudFile << std::endl;
 
-        auto pointCloudPCL = pcl::PointCloud<pcl::PointXYZRGB>();
-        auto p2 = pcl::PointCloud<pcl::PointXYZRGB>();
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloudPCL;
+        pointCloudPCL.reset(new pcl::PointCloud<pcl::PointXYZRGB>);
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr p2;
+        p2.reset(new pcl::PointCloud<pcl::PointXYZRGB>);
 
-        pcl::io::loadPCDFile<pcl::PointXYZRGB>(pointCloudFile, pointCloudPCL);
-        std::cout << "Loaded " << pointCloudPCL.width * pointCloudPCL.height << " points" << std::endl;
-        std::cout << "width: " << pointCloudPCL.width << " points" << std::endl;
+        pcl::io::loadPCDFile<pcl::PointXYZRGB>(pointCloudFile, *pointCloudPCL);
+        std::cout << "Loaded " << pointCloudPCL->width * pointCloudPCL->height << " points" << std::endl;
+        std::cout << "width: " << pointCloudPCL->width << " points" << std::endl;
+        std::cout << "resolution: " << CalculateResolution(pointCloudPCL) << std::endl;
+
+       
 
         std::vector<int> indices;
-        pcl::removeNaNFromPointCloud(pointCloudPCL, p2, indices);
-        std::cout << "size2: " << p2.size() << " points" << std::endl;
+        pcl::removeNaNFromPointCloud(*pointCloudPCL, *p2, indices);
+        std::cout << "size2: " << p2->size() << " points" << std::endl;
 
         auto viewer = pcl::visualization::PCLVisualizer("Viewer");
         viewer.setSize(900, 1000);
         viewer.setBackgroundColor(.3, .3, .3);
         viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
-        viewer.addPointCloud<pcl::PointXYZRGB>(pointCloudPCL.makeShared());
+        viewer.addPointCloud<pcl::PointXYZRGB>(pointCloudPCL);
         viewer.resetCamera();
 
 
@@ -82,7 +95,6 @@ int main(int argc, char **argv)
         while (!viewer.wasStopped())
         {
             viewer.spinOnce(100);
-            //std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
     catch(const std::exception &e)

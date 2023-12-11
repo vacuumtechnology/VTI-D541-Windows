@@ -566,8 +566,8 @@ void ObjectDetector::RefineMatch(Match *match) {
     pcl::IterativeClosestPoint<PointType, PointType> icp;
     icp.setMaxCorrespondenceDistance(5.0f);
     icp.setRANSACOutlierRejectionThreshold(1.0f);
-    icp.setTransformationEpsilon(2.0f);
-    icp.setMaximumIterations(10000);
+    icp.setTransformationEpsilon(2.0f); // Decrease for more precise matches, increase for speed
+    icp.setMaximumIterations(100);
 
     pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
     pcl::transformPointCloud(*match->model->cloud, *source_points_transformed, match->rototranslation);
@@ -577,6 +577,7 @@ void ObjectDetector::RefineMatch(Match *match) {
 
     pcl::PointCloud<PointType> registration_output;
     icp.align(registration_output);
+    cout << "icp: " << icp.getFitnessScore() << endl;
 
     match->rototranslation = icp.getFinalTransformation() * match->rototranslation;
     pcl::transformPointCloud(*match->rotated_model, *match->rotated_model, icp.getFinalTransformation());

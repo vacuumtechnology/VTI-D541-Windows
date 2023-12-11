@@ -19,6 +19,8 @@
 #include <pcl/features/fpfh.h>
 #include <pcl/registration/icp.h>
 
+#include <chrono>
+
 typedef pcl::PointXYZRGBA PointType;
 typedef pcl::Normal NormalType;
 typedef pcl::ReferenceFrame RFType;
@@ -387,24 +389,30 @@ main (int argc, char *argv[])
     gc_clusterer.recognize (rototranslations, clustered_corrs);
   }
 
-  //for (std::size_t i = 0; i < rototranslations.size(); ++i) {
-  //  pcl::IterativeClosestPoint<PointType, PointType> icp;
-  //  icp.setMaxCorrespondenceDistance(5.0f);
-  //  icp.setRANSACOutlierRejectionThreshold(1.0f);
-  //  icp.setTransformationEpsilon(2.0f);
-  //  icp.setMaximumIterations(10000);
+  auto start_time = std::chrono::high_resolution_clock::now();
+  for (std::size_t i = 0; i < rototranslations.size(); ++i) {
+    pcl::IterativeClosestPoint<PointType, PointType> icp;
+    icp.setMaxCorrespondenceDistance(5.0f);
+    icp.setRANSACOutlierRejectionThreshold(0.4f);
+    icp.setTransformationEpsilon(1.0f);
+    icp.setMaximumIterations(100);
 
-  //  pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
-  //  pcl::transformPointCloud(*model, *source_points_transformed, rototranslations[i]);
+    pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
+    pcl::transformPointCloud(*model, *source_points_transformed, rototranslations[i]);
 
-  //  icp.setInputSource(source_points_transformed);
-  //  icp.setInputTarget(scene);
+    icp.setInputSource(source_points_transformed);
+    icp.setInputTarget(scene);
 
-  //  pcl::PointCloud<PointType> registration_output;
-  //  icp.align(registration_output);
+    pcl::PointCloud<PointType> registration_output;
+    icp.align(registration_output);
+    cout << "icp: " << icp.getFitnessScore() << endl;
 
-  //  rototranslations[i] = icp.getFinalTransformation() * rototranslations[i];
-  //}
+    rototranslations[i] = icp.getFinalTransformation() * rototranslations[i];
+  }
+  auto end_time = std::chrono::high_resolution_clock::now();
+  auto time = end_time - start_time;
+
+  std::cout << "icp took " << time / std::chrono::milliseconds(1) << "ms to run.\n";
 
   
 
