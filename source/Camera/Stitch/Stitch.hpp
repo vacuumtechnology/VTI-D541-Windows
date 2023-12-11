@@ -27,10 +27,10 @@ const float max_correspondence_dist = 0.01f;
 const int nr_iters = 500;
 
 // ICP parameters (explanation below)
-const float max_correspondence_distance = 5.0;
-const float outlier_rejection_threshold = 0.5f;
-const float transformation_epsilon = .001f;
-const int max_iterations = 500;
+const float max_correspondence_distance = 10.0;
+const float outlier_rejection_threshold = 1.0f;
+const float transformation_epsilon = 5.0f;
+const int max_iterations = 1000;
 
 // --------------
 // -----Help-----

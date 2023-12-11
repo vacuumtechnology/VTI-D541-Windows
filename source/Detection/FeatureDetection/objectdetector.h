@@ -21,6 +21,7 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/keypoints/sift_keypoint.h>
+#include <pcl/registration/icp.h>
 #include <vtkRenderWindow.h>
 #include <map>
 #include <cmath>
@@ -110,6 +111,7 @@ class ObjectDetector {
         bool DetermineBestMatches(ModelGroup* modGroup);
         void PrintInstances();
         bool CheckUnmoved(Eigen::Matrix3f rotation, Eigen::Vector3f translation);
+        void RefineMatch(Match*);
         pcl::visualization::PCLVisualizer::Ptr viewer;
         pcl::visualization::PCLVisualizer::Ptr previewer;
 
