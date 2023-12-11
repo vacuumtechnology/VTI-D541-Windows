@@ -1,3 +1,5 @@
+// .\Base.exe ..\..\pcd\tJoint\tJoint.pcd ..\..\pcd\all_manifolds\manifold5.pcd --algorithm Hough --model_ss .88 --scene_ss .88 --rf_rad 4.4 --descr_rad 8.8 --cg_size 4.4 --cg_thresh 40
+
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_cloud.h>
 #include <pcl/correspondence.h>
@@ -12,8 +14,11 @@
 #include <pcl/kdtree/impl/kdtree_flann.hpp>
 #include <pcl/common/transforms.h>
 #include <pcl/console/parse.h>
-
+#include <pcl/registration/correspondence_estimation.h>
+#include <pcl/features/cvfh.h>
 #include <pcl/features/fpfh.h>
+#include <pcl/registration/icp.h>
+
 typedef pcl::PointXYZRGBA PointType;
 typedef pcl::Normal NormalType;
 typedef pcl::ReferenceFrame RFType;
@@ -212,7 +217,7 @@ main (int argc, char *argv[])
   //  Compute Normals
   //
   pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
-  norm_est.setKSearch (10);
+  norm_est.setKSearch (15);
   norm_est.setInputCloud (model);
   norm_est.compute (*model_normals);
 
@@ -234,6 +239,16 @@ main (int argc, char *argv[])
   uniform_sampling.filter (*scene_keypoints);
   std::cout << "Scene total points: " << scene->size () << "; Selected Keypoints: " << scene_keypoints->size () << std::endl;
 
+  pcl::search::KdTree<PointType>::Ptr kdtree(new pcl::search::KdTree<PointType>);
+
+  //pcl::NormalEstimationOMP<PointType, NormalType> norm_est;
+  //norm_est.setRadiusSearch(5);
+  //norm_est.setSearchMethod(kdtree);
+  //norm_est.setInputCloud(model_keypoints);
+  //norm_est.compute(*model_normals);
+
+  //norm_est.setInputCloud(scene_keypoints);
+  //norm_est.compute(*scene_normals);
 
   //
   //  Compute Descriptor for keypoints
@@ -252,14 +267,38 @@ main (int argc, char *argv[])
   descr_est.compute (*scene_descriptors);
 
   // FPFH estimation object.
-  pcl::FPFHEstimation<pcl::PointXYZRGBA, pcl::Normal, pcl::FPFHSignature33> fpfh;
-  fpfh.setInputCloud(model_keypoints);
-  fpfh.setInputNormals(model_normals);
-  // Search radius, to look for neighbors. Note: the value given here has to be
-  // larger than the radius used to estimate the normals.
-  fpfh.setRadiusSearch(descr_rad_);
+  //pcl::FPFHEstimation<pcl::PointXYZRGBA, pcl::Normal, DescriptorType> fpfh;
+  //fpfh.setRadiusSearch(descr_rad_);
 
+  //fpfh.setInputCloud(model_keypoints);
+  //fpfh.setInputNormals(model_normals);
+  //fpfh.setSearchSurface(model);
   //fpfh.compute(*model_descriptors);
+
+  //fpfh.setInputCloud(scene_keypoints);
+  //fpfh.setInputNormals(scene_normals);
+  //fpfh.setSearchSurface(scene);
+  //fpfh.compute(*scene_descriptors);
+
+  // CVFH estimation object.
+  //pcl::CVFHEstimation<PointType, NormalType, pcl::VFHSignature308> cvfh;
+  //cvfh.setInputCloud(scene_keypoints);
+  //cvfh.setInputNormals(scene_normals);
+  ////cvfh.setSearchSurface(scene);
+  //cvfh.setSearchMethod(kdtree);
+  //cvfh.setEPSAngleThreshold(5.0 / 180.0 * M_PI); // 5 degrees.
+  //cvfh.setCurvatureThreshold(.05);
+  //cvfh.setNormalizeBins(false);
+  //std::cout << "here" << endl;
+  //cvfh.compute(*scene_descriptors);
+  //std::cout << "Scene total descriptors: " << scene_descriptors->size() << std::endl;
+
+  //cvfh.setInputCloud(model_keypoints);
+  //cvfh.setInputNormals(model_normals);
+  ////cvfh.setSearchSurface(model);
+  //cvfh.setNormalizeBins(false);
+  //cvfh.compute(*model_descriptors);
+  //std::cout << "Model total descriptors: " << model_descriptors->size() << std::endl;
 
   //
   //  Find Model-Scene Correspondences with KdTree
@@ -279,12 +318,14 @@ main (int argc, char *argv[])
       continue;
     }
     int found_neighs = match_search.nearestKSearch (scene_descriptors->at (i), 1, neigh_indices, neigh_sqr_dists);
-    if(found_neighs == 1 && neigh_sqr_dists[0] < 0.25f) //  add match only if the squared descriptor distance is less than 0.25 (SHOT descriptor distances are between 0 and 1 by design)
+    if(found_neighs == 1  && neigh_sqr_dists[0] < 0.25f) //  add match only if the squared descriptor distance is less than 0.25 (SHOT descriptor distances are between 0 and 1 by design)
     {
+        //cout << "dist: " << neigh_sqr_dists[0] << endl;
       pcl::Correspondence corr (neigh_indices[0], static_cast<int> (i), neigh_sqr_dists[0]);
       model_scene_corrs->push_back (corr);
     }
   }
+
   std::cout << "Correspondences found: " << model_scene_corrs->size () << std::endl;
 
   //
@@ -346,32 +387,59 @@ main (int argc, char *argv[])
     gc_clusterer.recognize (rototranslations, clustered_corrs);
   }
 
+  //for (std::size_t i = 0; i < rototranslations.size(); ++i) {
+  //  pcl::IterativeClosestPoint<PointType, PointType> icp;
+  //  icp.setMaxCorrespondenceDistance(5.0f);
+  //  icp.setRANSACOutlierRejectionThreshold(1.0f);
+  //  icp.setTransformationEpsilon(2.0f);
+  //  icp.setMaximumIterations(10000);
+
+  //  pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
+  //  pcl::transformPointCloud(*model, *source_points_transformed, rototranslations[i]);
+
+  //  icp.setInputSource(source_points_transformed);
+  //  icp.setInputTarget(scene);
+
+  //  pcl::PointCloud<PointType> registration_output;
+  //  icp.align(registration_output);
+
+  //  rototranslations[i] = icp.getFinalTransformation() * rototranslations[i];
+  //}
+
+  
+
+
+
   //
   //  Output results
   //
-  std::cout << "Model instances found: " << rototranslations.size () << std::endl;
-  for (std::size_t i = 0; i < rototranslations.size (); ++i)
-  {
-    std::cout << "\n    Instance " << i + 1 << ":" << std::endl;
-    std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[i].size () << std::endl;
+  //std::cout << "Model instances found: " << rototranslations.size () << std::endl;
+  //for (std::size_t i = 0; i < rototranslations.size (); ++i)
+  //{
+  //  std::cout << "\n    Instance " << i + 1 << ":" << std::endl;
+  //  std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[i].size () << std::endl;
 
-    // Print the rotation matrix and translation vector
-    Eigen::Matrix3f rotation = rototranslations[i].block<3,3>(0, 0);
-    Eigen::Vector3f translation = rototranslations[i].block<3,1>(0, 3);
+  //  // Print the rotation matrix and translation vector
+  //  Eigen::Matrix3f rotation = rototranslations[i].block<3,3>(0, 0);
+  //  Eigen::Vector3f translation = rototranslations[i].block<3,1>(0, 3);
 
-    printf ("\n");
-    printf ("            | %6.3f %6.3f %6.3f | \n", rotation (0,0), rotation (0,1), rotation (0,2));
-    printf ("        R = | %6.3f %6.3f %6.3f | \n", rotation (1,0), rotation (1,1), rotation (1,2));
-    printf ("            | %6.3f %6.3f %6.3f | \n", rotation (2,0), rotation (2,1), rotation (2,2));
-    printf ("\n");
-    printf ("        t = < %0.3f, %0.3f, %0.3f >\n", translation (0), translation (1), translation (2));
-  }
+  //  printf ("\n");
+  //  printf ("            | %6.3f %6.3f %6.3f | \n", rotation (0,0), rotation (0,1), rotation (0,2));
+  //  printf ("        R = | %6.3f %6.3f %6.3f | \n", rotation (1,0), rotation (1,1), rotation (1,2));
+  //  printf ("            | %6.3f %6.3f %6.3f | \n", rotation (2,0), rotation (2,1), rotation (2,2));
+  //  printf ("\n");
+  //  printf ("        t = < %0.3f, %0.3f, %0.3f >\n", translation (0), translation (1), translation (2));
+  //}
 
   //
   //  Visualization
   //
   pcl::visualization::PCLVisualizer viewer ("Correspondence Grouping");
-  viewer.addPointCloud (scene, "scene_cloud");
+  viewer.setSize(900, 1000);
+  viewer.setBackgroundColor(.3, .3, .3);
+  viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
+  viewer.addPointCloud(scene, "scene_cloud");
+  viewer.resetCamera();
 
   pcl::PointCloud<PointType>::Ptr off_scene_model (new pcl::PointCloud<PointType> ());
   pcl::PointCloud<PointType>::Ptr off_scene_model_keypoints (new pcl::PointCloud<PointType> ());

@@ -562,6 +562,27 @@ void ObjectDetector::FindCorrespondences(Model* mod) {
 
 }
 
+void ObjectDetector::RefineMatch(Match *match) {
+    pcl::IterativeClosestPoint<PointType, PointType> icp;
+    icp.setMaxCorrespondenceDistance(5.0f);
+    icp.setRANSACOutlierRejectionThreshold(1.0f);
+    icp.setTransformationEpsilon(2.0f);
+    icp.setMaximumIterations(10000);
+
+    pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
+    pcl::transformPointCloud(*match->model->cloud, *source_points_transformed, match->rototranslation);
+
+    icp.setInputSource(source_points_transformed);
+    icp.setInputTarget(scene);
+
+    pcl::PointCloud<PointType> registration_output;
+    icp.align(registration_output);
+
+    match->rototranslation = icp.getFinalTransformation() * match->rototranslation;
+    pcl::transformPointCloud(*match->rotated_model, *match->rotated_model, icp.getFinalTransformation());
+    pcl::transformPointCloud(*match->transformedPickPoints, *match->transformedPickPoints, icp.getFinalTransformation());
+}
+
 // Sort matches by # of correspondences,
 // Create transformed model cloud, store as ( # of correspondences, Match )
 void ObjectDetector::SortMatches(ModelGroup* modGroup) {
@@ -584,6 +605,7 @@ void ObjectDetector::SortMatches(ModelGroup* modGroup) {
                 Eigen::Vector3f translationVec = match->rototranslation.block<3, 1>(0, 3);
                 pcl::transformPointCloud(*mod->cloud, *match->rotated_model, match->rototranslation);
                 pcl::transformPointCloud(*mod->pick_points, *match->transformedPickPoints, match->rototranslation);
+                RefineMatch(match);
                 modGroup->bestMatches.insert(std::make_pair(match->correspondences, match));
 
             }
