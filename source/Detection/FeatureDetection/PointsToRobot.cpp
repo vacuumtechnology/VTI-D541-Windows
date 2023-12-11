@@ -1,7 +1,15 @@
 #include "PointsToRobot.h"
 
-PointsToRobot::PointsToRobot(std::vector<float> calibration) {
+PointsToRobot::PointsToRobot(Eigen::Matrix4f transform) {
+    useBoard = true;
 
+    this->transform = transform;
+
+    ConnectToSocket();
+}
+
+PointsToRobot::PointsToRobot(std::vector<float> calibration) {
+    useBoard = false;
     if (calibration.size() != 6) {
         std::cout << "invalid calibration" << std::endl;
         exit(0);

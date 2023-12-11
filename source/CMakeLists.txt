@@ -31,6 +31,7 @@ set(PROGRAMS
     Detection/DetectCylinder
     Detection/DetectSphere
     Detection/Calibrate
+    Detection/CalibrateWithBoard
     Detection/Base
     Utilities/CreateModel
     Utilities/Crop
