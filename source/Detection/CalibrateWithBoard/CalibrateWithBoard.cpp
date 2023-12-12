@@ -54,7 +54,8 @@ namespace
 
         m << r(0, 0), r(0, 1), r(0, 2), pose[0],
              r(1, 0), r(1, 1), r(1, 2), pose[1],
-             r(2, 0), r(2, 1), r(2, 2), pose[2];
+             r(2, 0), r(2, 1), r(2, 2), pose[2],
+             0,       0,       0,       1;
 
         return eigenToZivid(m);
 
