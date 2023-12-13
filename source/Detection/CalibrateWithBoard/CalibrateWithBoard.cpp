@@ -44,9 +44,9 @@ namespace
     Zivid::Matrix4x4 poseToTransform(std::vector<double> pose) {
 
         //Rotation matrix from UVW
-        Eigen::AngleAxisd rollangle(pose[3], Eigen::Vector3d::UnitZ());
-        Eigen::AngleAxisd yawangle(pose[4], Eigen::Vector3d::UnitY());
-        Eigen::AngleAxisd pitchangle(pose[5], Eigen::Vector3d::UnitX());
+        Eigen::AngleAxisd rollangle(pose[3] * PI / 180, Eigen::Vector3d::UnitZ());
+        Eigen::AngleAxisd yawangle(pose[4] * PI / 180, Eigen::Vector3d::UnitY());
+        Eigen::AngleAxisd pitchangle(pose[5] * PI / 180, Eigen::Vector3d::UnitX());
         Eigen::Quaternion<double> q = rollangle * yawangle * pitchangle;
         Eigen::Matrix3d r = q.matrix();
         
@@ -199,8 +199,12 @@ int main()
 
         std::ofstream calStream;
         calStream.open("../../txt/transform.cal");
-        for (int i = 0; i < calibrationResult.residuals().size(); i++) {
-            calStream << calibrationResult.residuals()[i] << std::endl;
+        //calibrationResult.transform().save("../../txt/transform.cal");
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                calStream << calibrationResult.transform().at(i, j) << " ";
+            }
+            calStream << std::endl;
         }
         calStream.close();
 
