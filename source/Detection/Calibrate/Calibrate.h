@@ -9,6 +9,9 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/filters/uniform_sampling.h>
+#include <pcl/features/fpfh_omp.h>
+#include <pcl/registration/ia_ransac.h>
+#include <pcl/registration/icp.h>
 #include <Zivid/Zivid.h>
 #include <windows.h>
 #include <winsock2.h>
@@ -24,8 +27,8 @@ typedef pcl::SHOT352 DescriptorType;
 
 class Calibrate {
 public:
-	Calibrate();
-	Calibrate(pcl::PointCloud<PointType>::Ptr scene);
+	Calibrate(bool mode);
+	Calibrate(pcl::PointCloud<PointType>::Ptr scene, bool mode);
 
 	void ReceivePoint();
 	void FindSphere();
@@ -39,7 +42,8 @@ private:
 	void ConnectToSocket();
 	void CaptureScene();
 	void ProcessScene();
-	void LinearRegression(std::vector<float> xVals, std::vector<float> yVals, float &a, float &b);
+	void LinearRegression(std::vector<float> xVals, std::vector<float> yVals, float& a, float& b);
+	void RegisterClouds();
 
 	Zivid::Application zivid;
 	Zivid::Settings settings;
@@ -67,6 +71,7 @@ private:
 
 	std::vector<PointType> cameraPoints;
 	std::vector<PointType> robotPoints;
+	Eigen::Matrix4f transformMatrix;
 
 	float xOffset;
 	float yOffset;
@@ -77,6 +82,7 @@ private:
 
 	bool refreshViewer = true;
 	bool useCamera;
+	bool transform;
 
 	//Winsock vars
 	WSADATA wsaData;

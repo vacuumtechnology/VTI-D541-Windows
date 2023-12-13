@@ -1,16 +1,18 @@
 #include "Calibrate.h"
 //#include <vtkRenderWindow.h>
 
-Calibrate::Calibrate(pcl::PointCloud<PointType>::Ptr scene) {
+Calibrate::Calibrate(pcl::PointCloud<PointType>::Ptr scene, bool mode) {
 	Reset();
 	cloud = scene;
 	useCamera = false;
+	transform = mode;
 	ConnectToSocket();
 }
 
-Calibrate::Calibrate() {
+Calibrate::Calibrate(bool mode) {
 	Reset();
 	useCamera = true;
+	transform = mode;
 	std::cout << "Connecting to camera" << std::endl;
 	camera = zivid.connectCamera();
 	std::cout << "Connected" << std::endl;
@@ -124,6 +126,91 @@ void Calibrate::SendResponse() {
 	iResult = send(ConnectSocket, response.c_str(), (int)strlen(response.c_str()), 0);
 }
 
+void Calibrate::RegisterClouds() {
+	pcl::PointCloud<PointType>::Ptr cameraCloud;
+	pcl::PointCloud<PointType>::Ptr robotCloud;
+	cameraCloud.reset(new pcl::PointCloud<PointType>);
+	robotCloud.reset(new pcl::PointCloud<PointType>);
+	for (int i = 0; i < cameraPoints.size(); i++) {
+		cameraCloud->push_back(cameraPoints[i]);
+		robotCloud->push_back(robotPoints[i]);
+	}
+
+	// Estimate cloud normals
+	cout << "Computing source cloud normals\n";
+	pcl::NormalEstimation<pcl::PointXYZRGB, pcl::PointNormal> ne;
+	pcl::PointCloud<pcl::PointNormal>::Ptr cameraNormals(new pcl::PointCloud<pcl::PointNormal>);
+	pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree_XYZRGB(new pcl::search::KdTree<pcl::PointXYZRGB>());
+	ne.setInputCloud(cameraCloud);
+	ne.setSearchMethod(tree_XYZRGB);
+	ne.setKSearch(15);
+	ne.compute(*cameraNormals);
+
+	cout << "Computing target cloud normals\n";
+	pcl::PointCloud<pcl::PointNormal>::Ptr robotNormals(new pcl::PointCloud<pcl::PointNormal>);
+	ne.setInputCloud(robotCloud);
+	ne.compute(*robotNormals);
+
+	pcl::FPFHEstimationOMP<pcl::PointXYZRGB, pcl::PointNormal, pcl::FPFHSignature33> fpfh;
+	fpfh.setInputCloud(cameraCloud);
+	fpfh.setInputNormals(cameraNormals);
+	fpfh.setSearchMethod(tree_XYZRGB);
+	pcl::PointCloud<pcl::FPFHSignature33>::Ptr cameraFeatures(new pcl::PointCloud<pcl::FPFHSignature33>());
+	fpfh.setRadiusSearch(8.8);
+	fpfh.compute(*cameraFeatures);
+	cout << "Computed " << cameraFeatures->size() << " FPFH features for source cloud\n";
+
+	fpfh.setInputCloud(robotCloud);
+	fpfh.setInputNormals(robotNormals);
+	pcl::PointCloud<pcl::FPFHSignature33>::Ptr roboFeatures(new pcl::PointCloud<pcl::FPFHSignature33>());
+	fpfh.compute(*roboFeatures);
+	cout << "Computed " << roboFeatures->size() << " FPFH features for target cloud\n";
+
+	// Sample Consensus Initial Alignment parameters (explanation below)
+	const float min_sample_dist = 0.025f;
+	const float max_correspondence_dist = 0.01f;
+	const int nr_iters = 500;
+
+	// ICP parameters (explanation below)
+	const float max_correspondence_distance = 10.0;
+	const float outlier_rejection_threshold = 1.0f;
+	const float transformation_epsilon = 5.0f;
+	const int max_iterations = 1000;
+
+	pcl::SampleConsensusInitialAlignment<PointType, PointType, pcl::FPFHSignature33> sac_ia;
+	sac_ia.setMinSampleDistance(min_sample_dist);
+	sac_ia.setMaxCorrespondenceDistance(max_correspondence_distance);
+	sac_ia.setMaximumIterations(nr_iters);
+
+	sac_ia.setInputSource(cameraCloud);
+	sac_ia.setSourceFeatures(cameraFeatures);
+
+	sac_ia.setInputTarget(robotCloud);
+	sac_ia.setTargetFeatures(roboFeatures);
+
+	pcl::PointCloud<PointType> registration_output;
+	sac_ia.align(registration_output);
+
+	auto initial_alignment = sac_ia.getFinalTransformation();
+
+	pcl::IterativeClosestPoint<PointType, PointType> icp;
+	icp.setMaxCorrespondenceDistance(max_correspondence_distance);
+	icp.setRANSACOutlierRejectionThreshold(outlier_rejection_threshold);
+	icp.setTransformationEpsilon(transformation_epsilon);
+	icp.setMaximumIterations(max_iterations);
+
+	pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
+	pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
+
+	icp.setInputSource(source_points_transformed);
+	icp.setInputTarget(robotCloud);
+
+	icp.align(registration_output);
+
+	//transformMatrix (icp.getFinalTransformation() * initial_alignment);
+}
+
+
 void Calibrate::LinearRegression(std::vector<float> xVals, std::vector<float> yVals, float &a, float &b) {
 	float sum_x = 0, sum_x2 = 0, sum_y = 0, sum_xy = 0;
 	int n = xVals.size();
@@ -151,52 +238,60 @@ void Calibrate::LinearRegression(std::vector<float> xVals, std::vector<float> yV
 
 void Calibrate::CalculateCalibration() {
 	std::vector<float> xCam, xRobo, yCam, yRobo, zCam, zRobo;
-	std::cout << "Robot points" << endl;
-	for (int i = 0; i < robotPoints.size(); i++) {
-		cout << "\t";
-		cout << robotPoints[i].x << " " << robotPoints[i].y << " " << robotPoints[i].z << endl;
-		xRobo.push_back(robotPoints[i].x);
-		yRobo.push_back(robotPoints[i].y);
-		zRobo.push_back(robotPoints[i].z);
+
+	if (transform) {
+		RegisterClouds();
+	} else {
+		std::cout << "Robot points" << endl;
+		for (int i = 0; i < robotPoints.size(); i++) {
+			cout << "\t";
+			cout << robotPoints[i].x << " " << robotPoints[i].y << " " << robotPoints[i].z << endl;
+			xRobo.push_back(robotPoints[i].x);
+			yRobo.push_back(robotPoints[i].y);
+			zRobo.push_back(robotPoints[i].z);
+		}
+
+		std::cout << "Camera points" << endl;
+		for (int i = 0; i < cameraPoints.size(); i++) {
+			cout << "\t";
+			cout << cameraPoints[i].x << " " << cameraPoints[i].y << " " << cameraPoints[i].z << endl;
+			xCam.push_back(cameraPoints[i].x);
+			yCam.push_back(cameraPoints[i].y);
+			zCam.push_back(cameraPoints[i].z);
+		}
+
+		LinearRegression(xCam, xRobo, xOffset, xFactor);
+		LinearRegression(yCam, yRobo, yOffset, yFactor);
+		LinearRegression(zCam, zRobo, zOffset, zFactor);
 	}
-
-	std::cout << "Camera points" << endl;
-	for (int i = 0; i < cameraPoints.size(); i++) {
-		cout << "\t";
-		cout << cameraPoints[i].x << " " << cameraPoints[i].y << " " << cameraPoints[i].z << endl;
-		xCam.push_back(cameraPoints[i].x);
-		yCam.push_back(cameraPoints[i].y);
-		zCam.push_back(cameraPoints[i].z);
-	}
-
-	LinearRegression(xCam, xRobo, xOffset, xFactor);
-	LinearRegression(yCam, yRobo, yOffset, yFactor);
-	LinearRegression(zCam, zRobo, zOffset, zFactor);
-
-	/*xFactor = (robotPoints[1].x - robotPoints[0].x) / (cameraPoints[1].x - cameraPoints[0].x);
-	yFactor = (robotPoints[3].y - robotPoints[2].y) / (cameraPoints[3].y - cameraPoints[2].y);
-	zFactor = (robotPoints[5].z - robotPoints[4].z) / (cameraPoints[5].z - cameraPoints[4].z);
-
-	xOffset = robotPoints[0].x - (xFactor * cameraPoints[0].x);
-	yOffset = robotPoints[2].y - (yFactor * cameraPoints[2].y);
-	zOffset = robotPoints[4].z - (zFactor * cameraPoints[4].z);*/
 }
 
 void Calibrate::WriteCalibration(std::string calFile) {
-	std::ofstream calStream;
-	calStream.open(calFile);
-	calStream << xOffset << endl;
-	calStream << yOffset << endl;
-	calStream << zOffset << endl;
-	calStream << xFactor << endl;
-	calStream << yFactor << endl;
-	calStream << zFactor << endl;
-	calStream.close();
+	if (transform) {
+		std::ofstream calStream;
+		calStream.open(calFile);
+
+		for (int i = 0; i < 4; i++) {
+			//calStream << transformMatrix(i, )
+		}
+
+		calStream.close();
+	} else {
+		std::ofstream calStream;
+		calStream.open(calFile);
+		calStream << xOffset << endl;
+		calStream << yOffset << endl;
+		calStream << zOffset << endl;
+		calStream << xFactor << endl;
+		calStream << yFactor << endl;
+		calStream << zFactor << endl;
+		calStream.close();
+	}
+	
 }
 
 void Calibrate::VisualizeSphere() {
 	viewer.reset(new pcl::visualization::PCLVisualizer("sphere Grouping"));
-	//viewer->getRenderWindow()->GlobalWarningDisplayOff();
 	viewer->setSize(900, 1000);
 	viewer->setBackgroundColor(.3, .3, .3);
 	viewer->setCameraPosition(0, 0, -50, 0, -1, 0);
