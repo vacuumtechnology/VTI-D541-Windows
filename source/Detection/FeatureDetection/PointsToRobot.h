@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
+#include <pcl/common/transforms.h>
 
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "5001"
@@ -40,7 +42,7 @@ public:
 	void SendPoints(std::vector<PointType> points);
 
 private:
-	bool useBoard; // true to use transform from calibration board, false to use vector from cal.txt file
+	bool useTransform; // true to use transform from calibration board, false to use vector from cal.txt file
 	Eigen::Matrix4f transform;
 	float xOffset;
 	float yOffset;
@@ -53,6 +55,7 @@ private:
 	std::vector<PointType> transformedPoints;
 
 	void ConnectToSocket();
+	void TransformPoints(std::vector<PointType>& points);
 	char *IntToBytes(int msg[]);
 };
 

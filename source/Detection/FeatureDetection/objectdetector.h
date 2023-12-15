@@ -76,6 +76,7 @@ struct Match {
     pcl::PointCloud<PointType>::Ptr rotated_model;
     Eigen::Matrix4f rototranslation;
     pcl::PointCloud<PointType>::Ptr transformedPickPoints;
+    float icpFit;
 };
 
 struct ModelGroup {
@@ -91,7 +92,7 @@ class ObjectDetector {
         float CalculateResolution(pcl::PointCloud<PointType>::Ptr sceneCloud);
         void SwitchView();
         void LoadScene(pcl::PointCloud<PointType>::Ptr scene);
-        void ProcessScene(std::string keypointType);
+        void ProcessScene();
         void ProcessSceneCylinder();
         void LoadModel(std::string modelFile, int occurences);
         std::vector<PointType> Detect();

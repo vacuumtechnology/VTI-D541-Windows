@@ -1,7 +1,7 @@
 #include "PointsToRobot.h"
 
 PointsToRobot::PointsToRobot(Eigen::Matrix4f transform) {
-    useBoard = true;
+    useTransform = true;
 
     this->transform = transform;
 
@@ -9,7 +9,7 @@ PointsToRobot::PointsToRobot(Eigen::Matrix4f transform) {
 }
 
 PointsToRobot::PointsToRobot(std::vector<float> calibration) {
-    useBoard = false;
+    useTransform = false;
     if (calibration.size() != 6) {
         std::cout << "invalid calibration" << std::endl;
         exit(0);
@@ -28,8 +28,36 @@ void PointsToRobot::WaitForHome() {
     iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 }
 
+void PointsToRobot::TransformPoints(std::vector<PointType> &points){
+    if (useTransform) {
+
+        // put points in cloud so transformation matrix can be used
+        pcl::PointCloud<PointType> pickCloud;
+        for (int i = 0; i < points.size(); i++) {
+            pickCloud.push_back(points[i]);
+        }
+        pcl::transformPointCloud(pickCloud, pickCloud, transform); // transform to robot base frame
+        points.clear();
+
+        // store back in vector
+        for (int i = 0; i < pickCloud.points.size(); i++) {
+            points.push_back(pickCloud.points[i]);
+            std::cout << "transformed point: " << pickCloud.points[i].x << " " << pickCloud.points[i].y << " " << pickCloud.points[i].z << std::endl;
+        }
+    } else {
+        for (int i = 0; i < points.size(); i++) {
+            points[i].x = (int)((-1 * points[i].x) + xOffset) * 10;
+            points[i].y = (int)(points[i].y + yOffset) * 10;
+            points[i].z = (int)(((-1 * points[i].z) + zOffset) + 2) * 10; // CHECK IF -z IS UP OR DOWN
+        }
+        
+    }
+}
+
 void PointsToRobot::SendPoints(std::vector<PointType> points) {
     std::cout << "SendPoints called" << std::endl;
+
+    TransformPoints(points);
 
     float x, y, z;
     int msg[7];

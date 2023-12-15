@@ -146,9 +146,9 @@ void ObjectDetector::LoadModel(std::string modelFile, int occurences) {
 void Model::Process(std::string keypointType) {
     ComputeNormals();
 
-    RemoveOutliers();
-
     SelectKeypoints(keypointType);
+
+    RemoveOutliers();
 
     ComputeDescriptors();
     std::cout << "Model Processed." << std::endl << std::endl;
@@ -371,7 +371,7 @@ void ObjectDetector::SelectKeypoints(std::string keypointType) {
 //
 // Perform initial processing on scene point cloud before main detection loop
 //
-void ObjectDetector::ProcessScene(std::string keypointType) {
+void ObjectDetector::ProcessScene() {
     std::cout << "Processing Scene" << std::endl;
     norm_est.setNumberOfThreads(num_threads);
     norm_est.setKSearch(15);
@@ -379,13 +379,14 @@ void ObjectDetector::ProcessScene(std::string keypointType) {
     norm_est.compute(*scene_normals);
 
     SelectKeypoints(this->keypointType);
+    std::cout << 1 << endl;
 
     sor.setInputCloud(scene_keypoints);
     sor.setMeanK(10);
     sor.setStddevMulThresh(out_thresh);
     sor.filter(*scene_keypoints);
     //std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
-
+    std::cout << 1 << endl;
     descr_est.reset(new pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType>);
     descr_est->setNumberOfThreads(num_threads);
     descr_est->setRadiusSearch(descr_rad);
@@ -393,6 +394,7 @@ void ObjectDetector::ProcessScene(std::string keypointType) {
     descr_est->setInputNormals(scene_normals);
     descr_est->setSearchSurface(scene);
     descr_est->compute(*scene_descriptors);
+    std::cout << 1 << endl;
 
     rf_est.setFindHoles(false);
     rf_est.setRadiusSearch(rf_rad);
@@ -400,6 +402,7 @@ void ObjectDetector::ProcessScene(std::string keypointType) {
     rf_est.setInputNormals(scene_normals);
     rf_est.setSearchSurface(scene);
     rf_est.compute(*scene_rf);
+    std::cout << 1 << endl;
 
 }
 
@@ -578,6 +581,7 @@ void ObjectDetector::RefineMatch(Match *match) {
     pcl::PointCloud<PointType> registration_output;
     icp.align(registration_output);
     cout << "icp: " << icp.getFitnessScore() << endl;
+    match->icpFit = icp.getFitnessScore();
 
     match->rototranslation = icp.getFinalTransformation() * match->rototranslation;
     pcl::transformPointCloud(*match->rotated_model, *match->rotated_model, icp.getFinalTransformation());
@@ -718,8 +722,9 @@ void ObjectDetector::PrintInstances() {
         int c = 0;
         for (it = modelGroups[j]->bestMatches.rbegin(); it != modelGroups[j]->bestMatches.rend(); it++) {
             std::cout << "\n    Instance " << c << ":" << std::endl;
-            std::cout << "        Correspondences belonging to this instance: " << it->second->correspondences << std::endl;
+            std::cout << "        Correspondences belonging to this instance: " << it->second->correspondences << ", score: " << it->second->icpFit << std::endl;
             Model* model = it->second->model;
+            std::cout << "        Model " << model->name << std::endl;
             // Print the rotation matrix and translation vector
                 Eigen::Matrix3f rotation = it->second->rototranslation.block<3, 3>(0, 0);
                 Eigen::Vector3f translation = it->second->rototranslation.block<3, 1>(0, 3);
