@@ -85,6 +85,7 @@ int main (int argc, char *argv[]) {
     // Init robot
     if (useRobot) {
         if (calType == "offset") {
+            cout << "calibration offset" << endl;
 
             vector<float> calibration;
             ifstream calFile(calFilename);

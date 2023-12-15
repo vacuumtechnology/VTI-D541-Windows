@@ -1,6 +1,6 @@
 #include "PointsToRobot.h"
 
-PointsToRobot::PointsToRobot(Eigen::Matrix4f transform) {
+PointsToRobot::PointsToRobot(Eigen::Matrix4f &transform) {
     useTransform = true;
 
     this->transform = transform;
@@ -42,13 +42,19 @@ void PointsToRobot::TransformPoints(std::vector<PointType> &points){
         // store back in vector
         for (int i = 0; i < pickCloud.points.size(); i++) {
             points.push_back(pickCloud.points[i]);
-            std::cout << "transformed point: " << pickCloud.points[i].x << " " << pickCloud.points[i].y << " " << pickCloud.points[i].z << std::endl;
+        }
+        for (int i = 0; i < points.size(); i++) {
+            points[i].x = (int)(points[i].x * 10);
+            points[i].y = (int)(points[i].y * 10);
+            points[i].z = (int)(points[i].z * 10); // CHECK IF -z IS UP OR DOWN
+            std::cout << "transformed point: " << points[i].x << " " << points[i].y << " " << points[i].z << std::endl;
         }
     } else {
         for (int i = 0; i < points.size(); i++) {
             points[i].x = (int)((-1 * points[i].x) + xOffset) * 10;
             points[i].y = (int)(points[i].y + yOffset) * 10;
             points[i].z = (int)(((-1 * points[i].z) + zOffset) + 2) * 10; // CHECK IF -z IS UP OR DOWN
+            std::cout << "transformed point: " << points[i].x << " " << points[i].y << " " << points[i].z << std::endl;
         }
         
     }
@@ -82,9 +88,9 @@ void PointsToRobot::SendPoints(std::vector<PointType> points) {
             if (ind >= points.size()) break;
             point = points[ind];
             msg[0] = 111;
-            msg[1] = (int)((-1 * point.x) + xOffset) * 10;
-            msg[2] = (int)(point.y + yOffset) * 10;
-            msg[3] = (int)(((-1 * point.z) + zOffset) + 2) * 10; // CHECK IF -z IS UP OR DOWN
+            msg[1] = (int)point.x;
+            msg[2] = (int)point.y;
+            msg[3] = (int)point.z; // CHECK IF -z IS UP OR DOWN
             msg[4] = 30 * 10000;
             msg[5] = 0;
             msg[6] = 180 * 10000;

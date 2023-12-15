@@ -1,0 +1,18 @@
+transformed point: 2610 6360 -530
+transformed point: 630 6110 -490
+transformed point: 1010 6090 -480
+transformed point: 1270 6070 -480
+transformed point: 1090 5790 -470
+transformed point: 500 5820 -480
+transformed point: 1340 5780 -470
+transformed point: 1780 5900 -410
+
+result points
+transformed point: 461 8326 1213
+transformed point: -166 7308 2319
+transformed point: -316 7147 2620
+transformed point: -64 7432 2097
+transformed point: -190 7118 2072
+transformed point: -420 6849 2558
+transformed point: -91 7232 1869
+transformed point: 149 7499 1609

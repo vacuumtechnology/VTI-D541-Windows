@@ -1,8 +1,8 @@
 #undef UNICODE
-
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 
-#include <windows.h>
+//#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdlib.h>
@@ -34,7 +34,7 @@ public:
 	std::string servername = "localhost";
 
 	PointsToRobot(std::vector<float> calibration);
-	PointsToRobot(Eigen::Matrix4f transform);
+	PointsToRobot(Eigen::Matrix4f &transform);
 	~PointsToRobot();
 
 	void WaitForHome();
