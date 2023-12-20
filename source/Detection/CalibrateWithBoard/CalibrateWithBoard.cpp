@@ -65,7 +65,6 @@ namespace
 
         return eigenToZivid(m);
 
-
     }
 
     std::string getInput()

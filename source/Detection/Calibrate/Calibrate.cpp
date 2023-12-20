@@ -156,7 +156,7 @@ void Calibrate::RegisterClouds() {
 	fpfh.setInputNormals(cameraNormals);
 	fpfh.setSearchMethod(tree_XYZRGB);
 	pcl::PointCloud<pcl::FPFHSignature33>::Ptr cameraFeatures(new pcl::PointCloud<pcl::FPFHSignature33>());
-	fpfh.setRadiusSearch(8.8);
+	fpfh.setRadiusSearch(800.8);
 	fpfh.compute(*cameraFeatures);
 	cout << "Computed " << cameraFeatures->size() << " FPFH features for source cloud\n";
 
@@ -168,30 +168,31 @@ void Calibrate::RegisterClouds() {
 
 	// Sample Consensus Initial Alignment parameters (explanation below)
 	const float min_sample_dist = 0.025f;
-	const float max_correspondence_dist = 0.01f;
+	const float max_correspondence_dist = 100.0f;
 	const int nr_iters = 500;
 
 	// ICP parameters (explanation below)
-	const float max_correspondence_distance = 10.0;
-	const float outlier_rejection_threshold = 1.0f;
-	const float transformation_epsilon = 5.0f;
+	const float max_correspondence_distance = 1000.0;
+	const float outlier_rejection_threshold = 1000.0f;
+	const float transformation_epsilon = 10.0f;
 	const int max_iterations = 1000;
 
-	pcl::SampleConsensusInitialAlignment<PointType, PointType, pcl::FPFHSignature33> sac_ia;
-	sac_ia.setMinSampleDistance(min_sample_dist);
-	sac_ia.setMaxCorrespondenceDistance(max_correspondence_distance);
-	sac_ia.setMaximumIterations(nr_iters);
+	//pcl::SampleConsensusInitialAlignment<PointType, PointType, pcl::FPFHSignature33> sac_ia;
+	//sac_ia.setMinSampleDistance(min_sample_dist);
+	//sac_ia.setMaxCorrespondenceDistance(max_correspondence_distance);
+	//sac_ia.setMaximumIterations(nr_iters);
 
-	sac_ia.setInputSource(cameraCloud);
-	sac_ia.setSourceFeatures(cameraFeatures);
+	//sac_ia.setInputSource(cameraCloud);
+	//sac_ia.setSourceFeatures(cameraFeatures);
 
-	sac_ia.setInputTarget(robotCloud);
-	sac_ia.setTargetFeatures(roboFeatures);
+	//sac_ia.setInputTarget(robotCloud);
+	//sac_ia.setTargetFeatures(roboFeatures);
 
 	pcl::PointCloud<PointType> registration_output;
-	sac_ia.align(registration_output);
+	//sac_ia.align(registration_output);
 
-	auto initial_alignment = sac_ia.getFinalTransformation();
+	//auto initial_alignment = sac_ia.getFinalTransformation();
+	//cout << "initial alignment found" << endl;
 
 	pcl::IterativeClosestPoint<PointType, PointType> icp;
 	icp.setMaxCorrespondenceDistance(max_correspondence_distance);
@@ -200,14 +201,14 @@ void Calibrate::RegisterClouds() {
 	icp.setMaximumIterations(max_iterations);
 
 	pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
-	pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
+	//pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
 
-	icp.setInputSource(source_points_transformed);
+	icp.setInputSource(cameraCloud);
 	icp.setInputTarget(robotCloud);
 
 	icp.align(registration_output);
 
-	transformMatrix = (icp.getFinalTransformation() * initial_alignment);
+	transformMatrix = (icp.getFinalTransformation());
 }
 
 
@@ -277,7 +278,6 @@ void Calibrate::WriteCalibration(std::string calFile) {
 			calStream << std::endl;
 		}
 		calStream.close();
-
 	} else {
 		std::ofstream calStream;
 		calStream.open(calFile);
