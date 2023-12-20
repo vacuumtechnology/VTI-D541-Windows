@@ -20,7 +20,6 @@ private:
     Zivid::Settings settings;
     Zivid::Camera camera;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;;
-
 public:
     Capturer::Capturer(string settingsFile) {
         std::cout << "Connecting to camera" << std::endl;
@@ -32,8 +31,17 @@ public:
     }
 
     pcl::PointCloud<PointType>::Ptr Capturer::Capture() {
+        Zivid::Matrix4x4 transformBaseToCamera;
+
         auto frame = camera.capture(settings);
         auto pointCloud = frame.pointCloud();
+
+        transformBaseToCamera.load("../../txt/zividcal.yaml");
+
+        std::cout << "Transforming point cloud" << std::endl;
+        pointCloud.transform(transformBaseToCamera);
+
+
         const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
 
         cloud->width = data.width();

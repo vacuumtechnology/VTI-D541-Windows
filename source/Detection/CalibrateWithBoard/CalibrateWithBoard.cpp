@@ -43,14 +43,20 @@ namespace
 
     Zivid::Matrix4x4 poseToTransform(std::vector<double> pose) {
 
-        //Rotation matrix from UVW
-        Eigen::AngleAxisd rollangle(pose[3] * PI / 180, Eigen::Vector3d::UnitZ());
-        Eigen::AngleAxisd yawangle(pose[4] * PI / 180, Eigen::Vector3d::UnitY());
-        Eigen::AngleAxisd pitchangle(pose[5] * PI / 180, Eigen::Vector3d::UnitX());
-        Eigen::Quaternion<double> q = rollangle * yawangle * pitchangle;
-        Eigen::Matrix3d r = q.matrix();
-        
+        //Eigen::AngleAxisd rollangle(pose[3] * PI / 180, Eigen::Vector3d::UnitZ());
+        //Eigen::AngleAxisd yawangle(pose[4] * PI / 180, Eigen::Vector3d::UnitY());
+        //Eigen::AngleAxisd pitchangle(pose[5] * PI / 180, Eigen::Vector3d::UnitX());
+        //Eigen::Quaternion<double> q = rollangle * yawangle * pitchangle;
+        //Eigen::Matrix3d r = q.matrix();
+        //
         Eigen::Matrix4f m;
+        Eigen::Matrix3f r = (Eigen::AngleAxisf(pose[5], Eigen::Vector3f::UnitX())
+                            * Eigen::AngleAxisf(pose[4], Eigen::Vector3f::UnitY())
+                            * Eigen::AngleAxisf(pose[3], Eigen::Vector3f::UnitZ()))
+                            .matrix();;
+
+        ////Rotation matrix from UVW
+
 
         m << r(0, 0), r(0, 1), r(0, 2), pose[0],
              r(1, 0), r(1, 1), r(1, 2), pose[1],
@@ -197,9 +203,10 @@ int main()
 
         const auto calibrationResult{ performCalibration(handEyeInput) };
 
+        calibrationResult.transform().save("../../txt/zividtransform.yaml");
+
         std::ofstream calStream;
         calStream.open("../../txt/transform.cal");
-        //calibrationResult.transform().save("../../txt/transform.cal");
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 calStream << calibrationResult.transform().at(i, j) << " ";
@@ -208,14 +215,11 @@ int main()
         }
         calStream.close();
 
-        if(calibrationResult.valid())
-        {
+        if(calibrationResult.valid()){
             std::cout << "Hand-Eye calibration OK\n"
                       << "Result:\n"
                       << calibrationResult << std::endl;
-        }
-        else
-        {
+        } else {
             std::cout << "Hand-Eye calibration FAILED" << std::endl;
             return EXIT_FAILURE;
         }

@@ -207,7 +207,7 @@ void Calibrate::RegisterClouds() {
 
 	icp.align(registration_output);
 
-	//transformMatrix (icp.getFinalTransformation() * initial_alignment);
+	transformMatrix = (icp.getFinalTransformation() * initial_alignment);
 }
 
 
@@ -269,13 +269,15 @@ void Calibrate::CalculateCalibration() {
 void Calibrate::WriteCalibration(std::string calFile) {
 	if (transform) {
 		std::ofstream calStream;
-		calStream.open(calFile);
-
+		calStream.open("../../txt/regtransform.cal");
 		for (int i = 0; i < 4; i++) {
-			//calStream << transformMatrix(i, )
+			for (int j = 0; j < 4; j++) {
+				calStream << transformMatrix(i, j) << " ";
+			}
+			calStream << std::endl;
 		}
-
 		calStream.close();
+
 	} else {
 		std::ofstream calStream;
 		calStream.open(calFile);

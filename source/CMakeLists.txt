@@ -33,6 +33,7 @@ set(PROGRAMS
     Detection/Calibrate
     Detection/CalibrateWithBoard
     Detection/Base
+    Detection/TestCalibration
     Utilities/CreateModel
     Utilities/Crop
     Utilities/RemoveRegions

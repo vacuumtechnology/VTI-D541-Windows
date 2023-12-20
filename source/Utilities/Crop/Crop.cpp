@@ -24,7 +24,6 @@ public:
 	pcl::visualization::PCLVisualizer::Ptr viewer;
 	std::vector<PointType*> pickPoints;
 	std::vector <float> dimensions;
-	int cubeCounter = 0;
 	int increment;
 	bool cloudUpdated;
 	bool closeViewer = false;

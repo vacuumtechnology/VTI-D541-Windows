@@ -109,7 +109,6 @@ void PointsToRobot::SendPoints(std::vector<PointType> points) {
         }
         printf("sent: %d, %d, %d, %d\n", msg[0], msg[1], msg[2], msg[3]);
 
-
     }
 
     msg[0] = 222;
