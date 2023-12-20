@@ -44,13 +44,17 @@ namespace
     Zivid::Matrix4x4 poseToTransform(std::vector<double> pose) {
 
         //Rotation matrix from UVW
-        Eigen::AngleAxisd rollangle(pose[3] * PI / 180, Eigen::Vector3d::UnitZ());
+        /*Eigen::AngleAxisd rollangle(pose[3] * PI / 180, Eigen::Vector3d::UnitZ());
         Eigen::AngleAxisd yawangle(pose[4] * PI / 180, Eigen::Vector3d::UnitY());
         Eigen::AngleAxisd pitchangle(pose[5] * PI / 180, Eigen::Vector3d::UnitX());
         Eigen::Quaternion<double> q = rollangle * yawangle * pitchangle;
-        Eigen::Matrix3d r = q.matrix();
+        Eigen::Matrix3d r = q.matrix();*/
         
         Eigen::Matrix4f m;
+        Eigen::Matrix3f r = (Eigen::AngleAxisf(pose[5], Eigen::Vector3f::UnitX())
+                            * Eigen::AngleAxisf(pose[4], Eigen::Vector3f::UnitY())
+                            * Eigen::AngleAxisf(pose[3], Eigen::Vector3f::UnitZ()))
+                            .matrix();
 
         m << r(0, 0), r(0, 1), r(0, 2), pose[0],
              r(1, 0), r(1, 1), r(1, 2), pose[1],
@@ -58,7 +62,6 @@ namespace
              0,       0,       0,       1;
 
         return eigenToZivid(m);
-
 
     }
 
