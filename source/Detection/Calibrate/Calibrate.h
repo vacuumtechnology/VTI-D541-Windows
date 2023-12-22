@@ -27,11 +27,11 @@ typedef pcl::SHOT352 DescriptorType;
 
 class Calibrate {
 public:
-	Calibrate(bool mode);
-	Calibrate(pcl::PointCloud<PointType>::Ptr scene, bool mode);
+	Calibrate(int mode);
+	Calibrate(pcl::PointCloud<PointType>::Ptr scene, int mode);
 
 	void ReceivePoint();
-	void FindSphere();
+	void FindDetectionObject();
 	void SendResponse();
 	void CalculateCalibration();
 	void WriteCalibration(std::string calFile);
@@ -82,7 +82,7 @@ private:
 
 	bool refreshViewer = true;
 	bool useCamera;
-	bool transform;
+	int mode;
 
 	//Winsock vars
 	WSADATA wsaData;

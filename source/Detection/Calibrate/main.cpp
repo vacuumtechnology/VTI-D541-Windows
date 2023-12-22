@@ -19,9 +19,9 @@ int main(int argc, char* argv[])
 				cout << "Error loading scene cloud." << endl;
 				return (-1);
 			}
-			cal = new Calibrate(scene, mode);
+			cal = new Calibrate(scene, 2);
 		} else {
-			cal = new Calibrate(mode);
+			cal = new Calibrate(1);
 		}
 
 		
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
 	for (int i = 0; i < 10; i++) {
 		cal->ReceivePoint();
-		cal->FindSphere();
+		cal->FindDetectionObject();
 		cal->SendResponse();
 		cal->RefreshViewer();
 	}

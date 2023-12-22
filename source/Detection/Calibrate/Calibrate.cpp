@@ -1,18 +1,17 @@
 #include "Calibrate.h"
-//#include <vtkRenderWindow.h>
 
-Calibrate::Calibrate(pcl::PointCloud<PointType>::Ptr scene, bool mode) {
+Calibrate::Calibrate(pcl::PointCloud<PointType>::Ptr scene, int mode) {
 	Reset();
 	cloud = scene;
 	useCamera = false;
-	transform = mode;
+	this->mode = mode;
 	ConnectToSocket();
 }
 
-Calibrate::Calibrate(bool mode) {
+Calibrate::Calibrate(int mode) {
 	Reset();
 	useCamera = true;
-	transform = mode;
+	this->mode = mode;
 	std::cout << "Connecting to camera" << std::endl;
 	camera = zivid.connectCamera();
 	std::cout << "Connected" << std::endl;
@@ -48,22 +47,41 @@ void Calibrate::ReceivePoint() {
 
 void Calibrate::CaptureScene() {
 	auto frame = camera.capture(settings);
-	auto pointCloud = frame.pointCloud();
-	const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
 
-	cloud->width = data.width();
-	cloud->height = data.height();
-	cloud->is_dense = false;
-	cloud->points.resize(data.size());
-	for (size_t i = 0; i < data.size(); ++i)
-	{
-		cloud->points[i].x = data(i).point.x;
-		cloud->points[i].y = data(i).point.y;
-		cloud->points[i].z = data(i).point.z;
-		cloud->points[i].r = data(i).color.r;
-		cloud->points[i].g = data(i).color.g;
-		cloud->points[i].b = data(i).color.b;
+	if (mode == 3) {
+		/*std::cout << "Detecting checkerboard in point cloud" << std::endl;
+		const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
+
+		if (detectionResult.valid())
+		{
+			std::cout << "Calibration board detected " << std::endl;
+			handEyeInput.emplace_back(Zivid::Calibration::HandEyeInput{ robotPose, detectionResult });
+		} else
+		{
+			std::cout
+				<< "Failed to detect calibration board, ensure that the entire board is in the view of the camera"
+				<< std::endl;
+		}*/
+	} else {
+		auto pointCloud = frame.pointCloud();
+		const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+
+		cloud->width = data.width();
+		cloud->height = data.height();
+		cloud->is_dense = false;
+		cloud->points.resize(data.size());
+		for (size_t i = 0; i < data.size(); ++i)
+		{
+			cloud->points[i].x = data(i).point.x;
+			cloud->points[i].y = data(i).point.y;
+			cloud->points[i].z = data(i).point.z;
+			cloud->points[i].r = data(i).color.r;
+			cloud->points[i].g = data(i).color.g;
+			cloud->points[i].b = data(i).color.b;
+		}
 	}
+	
+	
 
 }
 
@@ -82,7 +100,7 @@ void Calibrate::ProcessScene() {
 	ne.compute(*cloud_normals);
 }
 
-void Calibrate::FindSphere() {
+void Calibrate::FindDetectionObject() {
 	if(useCamera) CaptureScene();
 
 	ProcessScene();
@@ -135,6 +153,9 @@ void Calibrate::RegisterClouds() {
 		cameraCloud->push_back(cameraPoints[i]);
 		robotCloud->push_back(robotPoints[i]);
 	}
+	pcl::io::savePCDFileBinary("../../pcd/cameraCloud.pcd", *cameraCloud);
+	pcl::io::savePCDFileBinary("../../pcd/robotCloud.pcd", *robotCloud);
+
 
 	// Estimate cloud normals
 	cout << "Computing source cloud normals\n";
@@ -240,9 +261,7 @@ void Calibrate::LinearRegression(std::vector<float> xVals, std::vector<float> yV
 void Calibrate::CalculateCalibration() {
 	std::vector<float> xCam, xRobo, yCam, yRobo, zCam, zRobo;
 
-	if (transform) {
-		RegisterClouds();
-	} else {
+	if (mode == 1) {
 		std::cout << "Robot points" << endl;
 		for (int i = 0; i < robotPoints.size(); i++) {
 			cout << "\t";
@@ -264,11 +283,15 @@ void Calibrate::CalculateCalibration() {
 		LinearRegression(xCam, xRobo, xOffset, xFactor);
 		LinearRegression(yCam, yRobo, yOffset, yFactor);
 		LinearRegression(zCam, zRobo, zOffset, zFactor);
+	} else if(mode == 2){
+		RegisterClouds();
+	} else {
+
 	}
 }
 
 void Calibrate::WriteCalibration(std::string calFile) {
-	if (transform) {
+	if (mode == 1) {
 		std::ofstream calStream;
 		calStream.open("../../txt/regtransform.cal");
 		for (int i = 0; i < 4; i++) {
@@ -278,7 +301,7 @@ void Calibrate::WriteCalibration(std::string calFile) {
 			calStream << std::endl;
 		}
 		calStream.close();
-	} else {
+	} else if(mode == 2){
 		std::ofstream calStream;
 		calStream.open(calFile);
 		calStream << xOffset << endl;
@@ -288,6 +311,8 @@ void Calibrate::WriteCalibration(std::string calFile) {
 		calStream << yFactor << endl;
 		calStream << zFactor << endl;
 		calStream.close();
+	} else {
+
 	}
 	
 }
