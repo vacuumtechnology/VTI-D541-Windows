@@ -200,7 +200,7 @@ void Calibrate::RegisterClouds() {
 
 	pcl::SampleConsensusInitialAlignment<PointType, PointType, pcl::FPFHSignature33> sac_ia;
 	sac_ia.setMinSampleDistance(min_sample_dist);
-	sac_ia.setMaxCorrespondenceDistance(max_correspondence_distance);
+	sac_ia.setMaxCorrespondenceDistance(max_correspondence_dist);
 	sac_ia.setMaximumIterations(nr_iters);
 
 	sac_ia.setInputSource(cameraCloud);
@@ -222,14 +222,14 @@ void Calibrate::RegisterClouds() {
 	icp.setMaximumIterations(max_iterations);
 
 	pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
-	//pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
+	pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
 
-	icp.setInputSource(cameraCloud);
+	icp.setInputSource(source_points_transformed);
 	icp.setInputTarget(robotCloud);
 
 	icp.align(registration_output);
 
-	transformMatrix = (icp.getFinalTransformation());
+	transformMatrix = (icp.getFinalTransformation() * initial_alignment);
 }
 
 
@@ -293,16 +293,6 @@ void Calibrate::CalculateCalibration() {
 void Calibrate::WriteCalibration(std::string calFile) {
 	if (mode == 1) {
 		std::ofstream calStream;
-		calStream.open("../../txt/regtransform.cal");
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				calStream << transformMatrix(i, j) << " ";
-			}
-			calStream << std::endl;
-		}
-		calStream.close();
-	} else if(mode == 2){
-		std::ofstream calStream;
 		calStream.open(calFile);
 		calStream << xOffset << endl;
 		calStream << yOffset << endl;
@@ -310,6 +300,16 @@ void Calibrate::WriteCalibration(std::string calFile) {
 		calStream << xFactor << endl;
 		calStream << yFactor << endl;
 		calStream << zFactor << endl;
+		calStream.close();
+	} else if(mode == 2){
+		std::ofstream calStream;
+		calStream.open("../../txt/regtransform.cal");
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				calStream << transformMatrix(i, j) << " ";
+			}
+			calStream << std::endl;
+		}
 		calStream.close();
 	} else {
 
