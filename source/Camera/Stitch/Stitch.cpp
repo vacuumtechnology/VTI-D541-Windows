@@ -85,7 +85,7 @@ main (int argc, char** argv) {
     }
 
     // Estimate the SIFT keypoints
-    pcl::SIFTKeypoint<pcl::PointXYZRGB, pcl::PointWithScale> sift;
+    /*pcl::SIFTKeypoint<pcl::PointXYZRGB, pcl::PointWithScale> sift;
     pcl::PointCloud<pcl::PointWithScale>::Ptr src_keypoints_ptr (new pcl::PointCloud<pcl::PointWithScale>);
     pcl::PointCloud<pcl::PointWithScale>& src_keypoints = *src_keypoints_ptr;
     pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree_normal(new pcl::search::KdTree<pcl::PointXYZRGB> ());
@@ -102,11 +102,12 @@ main (int argc, char** argv) {
     sift.setInputCloud(target_cloud_ptr);
     sift.compute(tar_keypoints);
 
-    cout << "Found " << tar_keypoints.points.size () << " SIFT keypoints in target cloud\n";
+    cout << "Found " << tar_keypoints.points.size () << " SIFT keypoints in target cloud\n";*/
   
     // Extract FPFH features from SIFT keypoints
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr src_keypoints_XYZRGB (new pcl::PointCloud<pcl::PointXYZRGB>);                           
-    pcl::copyPointCloud (src_keypoints, *src_keypoints_XYZRGB);
+    //pcl::copyPointCloud(src_keypoints, *src_keypoints_XYZRGB);
+    pcl::copyPointCloud (source_cloud, *src_keypoints_XYZRGB);
     pcl::FPFHEstimationOMP<pcl::PointXYZRGB, pcl::PointNormal, pcl::FPFHSignature33> fpfh;
     fpfh.setSearchSurface (source_cloud_ptr);
     fpfh.setInputCloud (src_keypoints_XYZRGB);
@@ -119,7 +120,8 @@ main (int argc, char** argv) {
     cout << "Computed " << src_features.size() << " FPFH features for source cloud\n";
 
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr tar_keypoints_XYZRGB (new pcl::PointCloud<pcl::PointXYZRGB>);                           
-    pcl::copyPointCloud (tar_keypoints, *tar_keypoints_XYZRGB);
+    //pcl::copyPointCloud(tar_keypoints, *tar_keypoints_XYZRGB);
+    pcl::copyPointCloud (target_cloud, *tar_keypoints_XYZRGB);
     fpfh.setSearchSurface (target_cloud_ptr);
     fpfh.setInputCloud (tar_keypoints_XYZRGB);
     fpfh.setInputNormals (tar_normals_ptr);
@@ -130,7 +132,7 @@ main (int argc, char** argv) {
   
     // Compute the transformation matrix for alignment
     Eigen::Matrix4f tform = Eigen::Matrix4f::Identity();
-    tform = computeInitialAlignment (src_keypoints_ptr, src_features_ptr, tar_keypoints_ptr,
+    tform = computeInitialAlignment (source_cloud_ptr, src_features_ptr, target_cloud_ptr,
         tar_features_ptr, min_sample_dist, max_correspondence_dist, nr_iters);
   
     /* Uncomment this code to run ICP */
@@ -157,12 +159,15 @@ main (int argc, char** argv) {
     viewer.setBackgroundColor(.3, .3, .3);
     viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
     //viewer.addPointCloud(combined_cloud);
-    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> tar_cloud_color_handler (target_cloud_ptr, 0, 255, 255);
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> tar_cloud_color_handler (target_cloud_ptr, 255, 0, 0);
     viewer.addPointCloud (target_cloud_ptr, tar_cloud_color_handler, "target cloud v2");
+
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "target cloud v2");
   
     // Add transformed point cloud to viewer
     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZRGB> tf_cloud_color_handler (transformed_cloud_ptr, 0, 255, 0);
     viewer.addPointCloud<pcl::PointXYZRGB> (transformed_cloud_ptr, tf_cloud_color_handler, "initial aligned cloud");
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "initial aligned cloud");
     viewer.resetCamera();
 
     //--------------------

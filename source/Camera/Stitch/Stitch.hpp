@@ -23,14 +23,14 @@ const float min_contrast = 0.1f; // the minimum contrast required for detection
 
 // Sample Consensus Initial Alignment parameters (explanation below)
 const float min_sample_dist = 0.025f;
-const float max_correspondence_dist = 0.01f;
-const int nr_iters = 500;
+const float max_correspondence_dist = 1.0f;
+const int nr_iters = 50000;
 
 // ICP parameters (explanation below)
-const float max_correspondence_distance = 10.0;
-const float outlier_rejection_threshold = 1.0f;
+const float max_correspondence_distance = 100.0;
+const float outlier_rejection_threshold = 10.0f;
 const float transformation_epsilon = 5.0f;
-const int max_iterations = 1000;
+const int max_iterations = 10000;
 
 // --------------
 // -----Help-----
@@ -76,7 +76,7 @@ setViewerPose (pcl::visualization::PCLVisualizer& viewer, const Eigen::Affine3f&
  *     The number of RANSAC iterations to perform
  * Return: A transformation matrix that will roughly align the points in source to the points in target
  */
-typedef pcl::PointWithScale PointT;
+typedef pcl::PointXYZRGB PointT;
 typedef pcl::PointCloud<PointT> PointCloud;
 typedef pcl::PointCloud<PointT>::Ptr PointCloudPtr;
 typedef pcl::FPFHSignature33 LocalDescriptorT;
