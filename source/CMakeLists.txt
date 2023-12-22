@@ -41,6 +41,7 @@ set(PROGRAMS
     Camera/RealSenseTest
     Utilities/ColorFilter
     Utilities/KeypointTest
+    Utilities/Downscale
     Camera/Stitch
     )
 
