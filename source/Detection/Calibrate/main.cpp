@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
 			}
 			cal = new Calibrate(scene, 2);
 		} else {
-			cal = new Calibrate(1);
+			cal = new Calibrate(2);
 		}
 
 		
