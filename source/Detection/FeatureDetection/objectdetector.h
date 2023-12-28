@@ -22,7 +22,6 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/keypoints/sift_keypoint.h>
 #include <pcl/registration/icp.h>
-#include <vtkRenderWindow.h>
 #include <map>
 #include <cmath>
 #include <chrono>
@@ -166,4 +165,5 @@ class ObjectDetector {
 
         std::string config;
         bool switchScene;
+        bool findCylinder;
 };

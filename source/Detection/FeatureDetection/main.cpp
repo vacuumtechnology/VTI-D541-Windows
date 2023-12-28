@@ -28,10 +28,12 @@ int main (int argc, char *argv[]) {
     vector< pair< string, int > > models;
     bool useRobot;
     bool useCamera;
-    string sceneFile, sceneConfig, cylConfig, cameraConfig;
+    string sceneFile, sceneConfig, cameraConfig;
+    string cylConfig = "";
     string calType = "offset";
     string calFilename = "../../txt/cal.txt";
     Eigen::Matrix4f transform;
+    bool findCylinder = false;
     
     if(argc < 2){
         showHelp(argv[0]);
@@ -65,6 +67,11 @@ int main (int argc, char *argv[]) {
                 while (getline(cFile, line)) {
                     line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
                     if (line[0] == '#' || line.empty()) continue;
+
+                    if (line == "endcap") {
+                        findCylinder = true;
+                        continue;
+                    }
 
                     auto delimiterPos = line.find("=");
                     auto name = line.substr(0, delimiterPos);
@@ -137,7 +144,13 @@ int main (int argc, char *argv[]) {
         scene = capturer->Capture();
     }
 
-    ObjectDetector* obj = new ObjectDetector(scene, sceneConfig, cylConfig); // Object Detector init
+    // Object Detector init
+    ObjectDetector* obj;
+    if (findCylinder) {
+        obj = new ObjectDetector(scene, sceneConfig, cylConfig);
+    } else {
+        obj = new ObjectDetector(scene, sceneConfig, "");
+    }
 
     // Load Models
     for (int i = 0; i < models.size(); i++) {
@@ -145,20 +158,20 @@ int main (int argc, char *argv[]) {
         obj->LoadModel(modelPath + models[i].first, models[i].second);
     }
 
-    thread sceneViewer(&ObjectDetector::VisualizeResults, obj);
-
-    thread moveRobot;
-
+    thread sceneViewer(&ObjectDetector::VisualizeResults, obj); // Visualization thread
+    thread moveRobot; // Robot Communication thread
 
     while (1) {
         obj->LoadScene(scene);
 
-        obj->ProcessSceneCylinder();
-        PointType p1 = obj->DetectCylinder();
-        obj->SwitchView();
-        sniffPoints.push_back(p1);
-        if (useRobot) {
-            moveRobot = thread(&PointsToRobot::SendPoints, pointsToRobot, sniffPoints);
+        if (findCylinder) {
+            obj->ProcessSceneCylinder();
+            PointType p1 = obj->DetectCylinder();
+            obj->SwitchView();
+            sniffPoints.push_back(p1);
+            if (useRobot) {
+                moveRobot = thread(&PointsToRobot::SendPoints, pointsToRobot, sniffPoints);
+            }
         }
 
         obj->ProcessScene();

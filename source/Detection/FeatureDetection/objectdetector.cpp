@@ -34,6 +34,12 @@ ObjectDetector::ObjectDetector(pcl::PointCloud<PointType>::Ptr sceneCloud, std::
     rad_max = 12;
     switchScene = false;
     this->scene = sceneCloud;
+
+    if (cylConfig == "") {
+        findCylinder = false;
+    } else {
+        findCylinder = true;
+    }
     LoadParams(sceneConfig, cylConfig);
 }
 
@@ -244,29 +250,33 @@ void ObjectDetector::LoadParams(std::string sceneConfig, std::string cylConfig) 
     std::cout << "Clustering bin size:    " << this->cg_size << std::endl;
     std::cout << "Keypoint Type:    " << this->keypointType << std::endl << std::endl;
 
-    // Load cylinder config params
-    std::ifstream cFile2(cylConfig);
-    if (cFile2.is_open())
-    {
-        std::string line;
-        while (getline(cFile2, line)) {
-            line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
-            if (line[0] == '#' || line.empty()) continue;
 
-            auto delimiterPos = line.find("=");
-            auto name = line.substr(0, delimiterPos);
-            auto value = line.substr(delimiterPos + 1);
+    if (findCylinder) {
+        // Load cylinder config params
+        std::ifstream cFile2(cylConfig);
+        if (cFile2.is_open())
+        {
+            std::string line;
+            while (getline(cFile2, line)) {
+                line.erase(remove_if(line.begin(), line.end(), isspace), line.end());
+                if (line[0] == '#' || line.empty()) continue;
 
-            if (name == "norm_weight") norm_weight = atof(value.c_str());
-            else if (name == "max_iter") max_iter = atoi(value.c_str());
-            else if (name == "dist_thresh") dist_thresh = atof(value.c_str());
-            else if (name == "rad_min") rad_min = atoi(value.c_str());
-            else if (name == "rad_max") rad_max = atoi(value.c_str());
+                auto delimiterPos = line.find("=");
+                auto name = line.substr(0, delimiterPos);
+                auto value = line.substr(delimiterPos + 1);
+
+                if (name == "norm_weight") norm_weight = atof(value.c_str());
+                else if (name == "max_iter") max_iter = atoi(value.c_str());
+                else if (name == "dist_thresh") dist_thresh = atof(value.c_str());
+                else if (name == "rad_min") rad_min = atoi(value.c_str());
+                else if (name == "rad_max") rad_max = atoi(value.c_str());
+            }
+        } else {
+            cerr << "Couldn't open config file for reading.\n";
         }
-    } else {
-        cerr << "Couldn't open config file for reading.\n";
+        cFile2.close();
     }
-    cFile2.close();
+    
 }
 
 //
@@ -865,7 +875,6 @@ void ObjectDetector::SwitchView() {
 //
 int ObjectDetector::VisualizeResults() {
     viewer.reset(new pcl::visualization::PCLVisualizer("viewer"));
-    viewer->getRenderWindow()->GlobalWarningDisplayOff();
     viewer->setSize(900, 1000);
     viewer->setBackgroundColor(.3, .3, .3);
     viewer->setCameraPosition(0, 0, -50, 0, -1, 0);
@@ -883,24 +892,25 @@ int ObjectDetector::VisualizeResults() {
         }
         switchScene = false;
 
-        // Show cylinder cloud
-        pcl::visualization::PointCloudColorHandlerCustom<PointType> cylinder_model_color_handler(cloud_cylinder, 65, 72, 145);
-        viewer->addPointCloud(cloud_cylinder, cylinder_model_color_handler, "cyl_cloud");
-        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cyl_cloud");
-
         pcl::visualization::PointCloudColorHandlerCustom<PointType> pick_point_color_handler(sniffPointCloud, 78, 163, 49);
         viewer->addPointCloud(sniffPointCloud, pick_point_color_handler, "sniff");
         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "sniff");
 
-        while (!viewer->wasStopped() && !switchScene)
-        {
-            viewer->spinOnce();
+        if (findCylinder) {
+            // Show cylinder cloud
+            pcl::visualization::PointCloudColorHandlerCustom<PointType> cylinder_model_color_handler(cloud_cylinder, 65, 72, 145);
+            viewer->addPointCloud(cloud_cylinder, cylinder_model_color_handler, "cyl_cloud");
+            viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "cyl_cloud");
+
+            while (!viewer->wasStopped() && !switchScene)
+            {
+                viewer->spinOnce();
+            }
+            switchScene = false;
         }
-        switchScene = false;
+        
 
         // Show all detected models
-        pcl::PointCloud<PointType>::Ptr off_scene_model(new pcl::PointCloud<PointType>());
-        pcl::PointCloud<PointType>::Ptr off_scene_model_keypoints(new pcl::PointCloud<PointType>());
         viewer->updatePointCloud(sniffPointCloud, pick_point_color_handler, "sniff");
 
         for (int i = 0; i < modelGroups.size(); i++) {
