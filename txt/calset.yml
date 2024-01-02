@@ -79,7 +79,7 @@ Settings:
       PointO: [0, 0, 0]
     Depth:
       Enabled: yes
-      Range: [300, 850]
+      Range: [300, 860]
   Sampling:
     Color: rgb
     Pixel: all
