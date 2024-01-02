@@ -144,6 +144,7 @@ refineAlignment (const ICPPointCloudPtr & source_points, const ICPPointCloudPtr 
 
   icp.setInputSource (source_points_transformed);
   icp.setInputTarget (target_points);
+  std::cout << "score: " << icp.getFitnessScore() << endl;
 
   ICPPointCloud registration_output;
   icp.align (registration_output);

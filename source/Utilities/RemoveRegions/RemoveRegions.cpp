@@ -151,6 +151,7 @@ void RemoveRegions::Configure() {
 
     std::cout << "Saving file " << filename << endl;
     pcl::io::savePCDFileBinary(filename, *cloud_out);
+    std::cout << "Saved " << filename << endl;
 
 }
 

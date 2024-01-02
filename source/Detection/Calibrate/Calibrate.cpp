@@ -215,21 +215,35 @@ void Calibrate::RegisterClouds() {
 	auto initial_alignment = sac_ia.getFinalTransformation();
 	cout << "initial alignment found" << endl;
 
-	pcl::IterativeClosestPoint<PointType, PointType> icp;
-	icp.setMaxCorrespondenceDistance(max_correspondence_distance);
-	icp.setRANSACOutlierRejectionThreshold(outlier_rejection_threshold);
-	icp.setTransformationEpsilon(transformation_epsilon);
-	icp.setMaximumIterations(max_iterations);
+	/* ICP */
+	std::map<float, Eigen::Matrix4f> transforms;
+	float score;
+	for (int i = 0; i < 200; i++) {
+		pcl::IterativeClosestPoint<PointType, PointType> icp;
+		icp.setMaxCorrespondenceDistance(max_correspondence_distance);
+		icp.setRANSACOutlierRejectionThreshold(outlier_rejection_threshold);
+		icp.setTransformationEpsilon(transformation_epsilon);
+		icp.setMaximumIterations(max_iterations);
 
-	pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
-	pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
+		pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
+		pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
 
-	icp.setInputSource(source_points_transformed);
-	icp.setInputTarget(robotCloud);
+		icp.setInputSource(source_points_transformed);
+		icp.setInputTarget(robotCloud);
 
-	icp.align(registration_output);
+		icp.align(registration_output);
+		score = icp.getFitnessScore();
+		//std::cout << "score: " << score << endl;
 
-	transformMatrix = (icp.getFinalTransformation() * initial_alignment);
+		transformMatrix = (icp.getFinalTransformation() * initial_alignment);
+
+		transforms.insert(std::make_pair(score, transformMatrix));
+	}
+
+	cout << "final score: " << transforms.begin()->first << endl;
+	transformMatrix = transforms.begin()->second;
+
+	
 }
 
 
