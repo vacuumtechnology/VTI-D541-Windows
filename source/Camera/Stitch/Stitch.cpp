@@ -28,11 +28,12 @@ const float max_correspondence_dist = 1.0f;
 const int nr_iters = 50000;
 
 // ICP parameters (explanation below)
-const float max_correspondence_distance = 5;
+const float max_correspondence_distance = 50;
 const float outlier_rejection_threshold = 1.0f;
-const float transformation_epsilon = 1e-20;
-const float euclidean_fitness_epsilon = 1e-20;
-const int max_iterations = 5000000;
+const float transformation_epsilon = 1e-12;
+const float transformation_rotation_epsilon = 1e-12;
+const float euclidean_fitness_epsilon = 1e-12;
+const int max_iterations = 50000;
 
 // --------------
 // -----Help-----
@@ -137,22 +138,23 @@ refineAlignment(const ICPPointCloudPtr& source_points, const ICPPointCloudPtr& t
     icp.setMaxCorrespondenceDistance(max_correspondence_distance);
     icp.setRANSACOutlierRejectionThreshold(outlier_rejection_threshold);
     icp.setTransformationEpsilon(transformation_epsilon);
+    icp.setTransformationRotationEpsilon(transformation_rotation_epsilon);
     icp.setEuclideanFitnessEpsilon(euclidean_fitness_epsilon);
     icp.setMaximumIterations (max_iterations);
 
     ICPPointCloudPtr source_points_transformed(new ICPPointCloud);
     pcl::transformPointCloud(*source_points, *source_points_transformed, initial_alignment);
 
-    icp.setInputSource(source_points_transformed);
+    icp.setInputSource(source_points);
     icp.setInputTarget(target_points);
 
     ICPPointCloud registration_output;
-    icp.align(registration_output);
+    icp.align(registration_output, initial_alignment);
 
     score = icp.getFitnessScore();
     std::cout << "score: " << icp.getFitnessScore() << endl;
 
-    return (icp.getFinalTransformation() * initial_alignment);
+    return (icp.getFinalTransformation());
 }
 
 
@@ -273,11 +275,11 @@ main (int argc, char** argv) {
     /* ICP */
     std::map<float, Eigen::Matrix4f> transforms;
     float score;
-    for (int i = 0; i < 200; i++) {
+    //for (int i = 0; i < 1000; i++) {
         tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
             outlier_rejection_threshold, transformation_epsilon, max_iterations, score);
         transforms.insert(std::make_pair(score, tform));
-    }
+    //}
     
     cout << "final score: " << transforms.begin()->first << endl;
     tform = transforms.begin()->second;

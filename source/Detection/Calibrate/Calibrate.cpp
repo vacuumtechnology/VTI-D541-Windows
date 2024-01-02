@@ -218,7 +218,7 @@ void Calibrate::RegisterClouds() {
 	/* ICP */
 	std::map<float, Eigen::Matrix4f> transforms;
 	float score;
-	for (int i = 0; i < 200; i++) {
+	//for (int i = 0; i < 200; i++) {
 		pcl::IterativeClosestPoint<PointType, PointType> icp;
 		icp.setMaxCorrespondenceDistance(max_correspondence_distance);
 		icp.setRANSACOutlierRejectionThreshold(outlier_rejection_threshold);
@@ -238,7 +238,7 @@ void Calibrate::RegisterClouds() {
 		transformMatrix = (icp.getFinalTransformation() * initial_alignment);
 
 		transforms.insert(std::make_pair(score, transformMatrix));
-	}
+	//}
 
 	cout << "final score: " << transforms.begin()->first << endl;
 	transformMatrix = transforms.begin()->second;
