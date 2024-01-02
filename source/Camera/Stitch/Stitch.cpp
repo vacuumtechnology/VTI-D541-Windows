@@ -25,15 +25,15 @@ const float min_contrast = 0.1f; // the minimum contrast required for detection
 // Sample Consensus Initial Alignment parameters (explanation below)
 const float min_sample_dist = 0.025f;
 const float max_correspondence_dist = 1.0f;
-const int nr_iters = 50000;
+const int nr_iters = 500000;
 
 // ICP parameters (explanation below)
 const float max_correspondence_distance = 50;
-const float outlier_rejection_threshold = 1.0f;
-const float transformation_epsilon = 1e-12;
-const float transformation_rotation_epsilon = 1e-12;
-const float euclidean_fitness_epsilon = 1e-12;
-const int max_iterations = 50000;
+const float outlier_rejection_threshold = 10.0f;
+const float transformation_epsilon = 1e-30;
+const float transformation_rotation_epsilon = 1e-30;
+const float euclidean_fitness_epsilon = 1e-30;
+const int max_iterations = 50000000;
 
 // --------------
 // -----Help-----
@@ -275,7 +275,7 @@ main (int argc, char** argv) {
     /* ICP */
     std::map<float, Eigen::Matrix4f> transforms;
     float score;
-    //for (int i = 0; i < 1000; i++) {
+    //for (int i = 0; i < 200; i++) {
         tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
             outlier_rejection_threshold, transformation_epsilon, max_iterations, score);
         transforms.insert(std::make_pair(score, tform));
