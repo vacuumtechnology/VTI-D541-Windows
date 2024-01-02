@@ -1,27 +1,33 @@
 #include "PointsToRobot.h"
 
-PointsToRobot::PointsToRobot(Eigen::Matrix4f &transform) {
-    useTransform = true;
+//PointsToRobot::PointsToRobot(Eigen::Matrix4f &transform) {
+//    useTransform = true;
+//
+//    this->transform = transform;
+//
+//    ConnectToSocket();
+//}
 
-    this->transform = transform;
+PointsToRobot::PointsToRobot(std::vector<float> calibration, bool transform) {
+    useTransform = transform;
 
-    ConnectToSocket();
-}
+    if (transform) {
+        this->transformVector = calibration;
+    } else {
+        if (calibration.size() != 6) {
+            std::cout << "invalid calibration" << std::endl;
+            exit(0);
+        }
+        xOffset = calibration[0];
+        yOffset = calibration[1];
+        zOffset = calibration[2];
+        xFactor = calibration[3];
+        yFactor = calibration[4];
+        zFactor = calibration[5];
 
-PointsToRobot::PointsToRobot(std::vector<float> calibration) {
-    useTransform = false;
-    if (calibration.size() != 6) {
-        std::cout << "invalid calibration" << std::endl;
-        exit(0);
     }
-    xOffset = calibration[0];
-    yOffset = calibration[1];
-    zOffset = calibration[2];
-    xFactor = calibration[3];
-    yFactor = calibration[4];
-    zFactor = calibration[5];
-
     ConnectToSocket();
+
 }
 
 void PointsToRobot::WaitForHome() {
@@ -30,6 +36,13 @@ void PointsToRobot::WaitForHome() {
 
 void PointsToRobot::TransformPoints(std::vector<PointType> &points){
     if (useTransform) {
+        Eigen::Matrix4f transform;
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                transform(i, j) = transformVector[(4*i) + j];
+            }
+        }
 
         // put points in cloud so transformation matrix can be used
         pcl::PointCloud<PointType> pickCloud;

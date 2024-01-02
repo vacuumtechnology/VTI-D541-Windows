@@ -36,10 +36,10 @@ public:
         auto frame = camera.capture(settings);
         auto pointCloud = frame.pointCloud();
 
-        transformBaseToCamera.load("../../txt/zividtransform.yaml");
+        /*transformBaseToCamera.load("../../txt/zividtransform.yaml");
 
         std::cout << "Transforming point cloud" << std::endl;
-        pointCloud.transform(transformBaseToCamera);
+        pointCloud.transform(transformBaseToCamera);*/
 
 
         const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();

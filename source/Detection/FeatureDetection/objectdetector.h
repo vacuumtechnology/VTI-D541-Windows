@@ -73,7 +73,8 @@ struct Match {
     Model* model;
     size_t correspondences;
     pcl::PointCloud<PointType>::Ptr rotated_model;
-    Eigen::Matrix4f rototranslation;
+    //Eigen::Matrix4f rototranslation;
+    Eigen::Matrix<float, 4, 4, Eigen::DontAlign> rototranslation;
     pcl::PointCloud<PointType>::Ptr transformedPickPoints;
     float icpFit;
 };

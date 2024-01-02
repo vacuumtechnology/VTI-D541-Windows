@@ -95,6 +95,7 @@ int main(int argc, char** argv)
         viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
         viewer.addPointCloud<pcl::PointXYZRGB>(pointCloudPCL);
         viewer.resetCamera();
+        viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 10, "cloud");
         viewer.registerPointPickingCallback(pointPickingEventOccurred);
 
 

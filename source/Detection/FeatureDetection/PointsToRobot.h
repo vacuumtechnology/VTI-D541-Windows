@@ -20,8 +20,7 @@ typedef pcl::PointXYZRGB PointType;
 
 class PointsToRobot {
 public:
-	
-	
+
 	//Winsock vars
 	WSADATA wsaData;
 	int iResult;
@@ -33,8 +32,7 @@ public:
 	int recvbuflen = DEFAULT_BUFLEN;
 	std::string servername = "localhost";
 
-	PointsToRobot(std::vector<float> calibration);
-	PointsToRobot(Eigen::Matrix4f &transform);
+	PointsToRobot(std::vector<float> calibration, bool transform);
 	~PointsToRobot();
 
 	void WaitForHome();
@@ -43,7 +41,6 @@ public:
 
 private:
 	bool useTransform; // true to use transform from calibration board, false to use vector from cal.txt file
-	Eigen::Matrix4f transform;
 	float xOffset;
 	float yOffset;
 	float zOffset;
@@ -53,6 +50,7 @@ private:
 	bool useRobot;
 	bool RobotMoving = false;
 	std::vector<PointType> transformedPoints;
+	std::vector<float> transformVector;
 
 	void ConnectToSocket();
 	void TransformPoints(std::vector<PointType>& points);

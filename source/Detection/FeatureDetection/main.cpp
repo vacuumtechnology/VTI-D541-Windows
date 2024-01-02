@@ -32,7 +32,7 @@ int main (int argc, char *argv[]) {
     string cylConfig = "";
     string calType = "offset";
     string calFilename = "../../txt/cal.txt";
-    Eigen::Matrix4f transform;
+    vector<float> transform;
     bool findCylinder = false;
     
     if(argc < 2){
@@ -103,7 +103,7 @@ int main (int argc, char *argv[]) {
                     calibration.push_back(atof(line.c_str()));
                 }
             }
-            pointsToRobot = new PointsToRobot(calibration);
+            pointsToRobot = new PointsToRobot(calibration, false);
 
         } else if (calType == "transform") {
             ifstream calFile(calFilename);
@@ -114,7 +114,8 @@ int main (int argc, char *argv[]) {
                 for (int i = 0; i < 4; i++) {
                     for (int j = 0; j < 4; j++) {
                         if (calFile >> val) {
-                            transform(i, j) = val;
+                            transform.push_back(val);
+                            //transform(i, j) = val;
                             cout << val << endl;
                         } else {
                             cerr << "error reading robot calibration" << endl;
@@ -123,7 +124,7 @@ int main (int argc, char *argv[]) {
                     }
                 }
             }
-            pointsToRobot = new PointsToRobot(transform);
+            pointsToRobot = new PointsToRobot(transform, true);
         }
         
         pointsToRobot->WaitForHome();
@@ -179,7 +180,7 @@ int main (int argc, char *argv[]) {
 
         sniffPoints = obj->Detect();
         obj->SwitchView();
-        if(useRobot) moveRobot.join();
+        if(useRobot && findCylinder) moveRobot.join();
 
         if (useRobot) {
             pointsToRobot->SendPoints(sniffPoints);
