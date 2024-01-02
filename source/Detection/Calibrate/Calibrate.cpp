@@ -88,7 +88,7 @@ void Calibrate::CaptureScene() {
 void Calibrate::ProcessScene() {
 	pcl::UniformSampling<PointType> uniform_sampling;
 	uniform_sampling.setInputCloud(cloud);
-	uniform_sampling.setRadiusSearch(2);
+	uniform_sampling.setRadiusSearch(.2);
 	uniform_sampling.filter(*cloud);
 
 	std::cerr << "PointCloud has: " << cloud->size() << " data points." << std::endl;
@@ -111,8 +111,8 @@ void Calibrate::FindDetectionObject() {
 	seg.setMethodType(pcl::SAC_RANSAC);
 	seg.setNormalDistanceWeight(0.8);
 	seg.setMaxIterations(5000000);
-	seg.setDistanceThreshold(.5);
-	seg.setRadiusLimits(20, 30);
+	seg.setDistanceThreshold(.3);
+	seg.setRadiusLimits(24, 26);
 	seg.setInputCloud(cloud);
 	seg.setInputNormals(cloud_normals);
 

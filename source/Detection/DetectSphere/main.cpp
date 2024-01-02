@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
 	pcl::UniformSampling<PointT> uniform_sampling;
 	uniform_sampling.setInputCloud(cloud);
-	uniform_sampling.setRadiusSearch(1);
+	uniform_sampling.setRadiusSearch(.2);
 	uniform_sampling.filter(*cloud);
 
 	std::cerr << "PointCloud has: " << cloud->size() << " data points." << std::endl;
@@ -58,8 +58,8 @@ int main(int argc, char* argv[])
 	seg.setMethodType(pcl::SAC_RANSAC);
 	seg.setNormalDistanceWeight(0.8);
 	seg.setMaxIterations(50000000);
-	seg.setDistanceThreshold(.5);
-	seg.setRadiusLimits(0, 40);
+	seg.setDistanceThreshold(.3);
+	seg.setRadiusLimits(24, 26);
 	seg.setInputCloud(cloud);
 	seg.setInputNormals(cloud_normals);
 
@@ -83,11 +83,13 @@ int main(int argc, char* argv[])
 		viewer.setSize(900, 1000);
 		viewer.setBackgroundColor(.3, .3, .3);
 		viewer.setCameraPosition(0, 0, -50, 0, -1, 0);
-		viewer.resetCamera();
 
 		viewer.addPointCloud(cloud, "scene_cloud");
 		pcl::visualization::PointCloudColorHandlerCustom<PointT> rotated_model_color_handler(cloud_cylinder, 255, 0, 0);
 		viewer.addPointCloud(cloud_cylinder, rotated_model_color_handler, "cyl_cloud");
+
+		viewer.resetCamera();
+
 		while (!viewer.wasStopped())
 		{
 			viewer.spinOnce();
