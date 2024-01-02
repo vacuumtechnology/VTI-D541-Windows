@@ -27,10 +27,11 @@ const float max_correspondence_dist = 1.0f;
 const int nr_iters = 50000;
 
 // ICP parameters (explanation below)
-const float max_correspondence_distance = 100.0;
-const float outlier_rejection_threshold = 10.0f;
-const float transformation_epsilon = 5.0f;
-const int max_iterations = 10000;
+const float max_correspondence_distance = 5;
+const float outlier_rejection_threshold = 1.0f;
+const float transformation_epsilon = 2;
+const float euclidean_fitness_epsilon = 0.5f;
+const int max_iterations = 500;
 
 // --------------
 // -----Help-----
@@ -135,7 +136,8 @@ refineAlignment (const ICPPointCloudPtr & source_points, const ICPPointCloudPtr 
   icp.setMaxCorrespondenceDistance (max_correspondence_distance);
   icp.setRANSACOutlierRejectionThreshold (outlier_rejection_threshold);
   icp.setTransformationEpsilon (transformation_epsilon);
-  icp.setMaximumIterations (max_iterations);
+  icp.setEuclideanFitnessEpsilon(euclidean_fitness_epsilon);
+  //icp.setMaximumIterations (max_iterations);
 
   ICPPointCloudPtr source_points_transformed (new ICPPointCloud);
   pcl::transformPointCloud (*source_points, *source_points_transformed, initial_alignment);
@@ -145,6 +147,8 @@ refineAlignment (const ICPPointCloudPtr & source_points, const ICPPointCloudPtr 
 
   ICPPointCloud registration_output;
   icp.align (registration_output);
+
+  std::cout << "score: " << icp.getFitnessScore() << endl;
 
   return (icp.getFinalTransformation () * initial_alignment);
 }

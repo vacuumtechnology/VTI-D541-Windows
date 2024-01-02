@@ -136,8 +136,8 @@ main (int argc, char** argv) {
         tar_features_ptr, min_sample_dist, max_correspondence_dist, nr_iters);
   
     /* Uncomment this code to run ICP */
-    tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
-        outlier_rejection_threshold, transformation_epsilon, max_iterations);
+    //tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
+    //    outlier_rejection_threshold, transformation_epsilon, max_iterations);
   
  
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr transformed_cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGB>);

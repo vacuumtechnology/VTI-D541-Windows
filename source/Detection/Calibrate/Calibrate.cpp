@@ -15,7 +15,7 @@ Calibrate::Calibrate(int mode) {
 	std::cout << "Connecting to camera" << std::endl;
 	camera = zivid.connectCamera();
 	std::cout << "Connected" << std::endl;
-	settings = Zivid::Settings("../../txt/set.yml");
+	settings = Zivid::Settings("../../txt/calset.yml");
 	std::cout << "Settings Loaded from file\n" << std::endl;
 	ConnectToSocket();
 }
@@ -111,7 +111,7 @@ void Calibrate::FindDetectionObject() {
 	seg.setMethodType(pcl::SAC_RANSAC);
 	seg.setNormalDistanceWeight(0.8);
 	seg.setMaxIterations(5000000);
-	seg.setDistanceThreshold(.3);
+	seg.setDistanceThreshold(.4);
 	seg.setRadiusLimits(24, 26);
 	seg.setInputCloud(cloud);
 	seg.setInputNormals(cloud_normals);
