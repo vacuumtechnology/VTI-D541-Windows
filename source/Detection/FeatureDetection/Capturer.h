@@ -15,8 +15,8 @@ private:
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;;
 
 public:
-    Capturer::Capturer(std::string settingsFile);
+    Capturer(std::string settingsFile);
 
-    pcl::PointCloud<PointType>::Ptr Capturer::Capture();
+    pcl::PointCloud<PointType>::Ptr Capture();
 
 };
