@@ -70,19 +70,6 @@ find_package(
     REQUIRED)
 find_package(Threads REQUIRED)
 
-if(NOT DEFINED EIGEN3_INCLUDE_DIR)
-    message(
-        FATAL_ERROR
-            "Please point EIGEN3_INCLUDE_DIR to the root directory of your Eigen3 installation (the folder containing Eigen/Core, Eigen/Dense etc.), or disable the Eigen samples (-DUSE_EIGEN3=OFF)."
-    )
-else()
-    if(NOT IS_DIRECTORY "${EIGEN3_INCLUDE_DIR}/Eigen")
-        message(
-            FATAL_ERROR
-                "EIGEN3_INCLUDE_DIR was set to ${EIGEN3_INCLUDE_DIR}, which is not a valid Eigen 3 directory. Please correct this, or disable the Eigen samples (-DUSE_EIGEN3=OFF)."
-        )
-    endif()
-endif()
 
 find_package(PCL 1.2)
 if(NOT PCL_FOUND)
