@@ -21,7 +21,7 @@ private:
     Zivid::Camera camera;
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;;
 public:
-    Capturer::Capturer(string settingsFile) {
+    Capturer(string settingsFile) {
         std::cout << "Connecting to camera" << std::endl;
         camera = zivid.connectCamera();
         std::cout << "Connected" << std::endl;
@@ -30,7 +30,7 @@ public:
         cloud.reset(new pcl::PointCloud<PointType>);
     }
 
-    pcl::PointCloud<PointType>::Ptr Capturer::Capture() {
+    pcl::PointCloud<PointType>::Ptr Capture() {
         Zivid::Matrix4x4 transformBaseToCamera;
 
         auto frame = camera.capture(settings);
