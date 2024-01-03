@@ -38,7 +38,7 @@ set(PROGRAMS
     Utilities/Crop
     Utilities/RemoveRegions
     Utilities/FormTest
-    Camera/RealSenseTest
+#    Camera/RealSenseTest
     Utilities/ColorFilter
     Utilities/KeypointTest
     Utilities/Downscale
@@ -46,23 +46,23 @@ set(PROGRAMS
     )
 
 # Simple non robust way to find the librealsense library
-if(WIN32)
-    if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
-        set(RS_LIBRARY_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\lib\\x64")      
-        set(RS_DLL_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\bin\\x64")          
-    else()
-        set(RS_LIBRARY_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\lib\\x86")        
-        set(RS_DLL_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\bin\\x86")            
-    endif()
-    set(PROJECT_BINARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/\$\(Configuration\)")
-    set(RS_INCLUDE_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\include")   
-endif()
+# if(WIN32)
+#     if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
+#         set(RS_LIBRARY_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\lib\\x64")      
+#         set(RS_DLL_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\bin\\x64")          
+#     else()
+#         set(RS_LIBRARY_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\lib\\x86")        
+#         set(RS_DLL_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\bin\\x86")            
+#     endif()
+#     set(PROJECT_BINARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/\$\(Configuration\)")
+#     set(RS_INCLUDE_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\include")   
+# endif()
 
-find_library(REALSENSE2_FOUND realsense2 HINTS ${RS_LIBRARY_DIR} REQUIRED)
-if(NOT REALSENSE2_FOUND)
-    SET(REALSENSE2_FOUND "realsense2")
-    message(WARN "Failed to find_library(realsense2)")
-endif()
+# find_library(REALSENSE2_FOUND realsense2 HINTS ${RS_LIBRARY_DIR} REQUIRED)
+# if(NOT REALSENSE2_FOUND)
+#     SET(REALSENSE2_FOUND "realsense2")
+#     message(WARN "Failed to find_library(realsense2)")
+# endif()
 
 find_package(
     Zivid ${ZIVID_VERSION}
@@ -110,8 +110,8 @@ foreach(PROGRAM ${PROGRAMS})
 
     target_link_libraries(${PROGRAM_NAME} Threads::Threads)
 
-    include_directories(${PROGRAM_NAME} ${RS_INCLUDE_DIR})
-    target_link_libraries(${PROGRAM_NAME} ${REALSENSE2_FOUND})
+#    include_directories(${PROGRAM_NAME} ${RS_INCLUDE_DIR})
+#    target_link_libraries(${PROGRAM_NAME} ${REALSENSE2_FOUND})
 
     include_directories(${PROGRAM_NAME} ${PROJECT_INCLUDE})
 
