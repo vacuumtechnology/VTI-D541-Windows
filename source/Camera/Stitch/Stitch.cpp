@@ -162,43 +162,43 @@ refineAlignment(const ICPPointCloudPtr& source_points, const ICPPointCloudPtr& t
 // -----Main-----
 // --------------
 int 
-main (int argc, char** argv) {
+main(int argc, char** argv) {
 
 
 
     // Parse Command Line Arguments
-    if (pcl::console::find_argument (argc, argv, "-h") >= 0) {
-        printUsage (argv[0]);
+    if (pcl::console::find_argument(argc, argv, "-h") >= 0) {
+        printUsage(argv[0]);
         return 0;
     }
-  
+
     // Read pcd file
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr source_cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGB>);
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr target_cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr source_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr target_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PointCloud<pcl::PointXYZRGB>& source_cloud = *source_cloud_ptr;
     pcl::PointCloud<pcl::PointXYZRGB>& target_cloud = *target_cloud_ptr;
-    std::vector<int> pcd_filename_indices = pcl::console::parse_file_extension_argument (argc, argv, "pcd");
+    std::vector<int> pcd_filename_indices = pcl::console::parse_file_extension_argument(argc, argv, "pcd");
 
-    if (!pcd_filename_indices.empty ()) {
+    if (!pcd_filename_indices.empty()) {
         std::string src_filename = argv[pcd_filename_indices[0]];
-        if (pcl::io::loadPCDFile (src_filename, source_cloud) == -1) {
-            cerr << "Was not able to open file \""<<src_filename<<"\".\n";
-            printUsage (argv[0]);
+        if (pcl::io::loadPCDFile(src_filename, source_cloud) == -1) {
+            cerr << "Was not able to open file \"" << src_filename << "\".\n";
+            printUsage(argv[0]);
             return 0;
         }
         std::string tar_filename = argv[pcd_filename_indices[1]];
-        if (pcl::io::loadPCDFile (tar_filename, target_cloud) == -1) {
-            cerr << "Was not able to open file \""<<tar_filename<<"\".\n";
-            printUsage (argv[0]);
+        if (pcl::io::loadPCDFile(tar_filename, target_cloud) == -1) {
+            cerr << "Was not able to open file \"" << tar_filename << "\".\n";
+            printUsage(argv[0]);
             return 0;
         }
     } else {
         cout << "\nNo *.pcd file given.\n\n";
         return 0;
     }
-  
+
     // Downsample input clouds
-    /*  
+    /*
     pcl::VoxelGrid<pcl::PointXYZRGB> sor;
     sor.setLeafSize (0.01f, 0.01f, 0.01f);
     sor.setInputCloud(source_cloud_ptr);
@@ -216,77 +216,96 @@ main (int argc, char** argv) {
     // Estimate cloud normals
     cout << "Computing source cloud normals\n";
     pcl::NormalEstimation<pcl::PointXYZRGB, pcl::PointNormal> ne;
-    pcl::PointCloud<pcl::PointNormal>::Ptr src_normals_ptr (new pcl::PointCloud<pcl::PointNormal>);
+    pcl::PointCloud<pcl::PointNormal>::Ptr src_normals_ptr(new pcl::PointCloud<pcl::PointNormal>);
     pcl::PointCloud<pcl::PointNormal>& src_normals = *src_normals_ptr;
-    pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree_XYZRGB (new pcl::search::KdTree<pcl::PointXYZRGB>());
+    pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree_XYZRGB(new pcl::search::KdTree<pcl::PointXYZRGB>());
     ne.setInputCloud(source_cloud_ptr);
     ne.setSearchMethod(tree_XYZRGB);
     ne.setKSearch(15);
     ne.compute(*src_normals_ptr);
-    for(size_t i = 0;  i < src_normals.points.size(); ++i) {
+    for (size_t i = 0; i < src_normals.points.size(); ++i) {
         src_normals.points[i].x = source_cloud.points[i].x;
         src_normals.points[i].y = source_cloud.points[i].y;
         src_normals.points[i].z = source_cloud.points[i].z;
     }
 
     cout << "Computing target cloud normals\n";
-    pcl::PointCloud<pcl::PointNormal>::Ptr tar_normals_ptr (new pcl::PointCloud<pcl::PointNormal>);
+    pcl::PointCloud<pcl::PointNormal>::Ptr tar_normals_ptr(new pcl::PointCloud<pcl::PointNormal>);
     pcl::PointCloud<pcl::PointNormal>& tar_normals = *tar_normals_ptr;
     ne.setInputCloud(target_cloud_ptr);
     ne.compute(*tar_normals_ptr);
-    for(size_t i = 0;  i < tar_normals.points.size(); ++i) {
+    for (size_t i = 0; i < tar_normals.points.size(); ++i) {
         tar_normals.points[i].x = target_cloud.points[i].x;
         tar_normals.points[i].y = target_cloud.points[i].y;
         tar_normals.points[i].z = target_cloud.points[i].z;
     }
-  
+
     // Extract FPFH features from SIFT keypoints
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr src_keypoints_XYZRGB (new pcl::PointCloud<pcl::PointXYZRGB>);                           
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr src_keypoints_XYZRGB(new pcl::PointCloud<pcl::PointXYZRGB>);
     //pcl::copyPointCloud(src_keypoints, *src_keypoints_XYZRGB);
-    pcl::copyPointCloud (source_cloud, *src_keypoints_XYZRGB);
+    pcl::copyPointCloud(source_cloud, *src_keypoints_XYZRGB);
     pcl::FPFHEstimationOMP<pcl::PointXYZRGB, pcl::PointNormal, pcl::FPFHSignature33> fpfh;
-    fpfh.setSearchSurface (source_cloud_ptr);
-    fpfh.setInputCloud (src_keypoints_XYZRGB);
-    fpfh.setInputNormals (src_normals_ptr);
-    fpfh.setSearchMethod (tree_XYZRGB);
-    pcl::PointCloud<pcl::FPFHSignature33>::Ptr src_features_ptr (new pcl::PointCloud<pcl::FPFHSignature33>());
+    fpfh.setSearchSurface(source_cloud_ptr);
+    fpfh.setInputCloud(src_keypoints_XYZRGB);
+    fpfh.setInputNormals(src_normals_ptr);
+    fpfh.setSearchMethod(tree_XYZRGB);
+    pcl::PointCloud<pcl::FPFHSignature33>::Ptr src_features_ptr(new pcl::PointCloud<pcl::FPFHSignature33>());
     pcl::PointCloud<pcl::FPFHSignature33>& src_features = *src_features_ptr;
     fpfh.setRadiusSearch(8.8);
     fpfh.compute(src_features);
     cout << "Computed " << src_features.size() << " FPFH features for source cloud\n";
 
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr tar_keypoints_XYZRGB (new pcl::PointCloud<pcl::PointXYZRGB>);                           
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr tar_keypoints_XYZRGB(new pcl::PointCloud<pcl::PointXYZRGB>);
     //pcl::copyPointCloud(tar_keypoints, *tar_keypoints_XYZRGB);
-    pcl::copyPointCloud (target_cloud, *tar_keypoints_XYZRGB);
-    fpfh.setSearchSurface (target_cloud_ptr);
-    fpfh.setInputCloud (tar_keypoints_XYZRGB);
-    fpfh.setInputNormals (tar_normals_ptr);
-    pcl::PointCloud<pcl::FPFHSignature33>::Ptr tar_features_ptr (new pcl::PointCloud<pcl::FPFHSignature33>());
+    pcl::copyPointCloud(target_cloud, *tar_keypoints_XYZRGB);
+    fpfh.setSearchSurface(target_cloud_ptr);
+    fpfh.setInputCloud(tar_keypoints_XYZRGB);
+    fpfh.setInputNormals(tar_normals_ptr);
+    pcl::PointCloud<pcl::FPFHSignature33>::Ptr tar_features_ptr(new pcl::PointCloud<pcl::FPFHSignature33>());
     pcl::PointCloud<pcl::FPFHSignature33>& tar_features = *tar_features_ptr;
     fpfh.compute(tar_features);
     cout << "Computed " << tar_features.size() << " FPFH features for target cloud\n";
-  
+
     // Compute the transformation matrix for alignment
     Eigen::Matrix4f tform = Eigen::Matrix4f::Identity();
-    tform = computeInitialAlignment (source_cloud_ptr, src_features_ptr, target_cloud_ptr,
+    tform = computeInitialAlignment(source_cloud_ptr, src_features_ptr, target_cloud_ptr,
         tar_features_ptr, min_sample_dist, max_correspondence_dist, nr_iters);
 
-
-    /* ICP */
     std::map<float, Eigen::Matrix4f> transforms;
     float score;
-    for (int i = 0; i < 200; i++) {
-        tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
+
+    ///* ICP */
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr adjusted_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    Eigen::Matrix4f tform2 = Eigen::Matrix4f::Identity();
+    float factor = .993;
+    //for (factor = .95; factor < 1.05; factor+=.001) {
+        adjusted_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGB>);
+        *adjusted_cloud_ptr += *source_cloud_ptr;
+        for (int i = 0; i < adjusted_cloud_ptr->points.size(); i++) {
+            adjusted_cloud_ptr->points[i].x *= factor;
+            adjusted_cloud_ptr->points[i].y *= factor;
+            adjusted_cloud_ptr->points[i].z *= factor;
+        }
+
+        cout << "factor: " << factor << endl;
+        tform = refineAlignment(adjusted_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
             outlier_rejection_threshold, transformation_epsilon, max_iterations, score);
-        transforms.insert(std::make_pair(score, tform));
-    }
+        cout << endl;
+    //}
     
-    cout << "final score: " << transforms.begin()->first << endl;
-    tform = transforms.begin()->second;
+    
+    //for (int i = 0; i < 200; i++) {
+        /*tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
+            outlier_rejection_threshold, transformation_epsilon, max_iterations, score);
+        transforms.insert(std::make_pair(score, tform));*/
+    //}
+    
+    //cout << "final score: " << transforms.begin()->first << endl;
+    //tform = transforms.begin()->second;
  
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr transformed_cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PointCloud<pcl::PointXYZRGB>& transformed_cloud = *transformed_cloud_ptr;
-    pcl::transformPointCloud(source_cloud, transformed_cloud, tform);
+    pcl::transformPointCloud(*adjusted_cloud_ptr, transformed_cloud, tform);
     cout << "Calculated transformation\n";
 
     std::ofstream calStream;

@@ -149,10 +149,13 @@ void Calibrate::RegisterClouds() {
 	pcl::PointCloud<PointType>::Ptr robotCloud;
 	cameraCloud.reset(new pcl::PointCloud<PointType>);
 	robotCloud.reset(new pcl::PointCloud<PointType>);
+
+
 	for (int i = 0; i < cameraPoints.size(); i++) {
 		cameraCloud->push_back(cameraPoints[i]);
 		robotCloud->push_back(robotPoints[i]);
 	}
+
 	pcl::io::savePCDFileBinary("../../pcd/cameraCloud.pcd", *cameraCloud);
 	pcl::io::savePCDFileBinary("../../pcd/robotCloud.pcd", *robotCloud);
 
@@ -215,6 +218,18 @@ void Calibrate::RegisterClouds() {
 	auto initial_alignment = sac_ia.getFinalTransformation();
 	cout << "initial alignment found" << endl;
 
+
+	pcl::PointCloud<pcl::PointXYZRGB>::Ptr adjusted_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+    float factor = .993;
+    *adjusted_cloud_ptr += *cameraCloud;
+    for (int i = 0; i < adjusted_cloud_ptr->points.size(); i++) {
+        adjusted_cloud_ptr->points[i].x *= factor;
+        adjusted_cloud_ptr->points[i].y *= factor;
+        adjusted_cloud_ptr->points[i].z *= factor;
+    }
+
+
+
 	/* ICP */
 	std::map<float, Eigen::Matrix4f> transforms;
 	float score;
@@ -226,22 +241,22 @@ void Calibrate::RegisterClouds() {
 		icp.setMaximumIterations(max_iterations);
 
 		pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
-		pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
+		pcl::transformPointCloud(*adjusted_cloud_ptr, *source_points_transformed, initial_alignment);
 
 		icp.setInputSource(source_points_transformed);
 		icp.setInputTarget(robotCloud);
 
 		icp.align(registration_output);
 		score = icp.getFitnessScore();
-		//std::cout << "score: " << score << endl;
+		std::cout << "score: " << score << endl;
 
 		transformMatrix = (icp.getFinalTransformation() * initial_alignment);
 
-		transforms.insert(std::make_pair(score, transformMatrix));
-	//}
+	//	transforms.insert(std::make_pair(score, transformMatrix));
+	////}
 
-	cout << "final score: " << transforms.begin()->first << endl;
-	transformMatrix = transforms.begin()->second;
+	//cout << "final score: " << transforms.begin()->first << endl;
+	//transformMatrix = transforms.begin()->second;
 
 	
 }
