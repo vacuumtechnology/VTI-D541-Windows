@@ -156,6 +156,13 @@ void Calibrate::RegisterClouds() {
 		robotCloud->push_back(robotPoints[i]);
 	}
 
+	float factor = 1.006;
+	for (int i = 0; i < cameraCloud->points.size(); i++) {
+		cameraCloud->points[i].x *= factor;
+		cameraCloud->points[i].y *= factor;
+		cameraCloud->points[i].z *= factor;
+	}
+
 	pcl::io::savePCDFileBinary("../../pcd/cameraCloud.pcd", *cameraCloud);
 	pcl::io::savePCDFileBinary("../../pcd/robotCloud.pcd", *robotCloud);
 
@@ -219,14 +226,7 @@ void Calibrate::RegisterClouds() {
 	cout << "initial alignment found" << endl;
 
 
-	pcl::PointCloud<pcl::PointXYZRGB>::Ptr adjusted_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
-    float factor = .993;
-    *adjusted_cloud_ptr += *cameraCloud;
-    for (int i = 0; i < adjusted_cloud_ptr->points.size(); i++) {
-        adjusted_cloud_ptr->points[i].x *= factor;
-        adjusted_cloud_ptr->points[i].y *= factor;
-        adjusted_cloud_ptr->points[i].z *= factor;
-    }
+	
 
 
 
@@ -241,7 +241,7 @@ void Calibrate::RegisterClouds() {
 		icp.setMaximumIterations(max_iterations);
 
 		pcl::PointCloud<PointType>::Ptr source_points_transformed(new pcl::PointCloud<PointType>);
-		pcl::transformPointCloud(*adjusted_cloud_ptr, *source_points_transformed, initial_alignment);
+		pcl::transformPointCloud(*cameraCloud, *source_points_transformed, initial_alignment);
 
 		icp.setInputSource(source_points_transformed);
 		icp.setInputTarget(robotCloud);

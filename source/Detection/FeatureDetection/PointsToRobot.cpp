@@ -44,7 +44,7 @@ void PointsToRobot::TransformPoints(std::vector<PointType> &points){
             }
         }
 
-        float factor = .993;
+        float factor = 1.006;
         for (int i = 0; i < points.size(); i++) {
             points[i].x *= factor;
             points[i].y *= factor;

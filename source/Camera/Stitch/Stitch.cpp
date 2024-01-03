@@ -213,72 +213,10 @@ main(int argc, char** argv) {
     pcl::removeNaNFromPointCloud(source_cloud, source_cloud, nan_idx);
     pcl::removeNaNFromPointCloud(target_cloud, target_cloud, nan_idx);
 
-    // Estimate cloud normals
-    cout << "Computing source cloud normals\n";
-    pcl::NormalEstimation<pcl::PointXYZRGB, pcl::PointNormal> ne;
-    pcl::PointCloud<pcl::PointNormal>::Ptr src_normals_ptr(new pcl::PointCloud<pcl::PointNormal>);
-    pcl::PointCloud<pcl::PointNormal>& src_normals = *src_normals_ptr;
-    pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree_XYZRGB(new pcl::search::KdTree<pcl::PointXYZRGB>());
-    ne.setInputCloud(source_cloud_ptr);
-    ne.setSearchMethod(tree_XYZRGB);
-    ne.setKSearch(15);
-    ne.compute(*src_normals_ptr);
-    for (size_t i = 0; i < src_normals.points.size(); ++i) {
-        src_normals.points[i].x = source_cloud.points[i].x;
-        src_normals.points[i].y = source_cloud.points[i].y;
-        src_normals.points[i].z = source_cloud.points[i].z;
-    }
-
-    cout << "Computing target cloud normals\n";
-    pcl::PointCloud<pcl::PointNormal>::Ptr tar_normals_ptr(new pcl::PointCloud<pcl::PointNormal>);
-    pcl::PointCloud<pcl::PointNormal>& tar_normals = *tar_normals_ptr;
-    ne.setInputCloud(target_cloud_ptr);
-    ne.compute(*tar_normals_ptr);
-    for (size_t i = 0; i < tar_normals.points.size(); ++i) {
-        tar_normals.points[i].x = target_cloud.points[i].x;
-        tar_normals.points[i].y = target_cloud.points[i].y;
-        tar_normals.points[i].z = target_cloud.points[i].z;
-    }
-
-    // Extract FPFH features from SIFT keypoints
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr src_keypoints_XYZRGB(new pcl::PointCloud<pcl::PointXYZRGB>);
-    //pcl::copyPointCloud(src_keypoints, *src_keypoints_XYZRGB);
-    pcl::copyPointCloud(source_cloud, *src_keypoints_XYZRGB);
-    pcl::FPFHEstimationOMP<pcl::PointXYZRGB, pcl::PointNormal, pcl::FPFHSignature33> fpfh;
-    fpfh.setSearchSurface(source_cloud_ptr);
-    fpfh.setInputCloud(src_keypoints_XYZRGB);
-    fpfh.setInputNormals(src_normals_ptr);
-    fpfh.setSearchMethod(tree_XYZRGB);
-    pcl::PointCloud<pcl::FPFHSignature33>::Ptr src_features_ptr(new pcl::PointCloud<pcl::FPFHSignature33>());
-    pcl::PointCloud<pcl::FPFHSignature33>& src_features = *src_features_ptr;
-    fpfh.setRadiusSearch(8.8);
-    fpfh.compute(src_features);
-    cout << "Computed " << src_features.size() << " FPFH features for source cloud\n";
-
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr tar_keypoints_XYZRGB(new pcl::PointCloud<pcl::PointXYZRGB>);
-    //pcl::copyPointCloud(tar_keypoints, *tar_keypoints_XYZRGB);
-    pcl::copyPointCloud(target_cloud, *tar_keypoints_XYZRGB);
-    fpfh.setSearchSurface(target_cloud_ptr);
-    fpfh.setInputCloud(tar_keypoints_XYZRGB);
-    fpfh.setInputNormals(tar_normals_ptr);
-    pcl::PointCloud<pcl::FPFHSignature33>::Ptr tar_features_ptr(new pcl::PointCloud<pcl::FPFHSignature33>());
-    pcl::PointCloud<pcl::FPFHSignature33>& tar_features = *tar_features_ptr;
-    fpfh.compute(tar_features);
-    cout << "Computed " << tar_features.size() << " FPFH features for target cloud\n";
-
-    // Compute the transformation matrix for alignment
-    Eigen::Matrix4f tform = Eigen::Matrix4f::Identity();
-    tform = computeInitialAlignment(source_cloud_ptr, src_features_ptr, target_cloud_ptr,
-        tar_features_ptr, min_sample_dist, max_correspondence_dist, nr_iters);
-
-    std::map<float, Eigen::Matrix4f> transforms;
-    float score;
-
-    ///* ICP */
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr adjusted_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
     Eigen::Matrix4f tform2 = Eigen::Matrix4f::Identity();
-    float factor = .993;
-    //for (factor = .95; factor < 1.05; factor+=.001) {
+    float factor = 1.006;
+    //for (factor = 1.0; factor < 1.02; factor += .001) {
         adjusted_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGB>);
         *adjusted_cloud_ptr += *source_cloud_ptr;
         for (int i = 0; i < adjusted_cloud_ptr->points.size(); i++) {
@@ -287,13 +225,88 @@ main(int argc, char** argv) {
             adjusted_cloud_ptr->points[i].z *= factor;
         }
 
+
+        // Estimate cloud normals
+        cout << "Computing source cloud normals\n";
+        pcl::NormalEstimation<pcl::PointXYZRGB, pcl::PointNormal> ne;
+        pcl::PointCloud<pcl::PointNormal>::Ptr src_normals_ptr(new pcl::PointCloud<pcl::PointNormal>);
+        pcl::PointCloud<pcl::PointNormal>& src_normals = *src_normals_ptr;
+        pcl::search::KdTree<pcl::PointXYZRGB>::Ptr tree_XYZRGB(new pcl::search::KdTree<pcl::PointXYZRGB>());
+        ne.setInputCloud(adjusted_cloud_ptr);
+        ne.setSearchMethod(tree_XYZRGB);
+        ne.setKSearch(15);
+        ne.compute(*src_normals_ptr);
+        for (size_t i = 0; i < src_normals.points.size(); ++i) {
+            src_normals.points[i].x = adjusted_cloud_ptr->points[i].x;
+            src_normals.points[i].y = adjusted_cloud_ptr->points[i].y;
+            src_normals.points[i].z = adjusted_cloud_ptr->points[i].z;
+        }
+
+        cout << "Computing target cloud normals\n";
+        pcl::PointCloud<pcl::PointNormal>::Ptr tar_normals_ptr(new pcl::PointCloud<pcl::PointNormal>);
+        pcl::PointCloud<pcl::PointNormal>& tar_normals = *tar_normals_ptr;
+        ne.setInputCloud(target_cloud_ptr);
+        ne.compute(*tar_normals_ptr);
+        for (size_t i = 0; i < tar_normals.points.size(); ++i) {
+            tar_normals.points[i].x = target_cloud.points[i].x;
+            tar_normals.points[i].y = target_cloud.points[i].y;
+            tar_normals.points[i].z = target_cloud.points[i].z;
+        }
+
+        // Extract FPFH features from SIFT keypoints
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr src_keypoints_XYZRGB(new pcl::PointCloud<pcl::PointXYZRGB>);
+        //pcl::copyPointCloud(src_keypoints, *src_keypoints_XYZRGB);
+        pcl::copyPointCloud(*adjusted_cloud_ptr, *src_keypoints_XYZRGB);
+        pcl::FPFHEstimationOMP<pcl::PointXYZRGB, pcl::PointNormal, pcl::FPFHSignature33> fpfh;
+        fpfh.setSearchSurface(adjusted_cloud_ptr);
+        fpfh.setInputCloud(src_keypoints_XYZRGB);
+        fpfh.setInputNormals(src_normals_ptr);
+        fpfh.setSearchMethod(tree_XYZRGB);
+        pcl::PointCloud<pcl::FPFHSignature33>::Ptr src_features_ptr(new pcl::PointCloud<pcl::FPFHSignature33>());
+        pcl::PointCloud<pcl::FPFHSignature33>& src_features = *src_features_ptr;
+        fpfh.setRadiusSearch(8.8);
+        fpfh.compute(src_features);
+        cout << "Computed " << src_features.size() << " FPFH features for source cloud\n";
+
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr tar_keypoints_XYZRGB(new pcl::PointCloud<pcl::PointXYZRGB>);
+        //pcl::copyPointCloud(tar_keypoints, *tar_keypoints_XYZRGB);
+        pcl::copyPointCloud(target_cloud, *tar_keypoints_XYZRGB);
+        fpfh.setSearchSurface(target_cloud_ptr);
+        fpfh.setInputCloud(tar_keypoints_XYZRGB);
+        fpfh.setInputNormals(tar_normals_ptr);
+        pcl::PointCloud<pcl::FPFHSignature33>::Ptr tar_features_ptr(new pcl::PointCloud<pcl::FPFHSignature33>());
+        pcl::PointCloud<pcl::FPFHSignature33>& tar_features = *tar_features_ptr;
+        fpfh.compute(tar_features);
+        cout << "Computed " << tar_features.size() << " FPFH features for target cloud\n";
+
+        // Compute the transformation matrix for alignment
+        Eigen::Matrix4f tform = Eigen::Matrix4f::Identity();
+        tform = computeInitialAlignment(adjusted_cloud_ptr, src_features_ptr, target_cloud_ptr,
+            tar_features_ptr, min_sample_dist, max_correspondence_dist, nr_iters);
+
+        std::map<float, Eigen::Matrix4f> transforms;
+        float score;
+
+        ///* ICP */
+        //pcl::PointCloud<pcl::PointXYZRGB>::Ptr adjusted_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
+        //Eigen::Matrix4f tform2 = Eigen::Matrix4f::Identity();
+        //float factor = .993;
+        ////for (factor = .95; factor < 1.05; factor+=.001) {
+        //    adjusted_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGB>);
+        //    *adjusted_cloud_ptr += *source_cloud_ptr;
+        //    for (int i = 0; i < adjusted_cloud_ptr->points.size(); i++) {
+        //        adjusted_cloud_ptr->points[i].x *= factor;
+        //        adjusted_cloud_ptr->points[i].y *= factor;
+        //        adjusted_cloud_ptr->points[i].z *= factor;
+        //    }
+
         cout << "factor: " << factor << endl;
-        tform = refineAlignment(adjusted_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
+        tform2 = refineAlignment(adjusted_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
             outlier_rejection_threshold, transformation_epsilon, max_iterations, score);
         cout << endl;
+        //}
+
     //}
-    
-    
     //for (int i = 0; i < 200; i++) {
         /*tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
             outlier_rejection_threshold, transformation_epsilon, max_iterations, score);
@@ -305,18 +318,18 @@ main(int argc, char** argv) {
  
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr transformed_cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGB>);
     pcl::PointCloud<pcl::PointXYZRGB>& transformed_cloud = *transformed_cloud_ptr;
-    pcl::transformPointCloud(*adjusted_cloud_ptr, transformed_cloud, tform);
+    pcl::transformPointCloud(*adjusted_cloud_ptr, transformed_cloud, tform2);
     cout << "Calculated transformation\n";
 
-    std::ofstream calStream;
-    calStream.open("../../txt/regtransform2.cal");
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            calStream << tform(i, j) << " ";
-        }
-        calStream << std::endl;
-    }
-    calStream.close();
+    //std::ofstream calStream;
+    //calStream.open("../../txt/regtransform2.cal");
+    //for (int i = 0; i < 4; i++) {
+    //    for (int j = 0; j < 4; j++) {
+    //        calStream << tform(i, j) << " ";
+    //    }
+    //    calStream << std::endl;
+    //}
+    //calStream.close();
 
     /*pcl::PointCloud<pcl::PointXYZRGB>::Ptr combined_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     *combined_cloud = target_cloud + transformed_cloud;*/
