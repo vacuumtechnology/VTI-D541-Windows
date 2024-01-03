@@ -275,11 +275,11 @@ main (int argc, char** argv) {
     /* ICP */
     std::map<float, Eigen::Matrix4f> transforms;
     float score;
-    //for (int i = 0; i < 200; i++) {
+    for (int i = 0; i < 200; i++) {
         tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
             outlier_rejection_threshold, transformation_epsilon, max_iterations, score);
         transforms.insert(std::make_pair(score, tform));
-    //}
+    }
     
     cout << "final score: " << transforms.begin()->first << endl;
     tform = transforms.begin()->second;

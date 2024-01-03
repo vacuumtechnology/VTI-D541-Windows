@@ -190,13 +190,13 @@ void Calibrate::RegisterClouds() {
 	// Sample Consensus Initial Alignment parameters (explanation below)
 	const float min_sample_dist = 0.025f;
 	const float max_correspondence_dist = 1.0f;
-	const int nr_iters = 50000;
+	const int nr_iters = 500000;
 
 	// ICP parameters (explanation below)
-	const float max_correspondence_distance = 100.0;
+	const float max_correspondence_distance = 50.0;
 	const float outlier_rejection_threshold = 10.0f;
-	const float transformation_epsilon = 5.0f;
-	const int max_iterations = 10000;
+	const float transformation_epsilon = 1e-30f;
+	const int max_iterations = 50000000;
 
 	pcl::SampleConsensusInitialAlignment<PointType, PointType, pcl::FPFHSignature33> sac_ia;
 	sac_ia.setMinSampleDistance(min_sample_dist);
