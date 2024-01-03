@@ -289,6 +289,16 @@ main (int argc, char** argv) {
     pcl::transformPointCloud(source_cloud, transformed_cloud, tform);
     cout << "Calculated transformation\n";
 
+    std::ofstream calStream;
+    calStream.open("../../txt/regtransform2.cal");
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            calStream << tform(i, j) << " ";
+        }
+        calStream << std::endl;
+    }
+    calStream.close();
+
     /*pcl::PointCloud<pcl::PointXYZRGB>::Ptr combined_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
     *combined_cloud = target_cloud + transformed_cloud;*/
 
