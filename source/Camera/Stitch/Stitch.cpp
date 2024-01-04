@@ -216,7 +216,7 @@ main(int argc, char** argv) {
     pcl::PointCloud<pcl::PointXYZRGB>::Ptr adjusted_cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGB>);
     Eigen::Matrix4f tform2 = Eigen::Matrix4f::Identity();
     float factor = 1.006;
-    //for (factor = 1.0; factor < 1.02; factor += .001) {
+    for (factor = 1.0; factor < 1.02; factor += .001) {
         adjusted_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGB>);
         *adjusted_cloud_ptr += *source_cloud_ptr;
         for (int i = 0; i < adjusted_cloud_ptr->points.size(); i++) {
@@ -306,7 +306,7 @@ main(int argc, char** argv) {
         cout << endl;
         //}
 
-    //}
+    }
     //for (int i = 0; i < 200; i++) {
         /*tform = refineAlignment (source_cloud_ptr, target_cloud_ptr, tform, max_correspondence_distance,
             outlier_rejection_threshold, transformation_epsilon, max_iterations, score);

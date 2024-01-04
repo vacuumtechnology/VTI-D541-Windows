@@ -156,16 +156,17 @@ void Calibrate::RegisterClouds() {
 		robotCloud->push_back(robotPoints[i]);
 	}
 
+	
+
+	pcl::io::savePCDFileBinary("../../pcd/cameraCloud.pcd", *cameraCloud);
+	pcl::io::savePCDFileBinary("../../pcd/robotCloud.pcd", *robotCloud);
+	
 	float factor = 1.006;
 	for (int i = 0; i < cameraCloud->points.size(); i++) {
 		cameraCloud->points[i].x *= factor;
 		cameraCloud->points[i].y *= factor;
 		cameraCloud->points[i].z *= factor;
 	}
-
-	pcl::io::savePCDFileBinary("../../pcd/cameraCloud.pcd", *cameraCloud);
-	pcl::io::savePCDFileBinary("../../pcd/robotCloud.pcd", *robotCloud);
-
 
 	// Estimate cloud normals
 	cout << "Computing source cloud normals\n";
