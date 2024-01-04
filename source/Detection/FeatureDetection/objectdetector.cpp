@@ -85,6 +85,7 @@ Model::Model(std::string pcdFile, std::string configFile) {
                 else if (name == "max_objects") max_objects = atoi(value.c_str());
                 else if (name == "out_thresh") out_thresh = atof(value.c_str());
                 else if (name == "corr_thresh") corr_thresh = atoi(value.c_str());
+                else if (name == "max_icp_score") max_icp_score = atof(value.c_str());
 
             } else {
                 while (getline(cFile, line)) {
@@ -155,6 +156,7 @@ void Model::Process(std::string keypointType) {
     SelectKeypoints(keypointType);
 
     RemoveOutliers();
+    std::cout << "Model total points: " << cloud->size() << "; Selected Keypoints after sor: " << model_keypoints->size() << std::endl;
 
     ComputeDescriptors();
     std::cout << "Model Processed." << std::endl << std::endl;
@@ -374,7 +376,7 @@ void ObjectDetector::SelectKeypoints(std::string keypointType) {
         exit(0);
     }
 
-    std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+    std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints after downsample: " << scene_keypoints->size() << std::endl;
 
 }
 
@@ -395,7 +397,7 @@ void ObjectDetector::ProcessScene() {
     sor.setMeanK(10);
     sor.setStddevMulThresh(out_thresh);
     sor.filter(*scene_keypoints);
-    //std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+    std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints after sor: " << scene_keypoints->size() << std::endl;
     std::cout << 1 << endl;
     descr_est.reset(new pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType>);
     descr_est->setNumberOfThreads(num_threads);
@@ -464,7 +466,7 @@ void Model::SelectKeypoints(std::string keypointType) {
         exit(0);
     }
 
-    std::cout << "Model total points: " << cloud->size() << "; Selected Keypoints: " << model_keypoints->size() << std::endl;
+    std::cout << "Model total points: " << cloud->size() << "; Selected Keypoints after downsample: " << model_keypoints->size() << std::endl;
 
 }
 
@@ -603,6 +605,7 @@ void ObjectDetector::RefineMatch(Match *match) {
 void ObjectDetector::SortMatches(ModelGroup* modGroup) {
     Match* match;
     int correspondences;
+    float icpScore;
 
     for (int i = 0; i < modGroup->size; i++) {
         Model* mod = modGroup->models[i];
@@ -621,7 +624,9 @@ void ObjectDetector::SortMatches(ModelGroup* modGroup) {
                 pcl::transformPointCloud(*mod->cloud, *match->rotated_model, match->rototranslation);
                 pcl::transformPointCloud(*mod->pick_points, *match->transformedPickPoints, match->rototranslation);
                 RefineMatch(match);
-                modGroup->bestMatches.insert(std::make_pair(match->correspondences, match));
+                if (match->icpFit < mod->max_icp_score) {
+                    modGroup->bestMatches.insert(std::make_pair(match->correspondences, match));
+                }
 
             }
         }

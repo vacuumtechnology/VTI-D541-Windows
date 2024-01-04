@@ -65,6 +65,7 @@ public:
     float min_distance;
     float out_thresh;
     int corr_thresh;
+    float max_icp_score = 10.0;
     std::string name;
     pcl::PointCloud<PointType>::Ptr pick_points;
 };
