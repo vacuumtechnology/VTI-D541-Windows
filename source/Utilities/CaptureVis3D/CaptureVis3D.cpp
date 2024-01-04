@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
         filename += "Capture.pcd";
     }
 
-    Capturer capturer("../../txt/coilset.yml");
+    Capturer capturer("../../txt/calset.yml");
     auto cloud = capturer.Capture();
     pcl::io::savePCDFileBinary(filename, *cloud);
 
