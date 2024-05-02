@@ -110,8 +110,8 @@ void Calibrate::FindDetectionObject() {
 	seg.setModelType(pcl::SACMODEL_SPHERE);
 	seg.setMethodType(pcl::SAC_RANSAC);
 	seg.setNormalDistanceWeight(0.8);
-	seg.setMaxIterations(5000000);
-	seg.setDistanceThreshold(.4);
+	seg.setMaxIterations(50000000);
+	seg.setDistanceThreshold(.25);
 	seg.setRadiusLimits(24, 26);
 	seg.setInputCloud(cloud);
 	seg.setInputNormals(cloud_normals);

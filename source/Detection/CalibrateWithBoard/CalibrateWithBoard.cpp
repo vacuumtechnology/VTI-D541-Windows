@@ -9,6 +9,11 @@ Perform Hand-Eye calibration.
 #include <Zivid/Exception.h>
 #include <Zivid/Zivid.h>
 
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/visualization/pcl_visualizer.h>
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
@@ -17,6 +22,21 @@ Perform Hand-Eye calibration.
 #include <fstream>
 
 #define PI 3.14159265
+
+// Select Point on cloud using shift + Left Click
+void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& event)
+{
+
+    float x, y, z;
+    if (event.getPointIndex() == -1)
+    {
+        return;
+    }
+
+    event.getPoint(x, y, z);
+
+    std::cout << "Point ( " << x << ", " << y << ", " << z << ")" << std::endl;
+}
 
 namespace
 {
@@ -27,9 +47,9 @@ namespace
         Unknown
     };
 
-    Zivid::Matrix4x4 eigenToZivid(const Eigen::Matrix4f& eigenTransform)
+    Zivid::Matrix4x4 eigenToZivid(const Eigen::Affine3f& eigenTransform)
     {
-        Eigen::Matrix4f eigenMatrix = eigenTransform;
+        Eigen::Matrix4f eigenMatrix = eigenTransform.matrix();
         Zivid::Matrix4x4 zividMatrix;
         for (Eigen::Index row = 0; row < eigenMatrix.rows(); row++)
         {
@@ -50,20 +70,26 @@ namespace
         //Eigen::Matrix3d r = q.matrix();
         //
         Eigen::Matrix4f m;
+        cout << "roll(z): " << pose[3] << " pitch(y): " << pose[4] << " yaw(x): " << pose[5] << endl;
         Eigen::Matrix3f r = (Eigen::AngleAxisf(pose[5], Eigen::Vector3f::UnitX())
                             * Eigen::AngleAxisf(pose[4], Eigen::Vector3f::UnitY())
                             * Eigen::AngleAxisf(pose[3], Eigen::Vector3f::UnitZ()))
-                            .matrix();;
+                            .matrix();
 
+        Eigen::Vector3f translationVector;
+        translationVector(0) = pose[0];
+        translationVector(1) = pose[1];
+        translationVector(2) = pose[2];
+
+        Eigen::Affine3f transformationMatrixFromQuaternion(r);
+        transformationMatrixFromQuaternion.translation() = translationVector;
         ////Rotation matrix from UVW
-
-
-        m << r(0, 0), r(0, 1), r(0, 2), pose[0],
+        /*m << r(0, 0), r(0, 1), r(0, 2), pose[0],
              r(1, 0), r(1, 1), r(1, 2), pose[1],
              r(2, 0), r(2, 1), r(2, 2), pose[2],
-             0,       0,       0,       1;
+             0,       0,       0,       1;*/
 
-        return eigenToZivid(m);
+        return eigenToZivid(transformationMatrixFromQuaternion);
 
     }
 
@@ -221,6 +247,46 @@ int main()
         } else {
             std::cout << "Hand-Eye calibration FAILED" << std::endl;
             return EXIT_FAILURE;
+        }
+
+
+        std::string dataFile = "../../pcd/Capture.zdf";
+        std::cout << "Reading ZDF frame from file: " << dataFile << std::endl;
+        const auto frame = Zivid::Frame(dataFile);
+        auto pointCloud = frame.pointCloud();
+        pointCloud.transform(calibrationResult.transform());
+
+        const auto data = pointCloud.copyData<Zivid::PointXYZColorRGBA>();
+
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
+
+        cloud->width = data.width();
+        cloud->height = data.height();
+        cloud->is_dense = false;
+        cloud->points.resize(data.size());
+        for (size_t i = 0; i < data.size(); ++i)
+        {
+            cloud->points[i].x = data(i).point.x;
+            cloud->points[i].y = data(i).point.y;
+            cloud->points[i].z = data(i).point.z;
+            cloud->points[i].r = data(i).color.r;
+            cloud->points[i].g = data(i).color.g;
+            cloud->points[i].b = data(i).color.b;
+        }
+
+        auto viewer = pcl::visualization::PCLVisualizer("Viewer");
+        viewer.setSize(900, 1000);
+        viewer.setBackgroundColor(.3, .3, .3);
+        viewer.setCameraPosition(0, 0, -40, 0, -1, 0);
+        viewer.addPointCloud<pcl::PointXYZRGB>(cloud);
+        viewer.registerPointPickingCallback(pointPickingEventOccurred);
+        viewer.resetCamera();
+
+        std::cout << "Press r to centre and zoom the viewer so that the entire cloud is visible" << std::endl;
+        std::cout << "Press q to exit the viewer application" << std::endl;
+        while (!viewer.wasStopped())
+        {
+            viewer.spinOnce(100);
         }
     }
     catch(const std::exception &e)

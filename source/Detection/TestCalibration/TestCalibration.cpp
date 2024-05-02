@@ -21,7 +21,7 @@ The PCD file for this sample can be found under the main instructions for Zivid 
 
 typedef pcl::PointXYZRGB PointType;
 
-// Select Point on cloud using shift + Right Click
+// Select Point on cloud using shift + Left Click
 void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& event)
 {
 
