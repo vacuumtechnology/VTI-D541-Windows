@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
 	pcl::PointCloud<PointT>::Ptr cloud_filtered2(new pcl::PointCloud<PointT>);
 	pcl::PointCloud<pcl::Normal>::Ptr cloud_normals2(new pcl::PointCloud<pcl::Normal>);
-	pcl::ModelCoefficients::Ptr coefficients_plane(new pcl::ModelCoefficients), coefficients_cylinder(new pcl::ModelCoefficients);
+	pcl::ModelCoefficients::Ptr coefficients_plane(new pcl::ModelCoefficients), coefficients_sphere(new pcl::ModelCoefficients);
 	pcl::PointIndices::Ptr inliers_plane(new pcl::PointIndices), inliers_cylinder(new pcl::PointIndices);
 
 	// Read in the cloud data
@@ -58,35 +58,35 @@ int main(int argc, char* argv[])
 	seg.setMethodType(pcl::SAC_RANSAC);
 	seg.setNormalDistanceWeight(0.8);
 	seg.setMaxIterations(50000000);
-	seg.setDistanceThreshold(.3);
+	seg.setDistanceThreshold(.2);
 	seg.setRadiusLimits(24, 26);
 	seg.setInputCloud(cloud);
 	seg.setInputNormals(cloud_normals);
 
 	// Obtain the cylinder inliers and coefficients
-	seg.segment(*inliers_cylinder, *coefficients_cylinder);
-	std::cerr << "Cylinder coefficients: " << *coefficients_cylinder << std::endl;
+	seg.segment(*inliers_cylinder, *coefficients_sphere);
+	std::cerr << "Sphere coefficients: " << *coefficients_sphere << std::endl;
 
 	// Write the cylinder inliers to disk
 	extract.setInputCloud(cloud);
 	extract.setIndices(inliers_cylinder);
 	extract.setNegative(false);
-	pcl::PointCloud<PointT>::Ptr cloud_cylinder(new pcl::PointCloud<PointT>());
-	extract.filter(*cloud_cylinder);
-	if (cloud_cylinder->points.empty())
-		std::cerr << "Can't find the cylindrical component." << std::endl;
+	pcl::PointCloud<PointT>::Ptr cloud_sphere(new pcl::PointCloud<PointT>());
+	extract.filter(*cloud_sphere);
+	if (cloud_sphere->points.empty())
+		std::cerr << "Can't find the spherical component." << std::endl;
 	else
 	{
-		std::cerr << "PointCloud representing the cylindrical component: " << cloud_cylinder->size() << " data points." << std::endl;
-		pcl::visualization::PCLVisualizer viewer("Cylinder Grouping");
+		std::cerr << "PointCloud representing the spherical component: " << cloud_sphere->size() << " data points." << std::endl;
+		pcl::visualization::PCLVisualizer viewer("Sphere Grouping");
 
 		viewer.setSize(900, 1000);
 		viewer.setBackgroundColor(.3, .3, .3);
 		viewer.setCameraPosition(0, 0, -50, 0, -1, 0);
 
 		viewer.addPointCloud(cloud, "scene_cloud");
-		pcl::visualization::PointCloudColorHandlerCustom<PointT> rotated_model_color_handler(cloud_cylinder, 255, 0, 0);
-		viewer.addPointCloud(cloud_cylinder, rotated_model_color_handler, "cyl_cloud");
+		pcl::visualization::PointCloudColorHandlerCustom<PointT> rotated_model_color_handler(cloud_sphere, 255, 0, 0);
+		viewer.addPointCloud(cloud_sphere, rotated_model_color_handler, "sphere_cloud");
 
 		viewer.resetCamera();
 

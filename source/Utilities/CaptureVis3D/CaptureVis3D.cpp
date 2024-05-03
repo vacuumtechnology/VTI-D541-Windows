@@ -19,7 +19,7 @@ private:
     Zivid::Application zivid;
     Zivid::Settings settings;
     Zivid::Camera camera;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;;
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud;
 public:
     Capturer(string settingsFile) {
         std::cout << "Connecting to camera" << std::endl;
