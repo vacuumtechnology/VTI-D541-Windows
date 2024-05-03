@@ -393,10 +393,10 @@ void ObjectDetector::ProcessScene() {
     SelectKeypoints(this->keypointType);
     std::cout << 1 << endl;
 
-    sor.setInputCloud(scene_keypoints);
+    /*sor.setInputCloud(scene_keypoints);
     sor.setMeanK(10);
     sor.setStddevMulThresh(out_thresh);
-    sor.filter(*scene_keypoints);
+    sor.filter(*scene_keypoints);*/
     std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints after sor: " << scene_keypoints->size() << std::endl;
     std::cout << 1 << endl;
     descr_est.reset(new pcl::SHOTEstimationOMP<PointType, NormalType, DescriptorType>);
@@ -712,6 +712,7 @@ bool ObjectDetector::DetermineBestMatches(ModelGroup* modGroup) {
         if (i >= modGroup->max_objects) break;
     }
 
+    std::cout << "detected: " << modGroup->bestMatches.size() << std::endl;
     if (modGroup->bestMatches.size() < modGroup->max_objects) return false;
 
     // Add transformed pick points to vector of all pick points
@@ -769,7 +770,7 @@ std::vector<PointType> ObjectDetector::Detect(){
     for(int i = 0; i < modelGroups.size(); i++){
         int c = 0;
         while (true) {
-            std::cout << "models: " << modelGroups[i]->size << std::endl;
+            //std::cout << "models: " << modelGroups[i]->size << std::endl;
             std::cout << "expected: " << modelGroups[i]->max_objects << std::endl;
             for(int j = 0; j < modelGroups[i]->size; j++){
                 if(modelGroups[i]->models[j] == NULL){
