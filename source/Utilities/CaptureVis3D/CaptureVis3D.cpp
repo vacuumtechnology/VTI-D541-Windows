@@ -71,10 +71,14 @@ int main(int argc, char* argv[]) {
     } else {
         filename += "Capture.pcd";
     }
+    cout << "here" << endl;
 
-    Capturer capturer("../../txt/condenserInside.yml");
+    Capturer capturer("../../txt/defaultset.yml");
+    cout << "here" << endl;
     auto cloud = capturer.Capture();
+    cout << "here" << endl;
     pcl::io::savePCDFileBinary(filename, *cloud);
+    cout << "here" << endl;
 
     auto viewer = pcl::visualization::PCLVisualizer("Viewer");
     viewer.setSize(900, 1000);
