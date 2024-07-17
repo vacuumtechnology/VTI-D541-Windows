@@ -34,6 +34,7 @@ class PointsToUR {
         SOCKET ListenSocket = INVALID_SOCKET;
         std::string port = "30000";
         char* robotIP = "192.168.1.205";
+        std::string startCommand = "load socket.urp"; // command sent to ur to start control program
         int iResult;
         bool useTransform; // true to use transform from calibration board, false to use vector from cal.txt file
         std::vector<PointType> transformedPoints;

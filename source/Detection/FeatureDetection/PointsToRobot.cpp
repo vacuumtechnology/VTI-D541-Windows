@@ -30,6 +30,28 @@ PointsToRobot::PointsToRobot(std::vector<float> calibration, bool transform) {
 
 }
 
+// constructor used for file output
+PointsToRobot::PointsToRobot(std::vector<float> calibration, bool transform, std::string filename) {
+    useTransform = transform;
+    fileOutput = true;
+
+    if (transform) {
+        this->transformVector = calibration;
+    } else {
+        if (calibration.size() != 6) {
+            std::cout << "invalid calibration" << std::endl;
+            exit(0);
+        }
+        xOffset = calibration[0];
+        yOffset = calibration[1];
+        zOffset = calibration[2];
+        xFactor = calibration[3];
+        yFactor = calibration[4];
+        zFactor = calibration[5];
+
+    }
+}
+
 void PointsToRobot::WaitForHome() {
     iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 }
@@ -78,6 +100,23 @@ void PointsToRobot::TransformPoints(std::vector<PointType> &points){
         }
         
     }
+}
+
+void PointsToRobot::PointsToFile(std::vector<PointType> points, bool append) {
+    std::ofstream myfile;
+    std::string filename = "../../txt/points.txt";
+    if (append) {
+        myfile.open(filename, std::ofstream::out | std::ofstream::app);
+    } else {
+        myfile.open(filename, std::ofstream::out);
+        myfile.clear();
+    }
+
+    for (int i = 0; i < points.size(); i++) {
+        myfile << points[i].x << "," << points[i].y << "," << points[i].z << std::endl;
+    }
+
+    myfile.close();
 }
 
 void PointsToRobot::SendPoints(std::vector<PointType> points) {

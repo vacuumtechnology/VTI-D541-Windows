@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <pcl/point_types.h>
+#include <fstream>
 #include <pcl/point_cloud.h>
 #include <pcl/common/transforms.h>
 
@@ -33,11 +34,14 @@ public:
 	std::string servername = "localhost";
 
 	PointsToRobot(std::vector<float> calibration, bool transform);
+	PointsToRobot::PointsToRobot(std::vector<float> calibration, bool transform, std::string filename);
 	~PointsToRobot();
 
 	void WaitForHome();
 
 	void SendPoints(std::vector<PointType> points);
+
+	void PointsToFile(std::vector<PointType> points, bool append);
 
 private:
 	bool useTransform; // true to use transform from calibration board, false to use vector from cal.txt file
@@ -47,7 +51,7 @@ private:
 	float xFactor;
 	float yFactor;
 	float zFactor;
-	bool useRobot;
+	bool fileOutput = false;
 	bool RobotMoving = false;
 	std::vector<PointType> transformedPoints;
 	std::vector<float> transformVector;

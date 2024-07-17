@@ -19,6 +19,8 @@ showHelp(char* filename)
     cout << "Usage: ./FeatureDetection ../../runconfigs/runconfig.config" << endl << endl;
 }
 
+
+
 int main (int argc, char *argv[]) {
     pcl::PointCloud<PointType>::Ptr scene(new pcl::PointCloud<PointType>());
     vector<PointType> sniffPoints;
@@ -28,6 +30,7 @@ int main (int argc, char *argv[]) {
     vector< pair< string, int > > models;
     bool useRobot;
     bool useCamera;
+    string robotType = "file";
     string sceneFile, sceneConfig, cameraConfig;
     string cylConfig = "";
     string calType = "offset";
@@ -57,6 +60,7 @@ int main (int argc, char *argv[]) {
 
             if (name == "camera") useCamera = (value == "true");
             else if (name == "robot") useRobot = (value == "true");
+            else if (name == "robotType") robotType = value;
             else if (name == "cylConfig") cylConfig = value;
             else if (name == "sceneConfig") sceneConfig = value;
             else if (name == "sceneFile") sceneFile = value;
@@ -87,7 +91,6 @@ int main (int argc, char *argv[]) {
         cerr << "Couldn't open config file for reading.\n";
     }
     cFile.close();
-    cout << useRobot << " " << useCamera << endl;
 
     // Init robot
     if (useRobot) {
@@ -103,7 +106,11 @@ int main (int argc, char *argv[]) {
                     calibration.push_back(atof(line.c_str()));
                 }
             }
-            pointsToRobot = new PointsToRobot(calibration, false);
+            if (robotType == "socket") {
+                pointsToRobot = new PointsToRobot(calibration, false);
+            } else if (robotType == "file") {
+                pointsToRobot = new PointsToRobot(calibration, false, "../../txt/points.txt");
+            }
 
         } else if (calType == "transform") {
             ifstream calFile(calFilename);
@@ -124,10 +131,14 @@ int main (int argc, char *argv[]) {
                     }
                 }
             }
-            pointsToRobot = new PointsToRobot(transform, true);
+            if (robotType == "socket") {
+                pointsToRobot = new PointsToRobot(transform, true);
+                pointsToRobot->WaitForHome();
+            } else if (robotType == "file") {
+                pointsToRobot = new PointsToRobot(transform, true, "../../txt/points.txt");
+            }
         }
         
-        pointsToRobot->WaitForHome();
     }
 
 
@@ -171,7 +182,11 @@ int main (int argc, char *argv[]) {
             obj->SwitchView();
             sniffPoints.push_back(p1);
             if (useRobot) {
-                moveRobot = thread(&PointsToRobot::SendPoints, pointsToRobot, sniffPoints);
+                if (robotType == "file") {
+                    pointsToRobot->PointsToFile(sniffPoints, false);
+                } else if(robotType == "socket") {
+                    moveRobot = thread(&PointsToRobot::SendPoints, pointsToRobot, sniffPoints); // move to endcap in seperate thread during detection
+                }
             }
         }
 
@@ -180,10 +195,14 @@ int main (int argc, char *argv[]) {
 
         sniffPoints = obj->Detect();
         obj->SwitchView();
-        if(useRobot && findCylinder) moveRobot.join();
 
         if (useRobot) {
-            pointsToRobot->SendPoints(sniffPoints);
+            if (robotType == "socket") {
+                if (findCylinder) moveRobot.join(); // join endcap move thread
+                pointsToRobot->SendPoints(sniffPoints);
+            } else if (robotType == "file") {
+                pointsToRobot->PointsToFile(sniffPoints, true);
+            }
         }
             
         Sleep(10000);

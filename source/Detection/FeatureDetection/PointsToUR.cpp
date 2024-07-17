@@ -100,7 +100,6 @@ void PointsToUR::StartRobot() {
     struct addrinfo* result = NULL,
         * ptr = NULL,
         hints;
-    const char* sendbuf = "this is a test";
     char recvbuf[DEFAULT_BUFLEN];
     int iResult;
     int recvbuflen = DEFAULT_BUFLEN;
@@ -155,10 +154,9 @@ void PointsToUR::StartRobot() {
         return;
     }
 
-    sendbuf = "load socket.urp";
 
     // Send an initial buffer
-    iResult = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
+    iResult = send(ConnectSocket, startCommand.c_str(), startCommand.size(), 0);
     if (iResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(ConnectSocket);
@@ -262,7 +260,7 @@ void PointsToUR::TransformPoints(std::vector<PointType>& points) {
 
 void PointsToUR::SendPoints(std::vector<PointType> points) {
 
-    TransformPoints(points);
+    TransformPoints(points); // replace with robot mounted camera point translation
 
     int iSendResult;
     char recvbuf[DEFAULT_BUFLEN];
