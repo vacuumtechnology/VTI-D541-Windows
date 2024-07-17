@@ -36,16 +36,40 @@ void pointPickingEventOccurred(const pcl::visualization::PointPickingEvent& even
     std::cout << "Point ( " << x << ", " << y << ", " << z << ")" << std::endl;
 }
 
+Eigen::Matrix3f rotationVectorToRotationMatrix(const Eigen::Vector3f& rotationVector)
+{
+    Eigen::AngleAxisf axisAngle(rotationVector.norm(), rotationVector.normalized());
+    return axisAngle.toRotationMatrix();
+}
+
+Eigen::Matrix4f createRobotMatrix(float x, float y, float z, float rx, float ry, float rz) {
+    Eigen::Vector3f r(rx, ry, rz);
+    Eigen::Matrix3f rm = rotationVectorToRotationMatrix(r);
+    Eigen::Matrix4f m{
+        {rm(0,0), rm(0,1), rm(0,2), x},
+        {rm(1,0), rm(1,1), rm(1,2), y},
+        {rm(2,0), rm(2,1), rm(2,2), z},
+        {0, 0, 0, 1},
+    };
+    return m;
+}
+
 int main(int argc, char** argv)
 {
-    std::string pointCloudFile, calFilename;
+    std::string pointCloudFile, calFilename, flag;
     Eigen::Matrix4f transform;
+    bool eyeinhand = false;
+    float x, y, z, rx, ry, rz;
 
     try
     {
         if (argc > 2) {
             pointCloudFile = argv[1];
             calFilename = argv[2];
+            if (argc > 3) {
+                flag = argv[3];
+                if (flag == "-eih") eyeinhand = true;
+            }
         } else {
             cout << "bad args" << endl;
             exit(0);
@@ -80,6 +104,25 @@ int main(int argc, char** argv)
         pcl::io::loadPCDFile<pcl::PointXYZRGB>(pointCloudFile, *pointCloudPCL);
         std::cout << "Loaded " << pointCloudPCL->width * pointCloudPCL->height << " points" << std::endl;
         std::cout << "width: " << pointCloudPCL->width << " points" << std::endl;
+
+        if (eyeinhand) {
+            cout << "Enter robot pose\nx: ";
+            cin >> x;
+            cout << "y: ";
+            cin >> y;
+            cout << "z: ";
+            cin >> z;
+            cout << "rx: ";
+            cin >> rx;
+            cout << "ry: ";
+            cin >> ry;
+            cout << "rz: ";
+            cin >> rz;
+
+            Eigen::Matrix4f m = createRobotMatrix(x, y, z, rx, ry, rz);
+
+            transform = m * transform;
+        }
 
 
 

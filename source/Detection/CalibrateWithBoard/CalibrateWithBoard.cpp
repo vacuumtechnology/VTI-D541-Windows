@@ -178,6 +178,7 @@ int main()
         size_t currentPoseId{ 0 };
         bool calibrate{ false };
         std::vector<Zivid::Calibration::HandEyeInput> handEyeInput;
+        Zivid::Settings s = Zivid::Settings("C:\\Users\\VTI\\Downloads\\calibration_board_detection_settings.yml");
         do
         {
             switch(enterCommand())
@@ -188,7 +189,7 @@ int main()
                     {
                         const auto robotPose = enterRobotPose(currentPoseId);
 
-                        const auto frame = assistedCapture(camera);
+                        const auto frame = camera.capture(s);
 
                         std::cout << "Detecting checkerboard in point cloud" << std::endl;
                         const auto detectionResult = Zivid::Calibration::detectFeaturePoints(frame.pointCloud());
