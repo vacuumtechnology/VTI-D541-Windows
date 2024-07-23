@@ -39,9 +39,9 @@ public:
 
 	void WaitForHome();
 
-	void SendPoints(std::vector<PointType> points);
+	void SendPoints(std::vector<std::pair<PointType, Eigen::Matrix3f>> points);
 
-	void PointsToFile(std::vector<PointType> points, bool append);
+	void PointsToFile(std::vector<std::pair<PointType, Eigen::Matrix3f>>, bool append);
 
 private:
 	bool useTransform; // true to use transform from calibration board, false to use vector from cal.txt file
@@ -57,7 +57,7 @@ private:
 	std::vector<float> transformVector;
 
 	void ConnectToSocket();
-	void TransformPoints(std::vector<PointType>& points);
+	void TransformPoints(std::vector<std::pair<PointType, Eigen::Matrix3f>>& points);
 	char *IntToBytes(int msg[]);
 };
 

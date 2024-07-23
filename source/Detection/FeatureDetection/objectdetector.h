@@ -96,7 +96,7 @@ class ObjectDetector {
         void ProcessScene();
         void ProcessSceneCylinder();
         void LoadModel(std::string modelFile, int occurences);
-        std::vector<PointType> Detect();
+        std::vector<std::pair<PointType, Eigen::Matrix3f>> Detect();
         PointType DetectCylinder();
         int VisualizeResults();
         void SortMatches(ModelGroup* modGroup);
@@ -143,7 +143,7 @@ class ObjectDetector {
         std::multimap<size_t, Match*>::reverse_iterator it;
         std::multimap<size_t, Match*>::reverse_iterator it2;
 
-        std::vector<PointType> sniffPoints;
+        std::vector<std::pair<PointType, Eigen::Matrix3f>> sniffPoints;
         pcl::PointCloud<PointType>::Ptr sniffPointCloud;
 
         // Scene params
