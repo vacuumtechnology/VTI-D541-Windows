@@ -66,7 +66,7 @@ void PointsToRobot::TransformPoints(std::vector<std::pair<PointType, Eigen::Matr
             }
         }
 
-        /*float factor = 1.006;
+        float factor = 1.006;
         for (int i = 0; i < points.size(); i++) {
             points[i].first.x *= factor;
             points[i].first.y *= factor;
@@ -113,7 +113,7 @@ void PointsToRobot::PointsToFile(std::vector<std::pair<PointType, Eigen::Matrix3
     for (int i = 0; i < points.size(); i++) {
         myfile << points[i].first.x << "," << points[i].first.y << "," << points[i].first.z;
         Eigen::Vector3f rotationVector = points[i].second.eulerAngles(2, 1, 0);
-        myfile << ", " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2] << std::endl;
+        myfile << ", " << rotationVector[0] << "," << rotationVector[1] << "," << rotationVector[2] << std::endl;
     }
 
     myfile.close();
