@@ -56,7 +56,7 @@ void PointsToRobot::WaitForHome() {
     iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 }
 
-void PointsToRobot::TransformPoints(std::vector<PointType> &points){
+void PointsToRobot::TransformPoints(std::vector<std::pair<PointType, Eigen::Matrix3f>>&points){
     if (useTransform) {
         Eigen::Matrix4f transform;
 
@@ -68,41 +68,40 @@ void PointsToRobot::TransformPoints(std::vector<PointType> &points){
 
         float factor = 1.006;
         for (int i = 0; i < points.size(); i++) {
-            points[i].x *= factor;
-            points[i].y *= factor;
-            points[i].z *= factor;
+            points[i].first.x *= factor;
+            points[i].first.y *= factor;
+            points[i].first.z *= factor;
         }
 
         // put points in cloud so transformation matrix can be used
         pcl::PointCloud<PointType> pickCloud;
         for (int i = 0; i < points.size(); i++) {
-            pickCloud.push_back(points[i]);
+            std::cout << points[i].first.x << std::endl;
+            pickCloud.push_back(points[i].first);
         }
         pcl::transformPointCloud(pickCloud, pickCloud, transform); // transform to robot base frame
-        points.clear();
 
         // store back in vector
         for (int i = 0; i < pickCloud.points.size(); i++) {
-            points.push_back(pickCloud.points[i]);
+            points[i].first = pickCloud.points[i]; // not sure if this works, need to check if points in cloud are in same order they are added
         }
         for (int i = 0; i < points.size(); i++) {
-            points[i].x = (int)(points[i].x * 10);
-            points[i].y = (int)(points[i].y * 10);
-            points[i].z = (int)(points[i].z * 10); // CHECK IF -z IS UP OR DOWN
-            std::cout << "transformed point: " << points[i].x << " " << points[i].y << " " << points[i].z << std::endl;
+            points[i].first.x = (int)(points[i].first.x * 10);
+            points[i].first.y = (int)(points[i].first.y * 10);
+            points[i].first.z = (int)(points[i].first.z * 10); // CHECK IF -z IS UP OR DOWN
+            std::cout << "transformed point: " << points[i].first.x << " " << points[i].first.y << " " << points[i].first.z << std::endl;
         }
     } else {
         for (int i = 0; i < points.size(); i++) {
-            points[i].x = (int)((-1 * points[i].x) + xOffset) * 10;
-            points[i].y = (int)(points[i].y + yOffset) * 10;
-            points[i].z = (int)(((-1 * points[i].z) + zOffset) + 2) * 10; // CHECK IF -z IS UP OR DOWN
-            std::cout << "transformed point: " << points[i].x << " " << points[i].y << " " << points[i].z << std::endl;
+            points[i].first.x = (int)((-1 * points[i].first.x) + xOffset) * 10;
+            points[i].first.y = (int)(points[i].first.y + yOffset) * 10;
+            points[i].first.z = (int)(((-1 * points[i].first.z) + zOffset) + 2) * 10; // CHECK IF -z IS UP OR DOWN
+            std::cout << "transformed point: " << points[i].first.x << " " << points[i].first.y << " " << points[i].first.z << std::endl;
         }
-        
     }
 }
 
-void PointsToRobot::PointsToFile(std::vector<PointType> points, bool append) {
+void PointsToRobot::PointsToFile(std::vector<std::pair<PointType, Eigen::Matrix3f>> points, bool append) {
     std::ofstream myfile;
     std::string filename = "../../txt/points.txt";
     if (append) {
@@ -113,13 +112,15 @@ void PointsToRobot::PointsToFile(std::vector<PointType> points, bool append) {
     }
 
     for (int i = 0; i < points.size(); i++) {
-        myfile << points[i].x << "," << points[i].y << "," << points[i].z << std::endl;
+        myfile << points[i].first.x << "," << points[i].first.y << "," << points[i].first.z;
+        Eigen::Vector3f rotationVector = points[i].second.eulerAngles(2, 1, 0);
+        myfile << ", " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2] << std::endl;
     }
 
     myfile.close();
 }
 
-void PointsToRobot::SendPoints(std::vector<PointType> points) {
+void PointsToRobot::SendPoints(std::vector<std::pair<PointType, Eigen::Matrix3f>> points) {
     std::cout << "SendPoints called" << std::endl;
 
     TransformPoints(points);
@@ -145,7 +146,7 @@ void PointsToRobot::SendPoints(std::vector<PointType> points) {
         if (responseStr != resend) {
             ind++;
             if (ind >= points.size()) break;
-            point = points[ind];
+            point = points[ind].first;
             msg[0] = 111;
             msg[1] = (int)point.x;
             msg[2] = (int)point.y;

@@ -23,7 +23,7 @@ showHelp(char* filename)
 
 int main (int argc, char *argv[]) {
     pcl::PointCloud<PointType>::Ptr scene(new pcl::PointCloud<PointType>());
-    vector<PointType> sniffPoints;
+    vector<pair<PointType, Eigen::Matrix3f>> sniffPoints;
     PointsToRobot* pointsToRobot;
     Capturer* capturer;
     string modelPath = "../../pcd/";
@@ -179,8 +179,13 @@ int main (int argc, char *argv[]) {
         if (findCylinder) {
             obj->ProcessSceneCylinder();
             PointType p1 = obj->DetectCylinder();
+            Eigen::Matrix3f r{
+                {0, 0, 0},
+                {0, 0, 0},
+                {0, 0, 0}
+            };
             obj->SwitchView();
-            sniffPoints.push_back(p1);
+            sniffPoints.push_back(make_pair(p1, r));
             if (useRobot) {
                 if (robotType == "file") {
                     pointsToRobot->PointsToFile(sniffPoints, false);

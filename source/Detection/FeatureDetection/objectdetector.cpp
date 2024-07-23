@@ -719,7 +719,8 @@ bool ObjectDetector::DetermineBestMatches(ModelGroup* modGroup) {
     i = 0;
     for (it = modGroup->bestMatches.rbegin(); it != modGroup->bestMatches.rend(); it++) {
         for (int j = 0; j < it->second->transformedPickPoints->points.size(); j++) {
-            sniffPoints.push_back(it->second->transformedPickPoints->points[j]);
+            Eigen::Matrix3f m = it->second->rototranslation.block<3, 3>(0, 0);
+            sniffPoints.push_back(std::make_pair(it->second->transformedPickPoints->points[j], m));
         }
         *sniffPointCloud += *it->second->transformedPickPoints;
 
@@ -757,14 +758,14 @@ void ObjectDetector::PrintInstances() {
     }
     std::cout << "Pick Points: " << endl;
     for (int i = 0; i < sniffPoints.size(); i++) {
-        cout << sniffPoints[i].x << " " << sniffPoints[i].y << " " << sniffPoints[i].z << endl;
+        cout << sniffPoints[i].first.x << " " << sniffPoints[i].first.y << " " << sniffPoints[i].first.z << endl;
     }
 }
 
 //
 //  Loops through modelGroups and detects instances of them
 //
-std::vector<PointType> ObjectDetector::Detect(){
+std::vector<std::pair<PointType, Eigen::Matrix3f>> ObjectDetector::Detect(){
 
     std::cout << "groups: " << modelGroups.size() << std::endl;
     for(int i = 0; i < modelGroups.size(); i++){
@@ -828,7 +829,7 @@ PointType ObjectDetector::DetectCylinder() {
     while (true) {
         // Obtain the cylinder inliers and coefficients
         seg.segment(*inliers_cylinder, *coefficients_cylinder);
-        //std::cerr << "Cylinder coefficients: " << *coefficients_cylinder << std::endl;
+        std::cerr << "Cylinder coefficients: " << *coefficients_cylinder << std::endl;
 
         // Write the cylinder inliers to disk
         extract.setInputCloud(scene_keypoints);
@@ -841,11 +842,15 @@ PointType ObjectDetector::DetectCylinder() {
             i++;
         } else break;
     }
-        
 
-    // Sort cylinder points by position on x axis
+    // Point on one end of the cylinder model from cylinder coefficients
+    PointType p1 = PointType(coefficients_cylinder->values[0], coefficients_cylinder->values[1], coefficients_cylinder->values[2]);
+
+    // Sort cylinder points by distance from p1
     for (int i = 0; i < cloud_cylinder->points.size(); i++) {
-        cyl_map.insert(std::make_pair(cloud_cylinder->points[i].x, cloud_cylinder->points[i]));
+        PointType p2 = cloud_cylinder->points[i];
+        float dist = sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2) + pow(p1.z - p2.z, 2));
+        cyl_map.insert(std::make_pair(dist, cloud_cylinder->points[i]));
     }
 
     // Sort 50 least x points by z value
@@ -854,21 +859,38 @@ PointType ObjectDetector::DetectCylinder() {
     int c = 0;
     for (it2 = cyl_map.rbegin(); it2 != cyl_map.rend(); it2++) {
         cyl_edge_map.insert(std::make_pair(it2->second.z, it2->second));
+        cout << "dist: " << it2->first << endl;
         //    std::cout << "x: " << it->second.x << " y: " << it->second.y << " z: " << it->second.z << std::endl;
         if (c >= 49) break;
         c++;
     }
+    
 
+    // Subtract radius from z val of point to get point on opposite end of cylinder
+    PointType p2 = cyl_edge_map.begin()->second;
+    p2.z += coefficients_cylinder->values[6];
 
-    // Subtract radius from z val of point to (hopefully) get center of cylinder endcap
     // Offset pick point 10 units away from end of manifold
-    PointType p = cyl_edge_map.begin()->second;
-    p.z += coefficients_cylinder->values[6];
-    p.x += 10;
-    //sniffPoints.push_back(p);
-    sniffPointCloud->push_back(p);
+    p2.x += 10 * coefficients_cylinder->values[3];
+    p2.y += 10 * coefficients_cylinder->values[4];
+    p2.z += 10 * coefficients_cylinder->values[5];
 
-    return p;
+    p1.x -= 10 * coefficients_cylinder->values[3];
+    p1.y -= 10 * coefficients_cylinder->values[4];
+    p1.z -= 10 * coefficients_cylinder->values[5];
+
+    pcl::search::KdTree<PointType> tree;
+    tree.setInputCloud(scene_keypoints);
+    pcl::Indices ind;
+    std::vector<float> sdfa;
+    int p1Neighbors = tree.radiusSearch(p1, 20, ind, sdfa, 0);
+    int p2Neighbors = tree.radiusSearch(p2, 20, ind, sdfa, 0);
+    cout << "p1: " << p1Neighbors << " p2: " << p2Neighbors << endl;
+
+    //sniffPointCloud->push_back(p2);
+    sniffPointCloud->push_back(p1);
+
+    return p2;
 }
 
 // Switch from scene preview to results view
