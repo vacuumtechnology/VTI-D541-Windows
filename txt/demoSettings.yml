@@ -1,0 +1,86 @@
+__version__:
+  serializer: 1
+  data: 24
+Settings:
+  Acquisitions:
+    - Acquisition:
+        Aperture: 3.17067208022297
+        Brightness: 1.8
+        ExposureTime: 1677
+        Gain: 1.01158478103431
+    - Acquisition:
+        Aperture: 10.9200983293318
+        Brightness: 1.78185258394114
+        ExposureTime: 1677
+        Gain: 1
+    - Acquisition:
+        Aperture: 2
+        Brightness: 1.8
+        ExposureTime: 5031
+        Gain: 1.61092221514788
+  Diagnostics:
+    Enabled: no
+  Engine: phase
+  Processing:
+    Color:
+      Balance:
+        Blue: 1
+        Green: 1
+        Red: 1
+      Experimental:
+        Mode: automatic
+      Gamma: 1
+    Filters:
+      Cluster:
+        Removal:
+          Enabled: yes
+          MaxNeighborDistance: 10
+          MinArea: 100
+      Experimental:
+        ContrastDistortion:
+          Correction:
+            Enabled: yes
+            Strength: 0.3
+          Removal:
+            Enabled: no
+            Threshold: 0.2
+      Hole:
+        Repair:
+          Enabled: no
+          HoleSize: 0.2
+          Strictness: 2
+      Noise:
+        Removal:
+          Enabled: yes
+          Threshold: 5
+        Repair:
+          Enabled: no
+        Suppression:
+          Enabled: no
+      Outlier:
+        Removal:
+          Enabled: yes
+          Threshold: 10
+      Reflection:
+        Removal:
+          Enabled: yes
+          Mode: global
+      Smoothing:
+        Gaussian:
+          Enabled: yes
+          Sigma: 1
+    Resampling:
+      Mode: disabled
+  RegionOfInterest:
+    Box:
+      Enabled: yes
+      Extents: [20, 80]
+      PointA: [-264.598175, 176.011765, 587.753662]
+      PointB: [293.82959, -166.568787, 611.600952]
+      PointO: [-305.597534, -184.474152, 566.74292]
+    Depth:
+      Enabled: no
+      Range: [300, 1500]
+  Sampling:
+    Color: rgb
+    Pixel: all
