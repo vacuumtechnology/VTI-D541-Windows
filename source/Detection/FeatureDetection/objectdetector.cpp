@@ -885,7 +885,7 @@ int ObjectDetector::VisualizeResults() {
     viewer->setBackgroundColor(.3, .3, .3);
     viewer->setCameraPosition(0, 0, -50, 0, -1, 0);
 
-    while (true) {
+    //while (true) {
 
         // Show just scene cloud
         viewer->addPointCloud(scene, "scene_cloud");
@@ -934,7 +934,7 @@ int ObjectDetector::VisualizeResults() {
                 std::stringstream ss_cloud2;
                 ss_cloud2 << "pickpoints" << i << "." << c;
 
-                pcl::visualization::PointCloudColorHandlerCustom<PointType> rotated_model_color_handler(rotated_model, 190, 190, 49);
+                pcl::visualization::PointCloudColorHandlerCustom<PointType> rotated_model_color_handler(rotated_model, 255, 0, 0);
                 viewer->addPointCloud(rotated_model, rotated_model_color_handler, ss_cloud.str());
                 viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, ss_cloud.str());
 
@@ -949,7 +949,7 @@ int ObjectDetector::VisualizeResults() {
         }
         switchScene = false;
         viewer->removeAllPointClouds();
-    }
+    //}
     
     return 1;
 }

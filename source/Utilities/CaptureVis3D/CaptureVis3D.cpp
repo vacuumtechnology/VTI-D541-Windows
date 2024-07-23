@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
     }
     cout << "here" << endl;
 
-    Capturer capturer("../../txt/defaultset.yml");
+    Capturer capturer("../../txt/demoSettings.yml");
     cout << "here" << endl;
     auto cloud = capturer.Capture();
     cout << "here" << endl;

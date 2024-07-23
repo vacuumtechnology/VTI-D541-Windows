@@ -154,6 +154,9 @@ int main (int argc, char *argv[]) {
         // Capture scene cloud
         capturer = new Capturer(cameraConfig);
         scene = capturer->Capture();
+
+        // Save the captured point cloud
+        pcl::io::savePCDFileBinary("../../pcd/capturedScene.pcd", *scene);
     }
 
     // Object Detector init
@@ -173,7 +176,7 @@ int main (int argc, char *argv[]) {
     thread sceneViewer(&ObjectDetector::VisualizeResults, obj); // Visualization thread
     thread moveRobot; // Robot Communication thread
 
-    while (1) {
+    //while (1) {
         obj->LoadScene(scene);
 
         if (findCylinder) {
@@ -205,17 +208,17 @@ int main (int argc, char *argv[]) {
             }
         }
             
-        Sleep(10000);
+        //Sleep(5000);
         
 
-        obj->ResetAllModels();
+        /*obj->ResetAllModels();
         sniffPoints.clear();
         if (useCamera) {
             scene.reset(new pcl::PointCloud<PointType>());
             scene = capturer->Capture();
         }
-        obj->SwitchView();
-    }
+        obj->SwitchView();*/
+    //}
     
 
     sceneViewer.join();

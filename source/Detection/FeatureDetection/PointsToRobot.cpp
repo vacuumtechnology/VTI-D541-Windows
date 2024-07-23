@@ -66,12 +66,12 @@ void PointsToRobot::TransformPoints(std::vector<PointType> &points){
             }
         }
 
-        float factor = 1.006;
+        /*float factor = 1.006;
         for (int i = 0; i < points.size(); i++) {
             points[i].x *= factor;
             points[i].y *= factor;
             points[i].z *= factor;
-        }
+        }*/
 
         // put points in cloud so transformation matrix can be used
         pcl::PointCloud<PointType> pickCloud;
@@ -105,12 +105,11 @@ void PointsToRobot::TransformPoints(std::vector<PointType> &points){
 void PointsToRobot::PointsToFile(std::vector<PointType> points, bool append) {
     std::ofstream myfile;
     std::string filename = "../../txt/points.txt";
-    if (append) {
+    /*if (append) {
         myfile.open(filename, std::ofstream::out | std::ofstream::app);
-    } else {
+    } else {*/
         myfile.open(filename, std::ofstream::out);
-        myfile.clear();
-    }
+    //}
 
     for (int i = 0; i < points.size(); i++) {
         myfile << points[i].x << "," << points[i].y << "," << points[i].z << std::endl;
