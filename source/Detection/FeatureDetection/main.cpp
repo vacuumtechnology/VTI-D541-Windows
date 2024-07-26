@@ -28,8 +28,8 @@ int main (int argc, char *argv[]) {
     Capturer* capturer;
     string modelPath = "../../pcd/";
     vector< pair< string, int > > models;
-    bool useRobot;
-    bool useCamera;
+    bool useRobot = false;
+    bool useCamera = false;
     string robotType = "file";
     string sceneFile, sceneConfig, cameraConfig;
     string cylConfig = "";
@@ -37,6 +37,7 @@ int main (int argc, char *argv[]) {
     string calFilename = "../../txt/cal.txt";
     vector<float> transform;
     bool findCylinder = false;
+    bool continuous = false;
     
     if(argc < 2){
         showHelp(argv[0]);
@@ -60,6 +61,7 @@ int main (int argc, char *argv[]) {
 
             if (name == "camera") useCamera = (value == "true");
             else if (name == "robot") useRobot = (value == "true");
+            else if (name == "continuous") continuous = (value == "true");
             else if (name == "robotType") robotType = value;
             else if (name == "cylConfig") cylConfig = value;
             else if (name == "sceneConfig") sceneConfig = value;
@@ -173,10 +175,10 @@ int main (int argc, char *argv[]) {
         obj->LoadModel(modelPath + models[i].first, models[i].second);
     }
 
-    thread sceneViewer(&ObjectDetector::VisualizeResults, obj); // Visualization thread
+    thread sceneViewer(&ObjectDetector::VisualizeResults, obj, continuous); // Visualization thread
     thread moveRobot; // Robot Communication thread
 
-    //while (1) {
+    while (1) {
         obj->LoadScene(scene);
 
         if (findCylinder) {
@@ -209,21 +211,23 @@ int main (int argc, char *argv[]) {
                 if (findCylinder) moveRobot.join(); // join endcap move thread
                 pointsToRobot->SendPoints(sniffPoints);
             } else if (robotType == "file") {
-                pointsToRobot->PointsToFile(sniffPoints, true);
+                pointsToRobot->PointsToFile(sniffPoints, findCylinder); // append to file if cylinder pick point is already in file
             }
         }
+
+        if (!continuous) break;
             
-        //Sleep(5000);
+        Sleep(5000);
         
 
-        /*obj->ResetAllModels();
+        obj->ResetAllModels();
         sniffPoints.clear();
         if (useCamera) {
             scene.reset(new pcl::PointCloud<PointType>());
             scene = capturer->Capture();
         }
-        obj->SwitchView();*/
-    //}
+        obj->SwitchView();
+    }
     
 
     sceneViewer.join();

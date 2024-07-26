@@ -901,13 +901,13 @@ void ObjectDetector::SwitchView() {
 //
 //  Visualization
 //
-int ObjectDetector::VisualizeResults() {
+int ObjectDetector::VisualizeResults(bool continuous) {
     viewer.reset(new pcl::visualization::PCLVisualizer("viewer"));
     viewer->setSize(900, 1000);
     viewer->setBackgroundColor(.3, .3, .3);
     viewer->setCameraPosition(0, 0, -50, 0, -1, 0);
 
-    //while (true) {
+    while (true) {
 
         // Show just scene cloud
         viewer->addPointCloud(scene, "scene_cloud");
@@ -971,7 +971,7 @@ int ObjectDetector::VisualizeResults() {
         }
         switchScene = false;
         viewer->removeAllPointClouds();
-    //}
+    }
     
     return 1;
 }

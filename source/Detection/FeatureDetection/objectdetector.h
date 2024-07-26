@@ -98,7 +98,7 @@ class ObjectDetector {
         void LoadModel(std::string modelFile, int occurences);
         std::vector<std::pair<PointType, Eigen::Matrix3f>> Detect();
         PointType DetectCylinder();
-        int VisualizeResults();
+        int VisualizeResults(bool continuous);
         void SortMatches(ModelGroup* modGroup);
         void ResetAllModels();
         pcl::PointCloud<PointType>::Ptr scene_keypoints;

@@ -83,7 +83,7 @@ void PointsToRobot::TransformPoints(std::vector<std::pair<PointType, Eigen::Matr
 
         // store back in vector
         for (int i = 0; i < pickCloud.points.size(); i++) {
-            points[i].first = pickCloud.points[i]; // not sure if this works, need to check if points in cloud are in same order they are added
+            points[i].first = pickCloud.points[i]; // TODO: not sure if this works, need to check if points in cloud are in same order they are added
         }
         for (int i = 0; i < points.size(); i++) {
             points[i].first.x = (int)(points[i].first.x * 10);
@@ -104,16 +104,16 @@ void PointsToRobot::TransformPoints(std::vector<std::pair<PointType, Eigen::Matr
 void PointsToRobot::PointsToFile(std::vector<std::pair<PointType, Eigen::Matrix3f>> points, bool append) {
     std::ofstream myfile;
     std::string filename = "../../txt/points.txt";
-    /*if (append) {
+    if (append) {
         myfile.open(filename, std::ofstream::out | std::ofstream::app);
-    } else {*/
+    } else {
         myfile.open(filename, std::ofstream::out);
-    //}
+    }
 
     for (int i = 0; i < points.size(); i++) {
         myfile << points[i].first.x << "," << points[i].first.y << "," << points[i].first.z;
         Eigen::Vector3f rotationVector = points[i].second.eulerAngles(2, 1, 0);
-        myfile << ", " << rotationVector[0] << "," << rotationVector[1] << "," << rotationVector[2] << std::endl;
+        myfile << "," << rotationVector[0] << "," << rotationVector[1] << "," << rotationVector[2] << std::endl;
     }
 
     myfile.close();
