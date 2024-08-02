@@ -44,6 +44,7 @@ set(PROGRAMS
     Utilities/ColorFilter
     Utilities/KeypointTest
     Utilities/Downscale
+    Utilities/URTest
     Camera/Stitch
     )
 
@@ -72,6 +73,7 @@ find_package(
     REQUIRED)
 find_package(Threads REQUIRED)
 
+find_package(ur_rtde REQUIRED)
 
 find_package(PCL 1.2)
 if(NOT PCL_FOUND)
@@ -111,6 +113,8 @@ foreach(PROGRAM ${PROGRAMS})
     target_include_directories(${PROGRAM_NAME} SYSTEM PRIVATE ${PCL_INCLUDE_DIRS})
 
     target_link_libraries(${PROGRAM_NAME} Threads::Threads)
+
+    target_link_libraries(${PROGRAM_NAME} ur_rtde::rtde)
 
 #    include_directories(${PROGRAM_NAME} ${RS_INCLUDE_DIR})
 #    target_link_libraries(${PROGRAM_NAME} ${REALSENSE2_FOUND})
