@@ -5,6 +5,7 @@
 #include "objectdetector.h"
 #include "Capturer.h"
 #include "PointsToRobot.h"
+#include "PointsToUR.h"
 #include <Windows.h>
 #include <vector>
 #include <thread>
@@ -25,6 +26,7 @@ int main (int argc, char *argv[]) {
     pcl::PointCloud<PointType>::Ptr scene(new pcl::PointCloud<PointType>());
     vector<pair<PointType, Eigen::Matrix3f>> sniffPoints;
     PointsToRobot* pointsToRobot;
+    PointsToUR* pointsToUR;
     Capturer* capturer;
     string modelPath = "../../pcd/";
     vector< pair< string, int > > models;
@@ -112,6 +114,9 @@ int main (int argc, char *argv[]) {
                 pointsToRobot = new PointsToRobot(calibration, false);
             } else if (robotType == "file") {
                 pointsToRobot = new PointsToRobot(calibration, false, "../../txt/points.txt");
+            } else {
+                cerr << "ERROR: Invalid Robot Type" << endl;
+                exit(0);
             }
 
         } else if (calType == "transform") {
@@ -138,6 +143,8 @@ int main (int argc, char *argv[]) {
                 pointsToRobot->WaitForHome();
             } else if (robotType == "file") {
                 pointsToRobot = new PointsToRobot(transform, true, "../../txt/points.txt");
+            } else if (robotType == "ur") {
+                pointsToUR = new PointsToUR(transform);
             }
         }
         
@@ -196,6 +203,8 @@ int main (int argc, char *argv[]) {
                     pointsToRobot->PointsToFile(sniffPoints, false);
                 } else if(robotType == "socket") {
                     moveRobot = thread(&PointsToRobot::SendPoints, pointsToRobot, sniffPoints); // move to endcap in seperate thread during detection
+                } else if (robotType == "ur") {
+                    moveRobot = thread(&PointsToUR::SendPoints, pointsToUR, sniffPoints);
                 }
             }
         }
@@ -212,6 +221,8 @@ int main (int argc, char *argv[]) {
                 pointsToRobot->SendPoints(sniffPoints);
             } else if (robotType == "file") {
                 pointsToRobot->PointsToFile(sniffPoints, findCylinder); // append to file if cylinder pick point is already in file
+            } else if (robotType == "ur") {
+                pointsToRobot->SendPoints(sniffPoints);
             }
         }
 

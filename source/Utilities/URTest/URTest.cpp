@@ -64,7 +64,6 @@ int main(int argc, char* argv[])
     std::vector<double> actual_tcp_pose = rtde_receive.getActualTCPPose();
     std::vector<double> init_pose = getCircleTarget(actual_tcp_pose, time_counter);
     rtde_control.moveL(init_pose, vel, acc);
-
     try
     {
         while (running)

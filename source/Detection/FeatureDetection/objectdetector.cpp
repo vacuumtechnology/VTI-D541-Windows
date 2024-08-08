@@ -949,7 +949,6 @@ int ObjectDetector::VisualizeResults(bool continuous) {
                 Model* mod = it->second->model;
                 pcl::PointCloud<PointType>::Ptr rotated_model = it->second->rotated_model;
 
-
                 std::stringstream ss_cloud;
                 ss_cloud << "instance" << i << "." << c;
 

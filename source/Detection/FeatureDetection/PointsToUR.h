@@ -1,41 +1,38 @@
+#include <ur_rtde/rtde_control_interface.h>
+#include <ur_rtde/rtde_receive_interface.h>
+#include <ur_rtde/rtde_io_interface.h>
+#include <thread>
+#include <chrono>
+#include <csignal>
+#include <cmath>
+#include <vector>
 #include <iostream>
 
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/common/transforms.h> 
-#include "PointsToRobot.h"
 
-#pragma comment (lib, "Ws2_32.lib")
-
-#define DEFAULT_BUFLEN 512
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 typedef pcl::PointXYZRGB PointType;
 
 class PointsToUR {
     public:
-        PointsToUR(std::vector<float> calibration, bool transform);
+        PointsToUR(std::vector<float> transform);
         ~PointsToUR();
-        void SendPoints(std::vector<PointType> points);
+        void SendPoints(std::vector<std::pair<PointType, Eigen::Matrix3f>> points);
     private:
-        void Reconnect();
-        void StartServer();
-        void StartRobot();
         void TransformPoints(std::vector<PointType>& points);
 
-        SOCKET ClientSocket = INVALID_SOCKET;
-        SOCKET ListenSocket = INVALID_SOCKET;
+        
         std::string port = "30000";
         char* robotIP = "192.168.1.205";
-        std::string startCommand = "load socket.urp"; // command sent to ur to start control program
-        int iResult;
+
+        ur_rtde::RTDEControlInterface* rtde_control;
+        ur_rtde::RTDEReceiveInterface* rtde_receive;
+
         bool useTransform; // true to use transform from calibration board, false to use vector from cal.txt file
         std::vector<PointType> transformedPoints;
         std::vector<float> transformVector;
@@ -45,4 +42,8 @@ class PointsToUR {
         float xFactor;
         float yFactor;
         float zFactor;
+
+        // Move parameters
+        double vel = 0.5;
+        double acc = 0.5;
 };
